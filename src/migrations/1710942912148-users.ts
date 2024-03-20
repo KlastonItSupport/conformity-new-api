@@ -19,6 +19,11 @@ export class Users1710942912148 implements MigrationInterface {
             type: 'varchar',
           },
           {
+            name: 'email',
+            type: 'varchar',
+            isUnique: true,
+          },
+          {
             name: 'password_hash',
             type: 'varchar',
           },
