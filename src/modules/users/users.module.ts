@@ -8,12 +8,12 @@ import { Company } from '../companies/entities/company.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Company, User]),
     JwtModule.register({
       global: true,
       secret: 'secret',
-      signOptions: { expiresIn: '3600s' },
+      signOptions: { expiresIn: '3600' },
     }),
-    TypeOrmModule.forFeature([Company, User]),
   ],
   providers: [UsersServices],
   controllers: [UsersController],

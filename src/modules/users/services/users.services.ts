@@ -5,7 +5,7 @@ import { User } from '../entities/users.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { AppError } from 'src/errors/app-error';
-import { CreateUserDto } from '../dtos/dtos';
+import { CreateUserDto, SignInDto, SignInResponse } from '../dtos/dtos';
 import { Company } from 'src/modules/companies/entities/company.entity';
 
 @Injectable()
@@ -49,5 +49,42 @@ export class UsersServices {
     await this.usersRepository.save(user);
 
     return user;
+  }
+
+  async signIn(signInData: SignInDto): Promise<SignInResponse> {
+    const user = await this.usersRepository.findOne({
+      where: { email: signInData.email },
+    });
+
+    if (!user) {
+      throw new AppError('An user with this email dont exist', 404);
+    }
+    const passwordMatchesHash = await bcrypt.compare(
+      signInData.password,
+      user.passwordHash,
+    );
+
+    if (!passwordMatchesHash) {
+      throw new AppError('Password incorrect', 400);
+    }
+
+    this.usersRepository.save(user);
+
+    return {
+      accessToken: await this.jwtService.signAsync(
+        {
+          ...signInData,
+          id: user.id,
+        },
+        {
+          expiresIn: process.env.JWT_EXPIRES_SECRET_TOKEN,
+          secret: process.env.JWT_SECRET_TOKEN,
+        },
+      ),
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      accessRule: user.accessRule,
+    };
   }
 }
