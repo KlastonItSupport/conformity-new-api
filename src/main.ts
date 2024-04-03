@@ -8,6 +8,6 @@ async function bootstrap() {
   await dataSource.initialize();
   await dataSource.runMigrations();
 
-  await app.listen(3000);
+  await app.listen(process.env.PORT);
 }
 bootstrap();
