@@ -15,6 +15,10 @@ export class CompanyTable1710941359546 implements MigrationInterface {
             default: 'CURRENT_TIMESTAMP',
           },
           {
+            name: 'name',
+            type: 'varchar',
+          },
+          {
             name: 'memory_limit',
             type: 'int',
           },

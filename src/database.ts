@@ -5,13 +5,6 @@ import * as dotenv from 'dotenv';
 
 export default class Database {
   static async build() {
-    console.log(` buildddd Configurações do Banco de Dados:
-    Host: ${process.env.DB_HOST} |
-    Porta: ${process.env.DB_PORT} |
-    Nome de Usuário: ${process.env.DB_USERNAME} |
-    Senha: ${process.env.DB_PASSWORD} |
-    Nome do Banco de Dados: ${process.env.DB_NAME} |
-    Tempo de Expiração do Token JWT: ${process.env.JWT_EXPIRES_SECRET_TOKEN} segundos`);
     return TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,
@@ -29,14 +22,6 @@ export default class Database {
   }
   static buildSettings(): DataSourceOptions {
     dotenv.config();
-
-    console.log(`Configurações do Banco de Dados:
-    Host: ${process.env.DB_HOST} |
-    Porta: ${process.env.DB_PORT} |
-    Nome de Usuário: ${process.env.DB_USERNAME} |
-    Senha: ${process.env.DB_PASSWORD} |
-    Nome do Banco de Dados: ${process.env.DB_NAME} |
-    Tempo de Expiração do Token JWT: ${process.env.JWT_EXPIRES_SECRET_TOKEN} segundos`);
 
     return {
       type: 'mysql',

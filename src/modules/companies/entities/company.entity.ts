@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('companies')
 export class Company {
@@ -11,6 +11,9 @@ export class Company {
     name: 'created_at',
   })
   createdAt: Date;
+
+  @Column({ name: 'name' })
+  name: string;
 
   @Column({ name: 'memory_limit' })
   memoryLimit: number;

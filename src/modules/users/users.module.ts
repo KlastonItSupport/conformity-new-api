@@ -11,8 +11,8 @@ import { Company } from '../companies/entities/company.entity';
     TypeOrmModule.forFeature([Company, User]),
     JwtModule.register({
       global: true,
-      secret: 'secret',
-      signOptions: { expiresIn: '3600' },
+      secret: process.env.JWT_SECRET_TOKEN,
+      signOptions: { expiresIn: process.env.JWT_EXPIRES_SECRET_TOKEN },
     }),
   ],
   providers: [UsersServices],
