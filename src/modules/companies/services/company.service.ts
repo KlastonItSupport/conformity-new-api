@@ -18,16 +18,17 @@ export class CompanyService {
   async isSuperAdmin(userId: string) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
-    if (user.accessRule != 'super-admin') {
-      throw new AppError('Unauthorized', 401);
-    }
+    return user.accessRule == 'super-admin';
   }
   async createCompany(companyPayload: CreateCompanyDto, userId: string) {
     const hasCompanyWithThisEmail = await this.companyRepository.findOne({
       where: { email: companyPayload.email },
     });
 
-    await this.isSuperAdmin(userId);
+    const isSuperAdmin = await this.isSuperAdmin(userId);
+    if (!isSuperAdmin) {
+      throw new AppError('Unauthorized', 401);
+    }
 
     if (hasCompanyWithThisEmail) {
       throw new AppError('An company with this email already exists', 409);
@@ -38,7 +39,27 @@ export class CompanyService {
   }
 
   async getCompanies(userId: string): Promise<Company[]> {
-    await this.isSuperAdmin(userId);
+    const isSuperAdmin = await this.isSuperAdmin(userId);
+    if (!isSuperAdmin) {
+      throw new AppError('Unauthorized', 401);
+    }
+
     return await this.companyRepository.find({ order: { createdAt: 'DESC' } });
+  }
+
+  async getCompanyUsers(companyId: string, userId: string) {
+    const isSuperAdmin = await this.isSuperAdmin(userId);
+    if (isSuperAdmin) {
+      return this.userRepository.find({ order: { createdAt: 'DESC' } });
+    }
+
+    if (!companyId) {
+      throw new AppError('You need to send an company id', 401);
+    }
+
+    return this.userRepository.find({
+      where: { companyId: companyId },
+      order: { createdAt: 'DESC' },
+    });
   }
 }

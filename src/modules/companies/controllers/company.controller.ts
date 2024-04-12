@@ -19,4 +19,13 @@ export class CompanyController {
   async getCompanies(@Req() req) {
     return await this.companyServices.getCompanies(req.user.id);
   }
+
+  @Get('get-users')
+  @UseGuards(AuthGuard)
+  async getCompanyUsers(@Req() req) {
+    return await this.companyServices.getCompanyUsers(
+      req.user.companyId,
+      req.user.id,
+    );
+  }
 }

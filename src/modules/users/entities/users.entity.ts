@@ -5,6 +5,13 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'created_at',
+  })
+  createdAt: Date;
+
   @Column({ name: 'company_id_fk' })
   companyId: string;
 
@@ -40,8 +47,4 @@ export class User {
 
   @Column()
   status: string;
-
-  //   @ManyToOne(() => Company, (company) => company.users)
-  //   @JoinColumn({ name: 'company_id_fk' })
-  //   company: Company;
 }

@@ -15,4 +15,7 @@ export class SignInResponse {
 
   @IsNotEmpty()
   accessRule: string;
+
+  @IsNotEmpty()
+  companyId: string;
 }

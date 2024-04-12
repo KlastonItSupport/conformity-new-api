@@ -18,7 +18,17 @@ export class UsersServices {
     private readonly jwtService: JwtService,
   ) {}
 
-  async createUser(userData: CreateUserDto): Promise<any> {
+  async isSuperUser(userId: string) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+
+    if (user.accessRule != 'super-user' && user.accessRule != 'super-admin') {
+      throw new AppError('This Access rule is not allowed to create user', 401);
+    }
+  }
+
+  async createUser(userData: CreateUserDto, userId: string): Promise<any> {
+    await this.isSuperUser(userId);
+
     const hasUserWithThisEmail = await this.usersRepository.findOne({
       where: { email: userData.email },
     });
@@ -75,6 +85,7 @@ export class UsersServices {
         {
           ...signInData,
           id: user.id,
+          companyId: user.companyId,
         },
         {
           expiresIn: process.env.JWT_EXPIRES_SECRET_TOKEN,
@@ -85,6 +96,7 @@ export class UsersServices {
       email: user.email,
       name: user.name,
       accessRule: user.accessRule,
+      companyId: user.companyId,
     };
   }
 }
