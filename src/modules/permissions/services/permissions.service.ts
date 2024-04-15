@@ -7,6 +7,7 @@ import {
   CreatePermissionDto,
   AllPermissionsDto,
   CreateGroupPermissionModule,
+  EditPermissionByGroupDto,
 } from '../dtos/dto';
 import { Groups } from '../entities/groups.entity';
 import { GroupModulePermission } from '../entities/group_module_permissions.entity';
@@ -230,5 +231,101 @@ export class PermissionsServices {
     );
 
     return await this.groupsRepository.remove(group);
+  }
+
+  async editGroupPermission(groupId: string, data: EditPermissionByGroupDto) {
+    const group = await this.groupsRepository.findOne({
+      where: { id: groupId },
+    });
+    if (!group) {
+      throw new AppError('Group not found', 404);
+    }
+
+    if (data.name && data.name != group.name) {
+      group.name = data.name;
+    }
+
+    if (data.permissions) {
+      group.permissions = data.permissions;
+    }
+
+    await this.groupsRepository.save(group);
+
+    await this.removePermissionsFromUsers(group.id);
+
+    await Promise.all(
+      data.users.map(async (userId) => {
+        if (userId) {
+          const user = await this.usersRepository.findOne({
+            where: { id: userId },
+          });
+
+          const userBelongsToThisCompany = user?.companyId === group.companyId;
+
+          if (!user || !userBelongsToThisCompany) {
+            return;
+          }
+        }
+
+        await this.createAllPermissionsToUser(
+          { ...data.permissions, userId: userId },
+          group.id,
+        );
+      }),
+    );
+
+    return group;
+  }
+
+  async removePermissionsFromUsers(groupId: string) {
+    const permissionFromThisGroup =
+      await this.groupModulePermissionRepository.find({ where: { groupId } });
+
+    await Promise.all(
+      permissionFromThisGroup.map(async (permission) => {
+        const permissionOnDb = await this.permissionsRepository.findOne({
+          where: { id: permission.id },
+        });
+
+        if (permissionOnDb) {
+          await this.permissionsRepository.remove(permissionOnDb);
+        }
+      }),
+    );
+
+    await this.groupModulePermissionRepository.remove(permissionFromThisGroup);
+  }
+
+  async getUsersFromGroup(groupId: string) {
+    const users = [];
+    const permissionFromThisGroup =
+      await this.groupModulePermissionRepository.find({ where: { groupId } });
+
+    if (!permissionFromThisGroup) {
+      throw new AppError('Group not found', 404);
+    }
+
+    await Promise.all(
+      permissionFromThisGroup.map(async (permissionGroup) => {
+        const permissionOnDb = await this.permissionsRepository.findOne({
+          where: { id: permissionGroup.permissionsId },
+        });
+
+        if (permissionOnDb) {
+          const user = await this.usersRepository.findOne({
+            where: { id: permissionOnDb.userId },
+          });
+
+          if (user && !users.find((u) => u.id === user.id)) {
+            users.push({
+              id: user.id,
+              name: user.name,
+            });
+          }
+        }
+      }),
+    );
+
+    return users;
   }
 }

@@ -5,9 +5,12 @@ import {
   CreateGroupPermissionModule,
 } from './create-permission-by-group';
 
+import { EditPermissionByGroupDto } from './edit-permission-by-group';
+
 export {
   CreatePermissionDto,
   CreatePermissionByGroupDto,
   AllPermissionsDto,
   CreateGroupPermissionModule,
+  EditPermissionByGroupDto,
 };

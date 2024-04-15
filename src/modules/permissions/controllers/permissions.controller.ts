@@ -4,12 +4,17 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { PermissionsServices } from '../services/permissions.service';
-import { CreatePermissionByGroupDto, CreatePermissionDto } from '../dtos/dto';
+import {
+  CreatePermissionByGroupDto,
+  CreatePermissionDto,
+  EditPermissionByGroupDto,
+} from '../dtos/dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 
 @Controller('permissions')
@@ -40,6 +45,12 @@ export class Permissionstroller {
     );
   }
 
+  @Get('/group/users/:id')
+  @UseGuards(AuthGuard)
+  async getUsersFromGroup(@Param() param) {
+    return await this.permissionsServices.getUsersFromGroup(param.id);
+  }
+
   @Delete('/group/:id')
   @UseGuards(AuthGuard)
   async deleteGroupById(@Param() param, @Req() req) {
@@ -47,5 +58,11 @@ export class Permissionstroller {
       req.user.companyId,
       param.id,
     );
+  }
+
+  @Patch('/group/:id')
+  @UseGuards(AuthGuard)
+  async editGroup(@Param() param, @Body() data: EditPermissionByGroupDto) {
+    return this.permissionsServices.editGroupPermission(param.id, data);
   }
 }
