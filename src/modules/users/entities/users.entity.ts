@@ -42,6 +42,9 @@ export class User {
   @Column({ nullable: true, name: 'celphone' })
   celphone: string;
 
+  @Column({ nullable: true, name: 'departament' })
+  departament: string;
+
   @Column({ type: 'date', nullable: true })
   birthday?: Date;
 
