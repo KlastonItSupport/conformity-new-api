@@ -1,6 +1,7 @@
 import {
   IsBoolean,
   IsDateString,
+  IsEmpty,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -54,4 +55,8 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   status: string;
+
+  @IsEmpty()
+  @IsString()
+  groupId?: string;
 }

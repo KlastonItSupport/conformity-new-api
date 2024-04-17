@@ -5,17 +5,29 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/users.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { Company } from '../companies/entities/company.entity';
+import { Groups } from '../permissions/entities/groups.entity';
+import { PermissionsModule } from '../permissions/permissions.module';
+import { PermissionsServices } from '../permissions/services/permissions.service';
+import { Permissions } from '../permissions/entities/permissions.entity';
+import { GroupModulePermission } from '../permissions/entities/group_module_permissions.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Company, User]),
+    TypeOrmModule.forFeature([
+      Company,
+      User,
+      Groups,
+      Permissions,
+      GroupModulePermission,
+    ]),
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET_TOKEN,
       signOptions: { expiresIn: process.env.JWT_EXPIRES_SECRET_TOKEN },
     }),
+    PermissionsModule,
   ],
-  providers: [UsersServices],
+  providers: [UsersServices, PermissionsServices],
   controllers: [UsersController],
 })
 export class UsersModule {}

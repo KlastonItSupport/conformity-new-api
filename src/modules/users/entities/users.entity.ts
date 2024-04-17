@@ -28,23 +28,25 @@ export class User {
   access: boolean;
 
   @Column({ default: false, name: 'contract_access' })
-  contractAccess: boolean;
+  contractAccess?: boolean;
 
   @Column({ default: false, name: 'lead_access' })
-  leadAccess: boolean;
+  leadAccess?: boolean;
 
   @Column({ default: false, name: 'project_access' })
-  projectAccess: boolean;
+  projectAccess?: boolean;
 
   @Column({ nullable: true, name: 'access_rule' })
   accessRule: string;
 
-  @Column({ nullable: true, name: 'departament' })
-  departament: string;
+  @Column({ nullable: true, name: 'celphone' })
+  celphone: string;
 
   @Column({ type: 'date', nullable: true })
-  birthday: Date;
+  birthday?: Date;
 
   @Column()
   status: string;
+
+  companyName?: string;
 }
