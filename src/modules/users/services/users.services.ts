@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from '../entities/users.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -152,7 +152,7 @@ export class UsersServices {
   async getUsers(
     companyId: string,
     page: number = 1,
-    limit: number = 1,
+    limit: number = 10,
     search: string = '',
   ): Promise<any> {
     page = Number(page);
