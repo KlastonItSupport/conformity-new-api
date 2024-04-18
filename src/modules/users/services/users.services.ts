@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { User } from '../entities/users.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -8,6 +8,7 @@ import { AppError } from 'src/errors/app-error';
 import {
   ChangePasswordDto,
   CreateUserDto,
+  PaginationUsersDto,
   SignInDto,
   SignInResponse,
 } from '../dtos/dtos';
@@ -148,22 +149,66 @@ export class UsersServices {
       companyId: user.companyId,
     };
   }
+  async getUsers(
+    companyId: string,
+    page: number = 1,
+    limit: number = 5,
+    search: string = '',
+  ): Promise<any> {
+    page = Number(page);
+    const pagination = new PaginationUsersDto();
 
-  async getUsers(companyId: string) {
-    const users = await this.usersRepository.find({
-      where: { companyId },
-      order: { createdAt: 'DESC' },
-    });
+    const searchParam = {
+      searchName: `%${search}%`,
+    };
+
+    const users =
+      page && limit
+        ? await this.usersRepository
+            .createQueryBuilder('users')
+            .where('users.company_id_fk = :companyId', { companyId: companyId })
+            .where('users.name LIKE :searchName', searchParam)
+            .orWhere('users.email LIKE :searchName', searchParam)
+            .orWhere('users.status LIKE :searchName', searchParam)
+            .orWhere('users.access_rule LIKE :searchName', searchParam)
+            .offset((page - 1) * limit)
+            .limit(limit)
+            .getManyAndCount()
+        : await this.usersRepository
+            .createQueryBuilder('users')
+            .where('users.company_id_fk = :companyId', { companyId: companyId })
+            .where('users.name LIKE :searchName', searchParam)
+            .where('users.email LIKE :searchName', searchParam)
+            .where('users.status LIKE :searchName', searchParam)
+            .where('users.access_rule LIKE :searchName', searchParam)
+            .getManyAndCount();
+
+    const totalUsers = users[1];
+
+    const lastPage = limit ? Math.ceil(totalUsers / limit) : 1;
+    const links = {
+      first: 1,
+      last: lastPage,
+      next: page + 1 > lastPage ? lastPage : page + 1,
+      totalPages: limit ? Math.ceil(totalUsers / limit) : 1,
+      currentPage: limit ? page : 1,
+      previous: limit ? (page > 1 ? page - 1 : 0) : null,
+      totalItems: totalUsers,
+    };
+
+    pagination.items = users[0];
+    pagination.pages = links;
 
     await Promise.all(
-      users.map(async (user) => {
+      pagination.items.map(async (user) => {
         const company = await this.companyRepository.findOne({
           where: { id: user.companyId },
         });
         user.companyName = company.name;
       }),
     );
-    return users;
+
+    return pagination;
   }
 
   async changePassword(data: ChangePasswordDto) {

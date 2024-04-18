@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -13,11 +14,11 @@ import { UsersServices } from '../services/users.services';
 import {
   ChangePasswordDto,
   CreateUserDto,
+  PaginationUsersDto,
   SignInDto,
   SignInResponse,
 } from '../dtos/dtos';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { User } from '../entities/users.entity';
 
 @Controller('users')
 export class UsersController {
@@ -46,8 +47,13 @@ export class UsersController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async getUsers(@Req() req): Promise<User[]> {
-    return await this.usersService.getUsers(req.user.companyId);
+  async getUsers(@Req() req, @Query() data): Promise<PaginationUsersDto> {
+    return await this.usersService.getUsers(
+      req.user.companyId,
+      data.page,
+      data.pageSize,
+      data.search,
+    );
   }
 
   @Delete('/:id')
