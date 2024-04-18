@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -38,10 +39,13 @@ export class Permissionstroller {
 
   @Get('/groups-by-company/:companyId')
   @UseGuards(AuthGuard)
-  async getGroupsByCompany(@Param() param, @Req() req) {
+  async getGroupsByCompany(@Param() param, @Req() req, @Query() data) {
     return await this.permissionsServices.getGroupsByCompany(
       param.companyId,
       req.user.id,
+      data.page,
+      data.pageSize,
+      data.search,
     );
   }
 

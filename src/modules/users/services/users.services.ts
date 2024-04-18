@@ -184,8 +184,8 @@ export class UsersServices {
             .getManyAndCount();
 
     const totalUsers = users[1];
-
     const lastPage = limit ? Math.ceil(totalUsers / limit) : 1;
+
     const links = {
       first: 1,
       last: lastPage,

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Permissions } from '../entities/permissions.entity';
 import {
@@ -8,6 +8,7 @@ import {
   AllPermissionsDto,
   CreateGroupPermissionModule,
   EditPermissionByGroupDto,
+  PaginationGroupsDto,
 } from '../dtos/dto';
 import { Groups } from '../entities/groups.entity';
 import { GroupModulePermission } from '../entities/group_module_permissions.entity';
@@ -183,22 +184,70 @@ export class PermissionsServices {
     return usersPermissions;
   }
 
-  async getGroupsByCompany(companyId: string, userId: string) {
+  async getGroupsPaginated(
+    queryBuilder: SelectQueryBuilder<Groups>,
+    page: number,
+    limit: number,
+  ) {
+    const groups = await queryBuilder
+      .offset((page - 1) * limit)
+      .limit(limit)
+      .getManyAndCount();
+
+    const totalGroups = groups[1];
+    const lastPage = limit ? Math.ceil(totalGroups / limit) : 1;
+    const links = {
+      first: 1,
+      last: lastPage,
+      next: page + 1 > lastPage ? lastPage : page + 1,
+      totalPages: limit ? Math.ceil(totalGroups / limit) : 1,
+      currentPage: Number(limit ? page : 1),
+      previous: limit ? (page > 1 ? page - 1 : 0) : null,
+      totalItems: totalGroups,
+    };
+
+    const pagination = new PaginationGroupsDto();
+    pagination.items = groups[0];
+    pagination.pages = links;
+
+    return pagination;
+  }
+
+  async getGroupsByCompany(
+    companyId: string,
+    userId: string,
+    page = 1,
+    limit = 1,
+    search = '',
+  ) {
     const isSuperAdmin = await this.isSuperAdmin(userId);
+    const queryBuilder = this.groupsRepository.createQueryBuilder('groups');
 
     if (isSuperAdmin) {
-      const groups = await this.groupsRepository.find();
-      const formattedGroup = groups.map((group) => {
-        const formattedGroup = { ...group, ...group.permissions };
-        delete formattedGroup.permissions;
-        return formattedGroup;
+      queryBuilder.where('groups.fk_company_id = :companyId', {
+        companyId: companyId,
       });
-
-      return formattedGroup;
     }
-    const groups = await this.groupsRepository.find({ where: { companyId } });
 
-    return groups;
+    if (search) {
+      queryBuilder.andWhere('groups.name LIKE :search', {
+        search: `%${search}%`,
+      });
+    }
+
+    const groupsPaginated = await this.getGroupsPaginated(
+      queryBuilder,
+      page,
+      Number(limit),
+    );
+    const formattedGroup = await groupsPaginated.items.map((group) => {
+      const formattedGroup = { ...group, ...group.permissions };
+      delete formattedGroup.permissions;
+      return formattedGroup;
+    });
+
+    groupsPaginated.items = formattedGroup;
+    return groupsPaginated;
   }
 
   async deleteGroup(companyId: string, groupId: string) {

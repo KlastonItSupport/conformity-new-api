@@ -6,6 +6,7 @@ import {
 } from './create-permission-by-group';
 
 import { EditPermissionByGroupDto } from './edit-permission-by-group';
+import { PaginationGroupsDto } from './pagination-groups.dto';
 
 export {
   CreatePermissionDto,
@@ -13,4 +14,5 @@ export {
   AllPermissionsDto,
   CreateGroupPermissionModule,
   EditPermissionByGroupDto,
+  PaginationGroupsDto,
 };
