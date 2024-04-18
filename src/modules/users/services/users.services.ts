@@ -152,7 +152,7 @@ export class UsersServices {
   async getUsers(
     companyId: string,
     page: number = 1,
-    limit: number = 5,
+    limit: number = 1,
     search: string = '',
   ): Promise<any> {
     page = Number(page);
