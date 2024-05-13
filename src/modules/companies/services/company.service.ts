@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Company } from '../entities/company.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateCompanyDto } from '../dtos/dto';
+import { CreateCompanyDto, PaginationCompanyDto } from '../dtos/dto';
 import { AppError } from 'src/errors/app-error';
 import { User } from 'src/modules/users/entities/users.entity';
 
@@ -38,13 +38,57 @@ export class CompanyService {
     return await this.companyRepository.save(company);
   }
 
-  async getCompanies(userId: string): Promise<Company[]> {
+  async getCompanies(
+    userId: string,
+    page: number = 1,
+    limit: number = 10,
+    search: string = '',
+  ): Promise<PaginationCompanyDto> {
     const isSuperAdmin = await this.isSuperAdmin(userId);
     if (!isSuperAdmin) {
       throw new AppError('Unauthorized', 401);
     }
+    const pagination = new PaginationCompanyDto();
 
-    return await this.companyRepository.find({ order: { createdAt: 'DESC' } });
+    const searchParam = {
+      searchName: `%${search}%`,
+    };
+    const companies =
+      page && limit
+        ? await this.companyRepository
+            .createQueryBuilder('companies')
+            .where('companies.name LIKE :searchName', searchParam)
+            .orWhere('companies.email LIKE :searchName', searchParam)
+            .orWhere('companies.memory_limit LIKE :searchName', searchParam)
+            .orWhere('companies.users_limit LIKE :searchName', searchParam)
+            .offset((page - 1) * limit)
+            .limit(limit)
+            .getManyAndCount()
+        : await this.companyRepository
+            .createQueryBuilder('companies')
+            .where('companies.name LIKE :searchName', searchParam)
+            .orWhere('companies.email LIKE :searchName', searchParam)
+            .orWhere('companies.memory_limit LIKE :searchName', searchParam)
+            .orWhere('companies.users_limit LIKE :searchName', searchParam)
+            .getManyAndCount();
+
+    const totalCompanies = companies[1];
+    const lastPage = limit ? Math.ceil(totalCompanies / limit) : 1;
+
+    const links = {
+      first: 1,
+      last: lastPage,
+      next: page + 1 > lastPage ? lastPage : page + 1,
+      totalPages: limit ? Math.ceil(totalCompanies / limit) : 1,
+      currentPage: limit ? page : 1,
+      previous: limit ? (page > 1 ? page - 1 : 0) : null,
+      totalItems: totalCompanies,
+    };
+
+    pagination.items = companies[0];
+    pagination.pages = links;
+
+    return pagination;
   }
 
   async getCompanyUsers(companyId: string, userId: string) {
@@ -61,5 +105,21 @@ export class CompanyService {
       where: { companyId: companyId },
       order: { createdAt: 'DESC' },
     });
+  }
+
+  async editCompany(
+    companyId: string,
+    companyPayload: Partial<CreateCompanyDto>,
+  ) {
+    const company = await this.companyRepository.findOne({
+      where: { id: companyId },
+    });
+    if (!company) {
+      throw new AppError('Company not found', 404);
+    }
+
+    Object.assign(company, companyPayload);
+
+    return await this.companyRepository.save(company);
   }
 }

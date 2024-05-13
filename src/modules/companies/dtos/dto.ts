@@ -1,3 +1,3 @@
 import { CreateCompanyDto } from './create-company.dto';
-
-export { CreateCompanyDto };
+import { PaginationCompanyDto } from './pagination-company.dto';
+export { CreateCompanyDto, PaginationCompanyDto };

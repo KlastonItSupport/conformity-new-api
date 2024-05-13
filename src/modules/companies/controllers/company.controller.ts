@@ -1,6 +1,19 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 
-import { CreateCompanyDto } from 'src/modules/companies/dtos/dto';
+import {
+  CreateCompanyDto,
+  PaginationCompanyDto,
+} from 'src/modules/companies/dtos/dto';
 import { CompanyService } from '../services/company.service';
 import { AuthGuard } from 'src/guards/auth.guard';
 
@@ -16,8 +29,19 @@ export class CompanyController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async getCompanies(@Req() req) {
-    return await this.companyServices.getCompanies(req.user.id);
+  async getCompanies(@Req() req, @Query() data): Promise<PaginationCompanyDto> {
+    return await this.companyServices.getCompanies(
+      req.user.id,
+      data.page,
+      data.pageSize,
+      data.search,
+    );
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard)
+  async editCompany(@Req() req, @Body() data, @Param('id') id: string) {
+    return this.companyServices.editCompany(id, data);
   }
 
   @Get('get-users')
