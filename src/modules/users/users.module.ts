@@ -10,6 +10,7 @@ import { PermissionsModule } from '../permissions/permissions.module';
 import { PermissionsServices } from '../permissions/services/permissions.service';
 import { Permissions } from '../permissions/entities/permissions.entity';
 import { GroupModulePermission } from '../permissions/entities/group_module_permissions.entity';
+import { S3Service } from '../shared/services/s3.service';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { GroupModulePermission } from '../permissions/entities/group_module_perm
     }),
     PermissionsModule,
   ],
-  providers: [UsersServices, PermissionsServices],
+  providers: [UsersServices, PermissionsServices, S3Service],
   controllers: [UsersController],
 })
 export class UsersModule {}

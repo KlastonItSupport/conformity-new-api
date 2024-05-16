@@ -16,6 +16,7 @@ import { Company } from 'src/modules/companies/entities/company.entity';
 import { Groups } from 'src/modules/permissions/entities/groups.entity';
 import { PermissionsServices } from 'src/modules/permissions/services/permissions.service';
 import { AllPermissionsDto } from 'src/modules/permissions/dtos/create-permission-by-group';
+import { S3Service } from 'src/modules/shared/services/s3.service';
 
 @Injectable()
 export class UsersServices {
@@ -30,6 +31,7 @@ export class UsersServices {
     private readonly jwtService: JwtService,
 
     private readonly permissionsService: PermissionsServices,
+    private readonly s3Service: S3Service,
   ) {}
 
   async isSuperUser(userId: string) {
@@ -94,6 +96,14 @@ export class UsersServices {
     if (!user) {
       throw new AppError('User not found', 404);
     }
+    if (userData.fileName && userData.profilePic) {
+      const profilePicUrl = await this.s3Service.uploadFile(
+        Buffer.from(userData.profilePic, 'base64'),
+        userData.fileName,
+        userData.fileType,
+      );
+      userData.profilePic = profilePicUrl;
+    }
 
     delete userData.passwordHash;
     delete userData.groupId;
@@ -146,6 +156,9 @@ export class UsersServices {
       email: user.email,
       name: user.name,
       accessRule: user.accessRule,
+      celphone: user.celphone,
+      profilePic: user.profilePic,
+      birthDate: user.birthday,
       companyId: user.companyId,
     };
   }

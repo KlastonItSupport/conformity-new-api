@@ -18,4 +18,8 @@ export class SignInResponse {
 
   @IsNotEmpty()
   companyId: string;
+
+  celphone?: string;
+  profilePic?: string;
+  birthDate?: Date;
 }

@@ -8,6 +8,7 @@ import { CompaniesModule } from './modules/companies/companies.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 import { ErrorLoggingMiddleware } from './middlewares/error-logs/error-logs';
 import { ErrorLogsModule } from './middlewares/error-logs/error-logs.module';
+import { SharedModule } from './modules/shared/shared.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ErrorLogsModule } from './middlewares/error-logs/error-logs.module';
     CompaniesModule,
     PermissionsModule,
     ErrorLogsModule,
+    SharedModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],

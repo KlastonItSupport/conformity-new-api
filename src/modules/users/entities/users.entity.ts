@@ -48,6 +48,9 @@ export class User {
   @Column({ type: 'date', nullable: true })
   birthday?: Date;
 
+  @Column({ name: 'profile_pic' })
+  profilePic: string;
+
   @Column()
   status: string;
 
