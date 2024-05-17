@@ -61,4 +61,10 @@ export class UsersController {
   async deleteUser(@Param() param) {
     return await this.usersService.deleteUsers(param.id);
   }
+
+  @Get('access-rule/:id')
+  // @UseGuards(AuthGuard)
+  async getUserAccessRule(@Param() param) {
+    return await this.usersService.getUserAccessRule(param.id);
+  }
 }

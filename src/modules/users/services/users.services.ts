@@ -254,4 +254,19 @@ export class UsersServices {
     }
     return await this.usersRepository.remove(user);
   }
+
+  async getUserAccessRule(userId: string) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+
+    const accessLevels = {
+      isAdmin: user.accessRule === 'super-admin',
+      isSuperUser: user.accessRule === 'super-user',
+      isUser: user.accessRule === 'user',
+    };
+
+    return accessLevels;
+  }
 }

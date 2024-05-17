@@ -181,7 +181,86 @@ export class PermissionsServices {
       where: { userId },
     });
 
-    return usersPermissions;
+    const documentsModule: Permissions[] = [];
+    const tasksModule: Permissions[] = [];
+    const equipmentsModule: Permissions[] = [];
+    const indicatorsModule: Permissions[] = [];
+    const crmModule: Permissions[] = [];
+    const trainingModule: Permissions[] = [];
+    const companiesModule: Permissions[] = [];
+
+    usersPermissions.forEach((permission) => {
+      if (permission.moduleId == '1') {
+        documentsModule.push(permission);
+        return;
+      }
+
+      if (permission.moduleId == '2') {
+        tasksModule.push(permission);
+        return;
+      }
+
+      if (permission.moduleId == '3') {
+        equipmentsModule.push(permission);
+        return;
+      }
+
+      if (permission.moduleId == '4') {
+        indicatorsModule.push(permission);
+        return;
+      }
+
+      if (permission.moduleId == '5') {
+        crmModule.push(permission);
+        return;
+      }
+
+      if (permission.moduleId == '6') {
+        trainingModule.push(permission);
+        return;
+      }
+
+      if (permission.moduleId == '7') {
+        companiesModule.push(permission);
+        return;
+      }
+    });
+
+    return {
+      documents: this.resumingPermissions(documentsModule),
+      tasks: this.resumingPermissions(tasksModule),
+      equipments: this.resumingPermissions(equipmentsModule),
+      indicators: this.resumingPermissions(indicatorsModule),
+      crm: this.resumingPermissions(crmModule),
+      training: this.resumingPermissions(trainingModule),
+      companies: this.resumingPermissions(companiesModule),
+    };
+  }
+
+  // Procura por todas as permissoes de um modulo e "soma" elas
+  resumingPermissions(permissions: Permissions[]): Permissions {
+    const permissionResumed = {
+      canAdd: 0,
+      canDelete: 0,
+      canEdit: 0,
+      canRead: 0,
+    } as Permissions;
+    permissions.forEach((module) => {
+      if (!permissionResumed.canAdd && module.canAdd) {
+        permissionResumed.canAdd = 1;
+      }
+
+      if (!permissionResumed.canDelete && module.canDelete) {
+        permissionResumed.canDelete = 1;
+      }
+      if (!permissionResumed.canEdit && module.canEdit) {
+        permissionResumed.canEdit = 1;
+      }
+      if (!permissionResumed.canRead && module.canRead) {
+        permissionResumed.canRead = 1;
+      }
+    });
+    return permissionResumed;
   }
 
   async getGroupsPaginated(
