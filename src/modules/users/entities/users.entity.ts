@@ -49,7 +49,7 @@ export class User {
   birthday?: Date;
 
   @Column({ name: 'profile_pic' })
-  profilePic: string;
+  profilePic?: string;
 
   @Column()
   status: string;

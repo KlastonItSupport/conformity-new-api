@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { User } from '../entities/users.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -68,6 +68,7 @@ export class UsersServices {
 
     const user = await this.usersRepository.create({
       ...userData,
+      departament: userData.department,
       passwordHash: hashedPassword,
       companyId: companyId,
     });
@@ -77,6 +78,7 @@ export class UsersServices {
     });
 
     const savedUser = await this.usersRepository.save(user);
+
     if (userData.groupId) {
       const group = await this.grouRepository.findOne({
         where: { id: userData.groupId },
@@ -138,7 +140,9 @@ export class UsersServices {
       throw new AppError('Password incorrect', 400);
     }
 
-    this.usersRepository.save(user);
+    const company = await this.companyRepository.findOne({
+      where: { id: user.companyId },
+    });
 
     return {
       accessToken: await this.jwtService.signAsync(
@@ -160,6 +164,7 @@ export class UsersServices {
       profilePic: user.profilePic,
       birthDate: user.birthday,
       companyId: user.companyId,
+      companyName: company.name,
     };
   }
   async getUsers(
@@ -167,34 +172,41 @@ export class UsersServices {
     page: number = 1,
     limit: number = 10,
     search: string = '',
+    userId: string,
   ): Promise<any> {
-    page = Number(page);
+    const accessRule = await this.getUserAccessRule(userId);
+
+    if (!accessRule.isAdmin && !accessRule.isSuperUser) {
+      throw new AppError('Not Authorized', 401);
+    }
     const pagination = new PaginationUsersDto();
 
     const searchParam = {
       searchName: `%${search}%`,
     };
 
-    const users =
-      page && limit
-        ? await this.usersRepository
-            .createQueryBuilder('users')
-            .where('users.company_id_fk = :companyId', { companyId: companyId })
-            .where('users.name LIKE :searchName', searchParam)
+    const queryBuilder = this.usersRepository.createQueryBuilder('users');
+
+    if (accessRule.isSuperUser) {
+      queryBuilder.where('users.company_id_fk = :companyId', { companyId });
+    }
+
+    if (search) {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('users.name LIKE :searchName', searchParam)
             .orWhere('users.email LIKE :searchName', searchParam)
             .orWhere('users.status LIKE :searchName', searchParam)
-            .orWhere('users.access_rule LIKE :searchName', searchParam)
-            .offset((page - 1) * limit)
-            .limit(limit)
-            .getManyAndCount()
-        : await this.usersRepository
-            .createQueryBuilder('users')
-            .where('users.company_id_fk = :companyId', { companyId: companyId })
-            .where('users.name LIKE :searchName', searchParam)
-            .where('users.email LIKE :searchName', searchParam)
-            .where('users.status LIKE :searchName', searchParam)
-            .where('users.access_rule LIKE :searchName', searchParam)
-            .getManyAndCount();
+            .orWhere('users.access_rule LIKE :searchName', searchParam);
+        }),
+      );
+    }
+
+    if (page && limit) {
+      queryBuilder.offset((page - 1) * limit).limit(limit);
+    }
+
+    const users = await queryBuilder.getManyAndCount();
 
     const totalUsers = users[1];
     const lastPage = limit ? Math.ceil(totalUsers / limit) : 1;

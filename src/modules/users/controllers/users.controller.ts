@@ -53,6 +53,7 @@ export class UsersController {
       data.page,
       data.pageSize,
       data.search,
+      req.user.id,
     );
   }
 

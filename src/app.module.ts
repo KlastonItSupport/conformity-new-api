@@ -9,16 +9,29 @@ import { PermissionsModule } from './modules/permissions/permissions.module';
 import { ErrorLoggingMiddleware } from './middlewares/error-logs/error-logs';
 import { ErrorLogsModule } from './middlewares/error-logs/error-logs.module';
 import { SharedModule } from './modules/shared/shared.module';
+import { ExternalDataImportModule } from './modules/external-data-import/external-data-import.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     Database.build(),
+    // CONFORMITY ATUAL DB
+    TypeOrmModule.forRoot({
+      name: 'externalConnection',
+      type: 'mysql',
+      host: process.env.EXTERNAL_DB_HOST,
+      port: 3306,
+      username: process.env.EXTERNAL_DB_USERNAME,
+      password: process.env.EXTERNAL_DB_PASSWORD,
+      database: process.env.EXTERNAL_DB_NAME,
+    }),
     UsersModule,
     CompaniesModule,
     PermissionsModule,
     ErrorLogsModule,
     SharedModule,
+    ExternalDataImportModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],
