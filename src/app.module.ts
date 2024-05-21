@@ -16,7 +16,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   imports: [
     ConfigModule.forRoot(),
     Database.build(),
-    // CONFORMITY ATUAL DB
+    // CONFORMITY ATUAL DBS
     TypeOrmModule.forRoot({
       name: 'externalConnection',
       type: 'mysql',
