@@ -68,7 +68,7 @@ export class UsersServices {
 
     const user = await this.usersRepository.create({
       ...userData,
-      departament: userData.department,
+      departament: userData.departament,
       passwordHash: hashedPassword,
       companyId: companyId,
     });
@@ -99,11 +99,13 @@ export class UsersServices {
       throw new AppError('User not found', 404);
     }
     if (userData.fileName && userData.profilePic) {
-      const profilePicUrl = await this.s3Service.uploadFile(
-        Buffer.from(userData.profilePic, 'base64'),
-        userData.fileName,
-        userData.fileType,
-      );
+      const profilePicUrl = await this.s3Service.uploadFile({
+        file: Buffer.from(userData.profilePic, 'base64'),
+        path: '/',
+        key: userData.fileName,
+        fileType: userData.fileType,
+        fileName: userData.fileName,
+      });
       userData.profilePic = profilePicUrl;
     }
 

@@ -296,7 +296,7 @@ export class PermissionsServices {
     companyId: string,
     userId: string,
     page = 1,
-    limit = 1,
+    limit = 10,
     search = '',
   ) {
     const isSuperAdmin = await this.isSuperAdmin(userId);
