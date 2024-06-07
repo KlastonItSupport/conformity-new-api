@@ -10,7 +10,7 @@ import { PermissionsModule } from '../permissions/permissions.module';
 import { PermissionsServices } from '../permissions/services/permissions.service';
 import { Permissions } from '../permissions/entities/permissions.entity';
 import { GroupModulePermission } from '../permissions/entities/group_module_permissions.entity';
-import { S3Service } from '../shared/services/s3.service';
+import { SharedModule } from '../shared/shared.module';
 
 @Module({
   imports: [
@@ -27,8 +27,9 @@ import { S3Service } from '../shared/services/s3.service';
       signOptions: { expiresIn: process.env.JWT_EXPIRES_SECRET_TOKEN },
     }),
     PermissionsModule,
+    SharedModule,
   ],
-  providers: [UsersServices, PermissionsServices, S3Service],
+  providers: [UsersServices, PermissionsServices],
   controllers: [UsersController],
 })
 export class UsersModule {}

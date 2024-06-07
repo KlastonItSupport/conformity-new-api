@@ -11,6 +11,9 @@ import { ErrorLogsModule } from './middlewares/error-logs/error-logs.module';
 import { SharedModule } from './modules/shared/shared.module';
 import { ExternalDataImportModule } from './modules/external-data-import/external-data-import.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DocumentsModule } from './modules/documents/documents.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { DepartamentModule } from './modules/departaments/departament.module';
 
 @Module({
   imports: [
@@ -32,6 +35,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ErrorLogsModule,
     SharedModule,
     ExternalDataImportModule,
+    DocumentsModule,
+    CategoriesModule,
+    DepartamentModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],

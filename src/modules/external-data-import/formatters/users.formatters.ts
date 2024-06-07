@@ -39,7 +39,7 @@ export const formatUser = (data): CreateUserDto => {
     accessRule: formatAccessRule(data?.regra),
     status: formatStatus(data?.status),
     birthday: data?.aniversario,
-    department: '1',
+    departament: '1',
     // celphone: data?.telefone,
     // departament: data?.departamento,
     // cargo: data?.cargo,

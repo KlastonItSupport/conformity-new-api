@@ -13,7 +13,7 @@ import { GroupModulePermission } from '../permissions/entities/group_module_perm
 import { Permissions } from '../permissions/entities/permissions.entity';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { PermissionsServices } from '../permissions/services/permissions.service';
-import { S3Service } from '../shared/services/s3.service';
+import { SharedModule } from '../shared/shared.module';
 
 @Module({
   imports: [
@@ -27,6 +27,7 @@ import { S3Service } from '../shared/services/s3.service';
     UsersModule,
     CompaniesModule,
     PermissionsModule,
+    SharedModule,
   ],
   exports: [ExternalDataImportService],
   controllers: [ExternalDataImportController],
@@ -35,7 +36,6 @@ import { S3Service } from '../shared/services/s3.service';
     UsersServices,
     CompanyService,
     PermissionsServices,
-    S3Service,
   ],
 })
 export class ExternalDataImportModule {}

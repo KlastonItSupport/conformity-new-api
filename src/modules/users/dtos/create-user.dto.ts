@@ -46,7 +46,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  department?: string;
+  departament?: string;
 
   @IsOptional()
   @IsDateString()

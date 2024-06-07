@@ -101,8 +101,7 @@ export class UsersServices {
     if (userData.fileName && userData.profilePic) {
       const profilePicUrl = await this.s3Service.uploadFile({
         file: Buffer.from(userData.profilePic, 'base64'),
-        path: '/',
-        key: userData.fileName,
+        path: `${user.companyId}/users`,
         fileType: userData.fileType,
         fileName: userData.fileName,
       });
