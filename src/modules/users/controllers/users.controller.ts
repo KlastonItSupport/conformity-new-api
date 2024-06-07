@@ -40,7 +40,7 @@ export class UsersController {
     return this.usersService.editUser(userData, userId);
   }
   @Post('/change-password')
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   async changePassword(@Body() data: ChangePasswordDto) {
     return this.usersService.changePassword(data);
   }
