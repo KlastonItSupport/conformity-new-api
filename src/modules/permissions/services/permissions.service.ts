@@ -45,46 +45,67 @@ export class PermissionsServices {
     groupId: string,
   ) {
     const permissionsPromises = [
-      this.giveOneUserPermission({
-        userId: allPermissions.userId,
-        moduleId: '1',
-        ...allPermissions.documents,
-      }),
-      this.giveOneUserPermission({
-        userId: allPermissions.userId,
-        moduleId: '2',
-        ...allPermissions.tasks,
-      }),
+      this.giveOneUserPermission(
+        {
+          userId: allPermissions.userId,
+          moduleId: '1',
+          ...allPermissions.documents,
+        },
+        groupId,
+      ),
+      this.giveOneUserPermission(
+        {
+          userId: allPermissions.userId,
+          moduleId: '2',
+          ...allPermissions.tasks,
+        },
+        groupId,
+      ),
 
-      this.giveOneUserPermission({
-        userId: allPermissions.userId,
-        moduleId: '3',
-        ...allPermissions.equipments,
-      }),
+      this.giveOneUserPermission(
+        {
+          userId: allPermissions.userId,
+          moduleId: '3',
+          ...allPermissions.equipments,
+        },
+        groupId,
+      ),
 
-      this.giveOneUserPermission({
-        userId: allPermissions.userId,
-        moduleId: '4',
-        ...allPermissions.indicators,
-      }),
+      this.giveOneUserPermission(
+        {
+          userId: allPermissions.userId,
+          moduleId: '4',
+          ...allPermissions.indicators,
+        },
+        groupId,
+      ),
 
-      this.giveOneUserPermission({
-        userId: allPermissions.userId,
-        moduleId: '5',
-        ...allPermissions.crm,
-      }),
+      this.giveOneUserPermission(
+        {
+          userId: allPermissions.userId,
+          moduleId: '5',
+          ...allPermissions.crm,
+        },
+        groupId,
+      ),
 
-      this.giveOneUserPermission({
-        userId: allPermissions.userId,
-        moduleId: '6',
-        ...allPermissions.training,
-      }),
+      this.giveOneUserPermission(
+        {
+          userId: allPermissions.userId,
+          moduleId: '6',
+          ...allPermissions.training,
+        },
+        groupId,
+      ),
 
-      this.giveOneUserPermission({
-        userId: allPermissions.userId,
-        moduleId: '7',
-        ...allPermissions.companies,
-      }),
+      this.giveOneUserPermission(
+        {
+          userId: allPermissions.userId,
+          moduleId: '7',
+          ...allPermissions.companies,
+        },
+        groupId,
+      ),
     ];
 
     const responsesPermissions = await Promise.all(permissionsPromises);
@@ -123,9 +144,20 @@ export class PermissionsServices {
     return await Promise.all(groupModulePermissionPromises);
   }
 
-  async giveOneUserPermission(data: CreatePermissionDto): Promise<Permissions> {
+  async giveOneUserPermission(
+    data: CreatePermissionDto,
+    groupId: string,
+  ): Promise<Permissions> {
     const permission = await this.permissionsRepository.create(data);
-    return await this.permissionsRepository.save(permission);
+    const permissionSaved = await this.permissionsRepository.save(permission);
+
+    const groupModulePermission = this.groupModulePermissionRepository.create({
+      groupId: groupId,
+      permissionsId: permission.id,
+    });
+    await this.groupModulePermissionRepository.save(groupModulePermission);
+
+    return permissionSaved;
   }
 
   async createGroupPermission(data: CreatePermissionByGroupDto) {
@@ -412,7 +444,7 @@ export class PermissionsServices {
     await Promise.all(
       permissionFromThisGroup.map(async (permission) => {
         const permissionOnDb = await this.permissionsRepository.findOne({
-          where: { id: permission.id },
+          where: { id: permission.permissionsId },
         });
 
         if (permissionOnDb) {

@@ -24,7 +24,7 @@ export class Permissionstroller {
 
   @Post()
   async createPermission(@Body() data: CreatePermissionDto) {
-    return await this.permissionsServices.giveOneUserPermission(data);
+    return await this.permissionsServices.giveOneUserPermission(data, 'teste');
   }
 
   @Post('/create-group')
