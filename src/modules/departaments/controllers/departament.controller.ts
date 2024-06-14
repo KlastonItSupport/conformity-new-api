@@ -8,7 +8,7 @@ export class DepartamentController {
   constructor(private readonly departamentService: DepartamentService) {}
 
   @Post()
-  createCategory(@Body() data: CreateDepartamentDto) {
+  createDepartament(@Body() data: CreateDepartamentDto) {
     return this.departamentService.createCategory(data);
   }
 

@@ -1,9 +1,13 @@
+import { Category } from 'src/modules/categories/entities/category.entity';
+import { Departament } from 'src/modules/departaments/entities/departament.entity';
 import ConvertedFile from 'src/modules/shared/dtos/converted-file';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('documents')
@@ -55,11 +59,17 @@ export class Document {
   @Column({ name: 'minimum_retention', type: 'timestamp', nullable: true })
   minimumRetention?: string;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
   @Column({ type: 'date', nullable: true, name: 'revision_date' })
   revisionDate?: Date;
+
+  @Column({ type: 'date', nullable: true, name: 'system_inclusion_date' })
+  inclusionDate?: Date;
+
+  @Column({ type: 'date', nullable: true, name: 'system_created_date' })
+  physicalDocumentCreatedDate?: Date;
 
   @Column({ type: 'varchar', length: 255, name: 'document_company_fk' })
   companyId: string;
@@ -74,4 +84,16 @@ export class Document {
   projectId: string;
 
   document: ConvertedFile[];
+
+  @ManyToOne(() => Category, (category) => category.documents)
+  @JoinColumn({ name: 'document_category_fk' })
+  category: Category;
+
+  @ManyToOne(() => Departament, (departament) => departament.documents)
+  @JoinColumn({ name: 'document_departament_fk' })
+  departament: Departament;
+
+  categoryName?: string;
+  departamentName?: string;
+  companyName?: string;
 }

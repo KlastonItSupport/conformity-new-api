@@ -29,5 +29,11 @@ import { Company } from '../companies/entities/company.entity';
     GroupModulePermissionServices,
   ],
   controllers: [Permissionstroller],
+  exports: [
+    ModulesServices,
+    PermissionsServices,
+    GroupModulePermissionServices,
+    PermissionsServices,
+  ],
 })
 export class PermissionsModule {}

@@ -12,12 +12,12 @@ export class DepartamentService {
   ) {}
 
   async createCategory(data: CreateDepartamentDto) {
-    const category = this.departamentRepository.create(data);
-    const savedCategory = await this.departamentRepository.save(category);
-    return savedCategory;
+    const departament = this.departamentRepository.create(data);
+    const savedDpartament = await this.departamentRepository.save(departament);
+    return savedDpartament;
   }
 
   async findAll(companyId: string) {
-    return this.departamentRepository.find({ where: { companyId } });
+    return await this.departamentRepository.find({ where: { companyId } });
   }
 }

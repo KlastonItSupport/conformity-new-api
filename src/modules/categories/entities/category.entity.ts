@@ -3,7 +3,9 @@ import {
   Column,
   CreateDateColumn,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
+import { Document } from 'src/modules/documents/entities/document.entity';
 
 @Entity('categories')
 export class Category {
@@ -18,4 +20,7 @@ export class Category {
 
   @Column('varchar')
   name: string;
+
+  @OneToMany(() => Document, (document) => document.category)
+  documents: Document[];
 }

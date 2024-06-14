@@ -31,5 +31,6 @@ import { SharedModule } from '../shared/shared.module';
   ],
   providers: [UsersServices, PermissionsServices],
   controllers: [UsersController],
+  exports: [UsersServices],
 })
 export class UsersModule {}

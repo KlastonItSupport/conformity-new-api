@@ -269,6 +269,13 @@ export class PermissionsServices {
     };
   }
 
+  async getModulePermissions(moduleId: string, userId: string) {
+    const usersPermissions = await this.permissionsRepository.find({
+      where: { userId, moduleId: moduleId },
+    });
+    return this.resumingPermissions(usersPermissions);
+  }
+
   // Procura por todas as permissoes de um modulo e "soma" elas
   resumingPermissions(permissions: Permissions[]): Permissions {
     const permissionResumed = {
