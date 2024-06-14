@@ -154,6 +154,26 @@ export class DocumentsService {
       );
     }
 
+    const category = this.categoriesRepository.findOne({
+      where: { id: data.categoryId },
+    });
+
+    const departament = this.departamentsRepository.findOne({
+      where: { id: data.departamentId },
+    });
+
+    const company = this.companiesRepository.findOne({
+      where: { id: data.companyId },
+    });
+
+    await Promise.all([category, departament, company]).then(
+      ([category, departament, company]) => {
+        savedDocument.categoryName = category.name;
+        savedDocument.departamentName = departament.name;
+        savedDocument.companyName = company.name;
+      },
+    );
+
     return savedDocument;
   }
 
