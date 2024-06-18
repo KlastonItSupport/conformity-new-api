@@ -14,6 +14,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DocumentsModule } from './modules/documents/documents.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { DepartamentModule } from './modules/departaments/departament.module';
+import { FeedModule } from './modules/feed/feed.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { DepartamentModule } from './modules/departaments/departament.module';
     DocumentsModule,
     CategoriesModule,
     DepartamentModule,
+    FeedModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],

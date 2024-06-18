@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Feed } from 'src/modules/feed/entities/feed.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity('users')
 export class User {
@@ -50,6 +51,9 @@ export class User {
 
   @Column({ name: 'profile_pic' })
   profilePic?: string;
+
+  @OneToMany(() => Feed, (feed) => feed.user)
+  feeds: Feed[];
 
   @Column()
   status: string;

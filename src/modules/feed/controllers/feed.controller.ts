@@ -1,0 +1,39 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { CreateFeedPayloadDto } from '../dtos/create-feed-payload.dto';
+import { FeedService } from '../services/feed.service';
+
+@Controller('feed')
+export class FeedController {
+  constructor(private readonly feedService: FeedService) {}
+
+  @Post()
+  async createFeed(@Body() data: CreateFeedPayloadDto) {
+    return await this.feedService.createFeed(data);
+  }
+
+  @Get('')
+  async getFeed(
+    @Query('externalId') externalId: string,
+    @Query('moduleId') moduleId: string,
+  ) {
+    return await this.feedService.getFeed(externalId, moduleId);
+  }
+
+  @Delete(':id')
+  async deleteFeedItem(@Query('id') id: string) {
+    return await this.feedService.deleteFeedItem(id);
+  }
+
+  @Patch(':id')
+  async updateFeedItem(@Query('id') id: string, @Body() data) {
+    return await this.feedService.updateFeedItem(id, data.text);
+  }
+}
