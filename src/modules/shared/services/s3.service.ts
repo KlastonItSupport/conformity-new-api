@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
+  DeleteObjectCommand,
   PutObjectCommand,
   PutObjectCommandInput,
   S3Client,
@@ -34,7 +35,7 @@ export class S3Service {
     this.s3 = new S3Client({ region: 'us-east-2', credentials });
   }
 
-  async uploadFile(params: UploadFileParams): Promise<string> {
+  async uploadFile(params: UploadFileParams): Promise<Upload> {
     const id = uuidv4();
     const pathOnS3 = `${params.path}/${id}_${params.fileName}`;
 
@@ -65,11 +66,27 @@ export class S3Service {
           moduleId: params.moduleId,
           companyId: params.companyId,
         });
-        await this.uploadRepository.save(upload);
+        const uploadSaved = await this.uploadRepository.save(upload);
+        return uploadSaved;
       }
-      return `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${params.path}/${id}_${params.fileName}`;
     } catch (error) {
       console.error('Erro ao enviar arquivo para o S3:', error);
+      throw error;
+    }
+  }
+
+  async deleteFile(path: string) {
+    try {
+      const responseS3 = await this.s3.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: path,
+        }),
+      );
+
+      return responseS3.$metadata.httpStatusCode === 204;
+    } catch (error) {
+      console.error('Erro ao deletar arquivo do S3:', error);
       throw error;
     }
   }

@@ -15,6 +15,7 @@ import { CreateDocumentDto } from '../dtos/document.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { Document } from '../entities/document.entity';
 import { PaginationDocumentsDto } from '../dtos/pagination.dto';
+import { AdditionalDocumentsPayloadDto } from '../dtos/additional-documents-payload.dto';
 
 @Controller('documents')
 export class DocumentsController {
@@ -69,5 +70,33 @@ export class DocumentsController {
       id,
       data,
     );
+  }
+
+  @Delete('additional-documents/:id')
+  @UseGuards(AuthGuard)
+  deleteAditionalDocument(@Req() req, @Param('id') id: string) {
+    return this.documentsService.deleteAdditionalDocument(
+      req.user.id,
+      req.user.companyId,
+      id,
+    );
+  }
+
+  @Get('document-details/:id')
+  @UseGuards(AuthGuard)
+  getAditionalDocument(@Req() req, @Param('id') id: string) {
+    return this.documentsService.getAdditionalDocument(id);
+  }
+
+  @Post('additional-documents')
+  @UseGuards(AuthGuard)
+  createAdditionalDocument(
+    @Req() req,
+    @Body() data: AdditionalDocumentsPayloadDto,
+  ) {
+    return this.documentsService.createAdditionalDocument({
+      ...data,
+      userId: req.user.id,
+    });
   }
 }

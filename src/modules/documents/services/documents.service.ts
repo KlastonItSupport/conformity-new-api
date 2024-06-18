@@ -15,6 +15,8 @@ import { Departament } from 'src/modules/departaments/entities/departament.entit
 
 import { Company } from 'src/modules/companies/entities/company.entity';
 import { SearchSelectsDto } from '../dtos/search-selects.dto';
+import { Upload } from 'src/modules/shared/entities/upload.entity';
+import { AdditionalDocumentsPayloadDto } from '../dtos/additional-documents-payload.dto';
 
 @Injectable()
 export class DocumentsService {
@@ -30,6 +32,9 @@ export class DocumentsService {
 
     @InjectRepository(Company)
     private readonly companiesRepository: Repository<Company>,
+
+    @InjectRepository(Upload)
+    private readonly uploadRepository: Repository<Upload>,
 
     private readonly permissionsService: PermissionsServices,
     private readonly usersService: UsersServices,
@@ -122,7 +127,7 @@ export class DocumentsService {
         const buffer = Buffer.from(base64Data, 'base64');
         const fileName = uuidv4();
 
-        const s3Url = await this.s3Service.uploadFile({
+        const upload = await this.s3Service.uploadFile({
           file: buffer,
           fileType: fileType,
           fileName: fileName,
@@ -131,7 +136,7 @@ export class DocumentsService {
           id: 'empty',
           path: `${data.companyId}/documents`,
         });
-        image.src = s3Url;
+        image.src = upload.link;
       }
 
       document.description = dom.serialize();
@@ -256,7 +261,7 @@ export class DocumentsService {
           const buffer = Buffer.from(base64Data, 'base64');
           const fileName = uuidv4();
 
-          const s3Url = await this.s3Service.uploadFile({
+          const upload = await this.s3Service.uploadFile({
             file: buffer,
             fileType: fileType,
             fileName: fileName,
@@ -265,7 +270,7 @@ export class DocumentsService {
             id: 'empty',
             path: `${document.companyId}/documents`,
           });
-          image.src = s3Url;
+          image.src = upload.link;
         }
       }
       document.description = dom.serialize();
@@ -320,6 +325,97 @@ export class DocumentsService {
         document.companyName = companyName ? companyName.name : null;
       }),
     );
+  }
+
+  async createAdditionalDocument(data: AdditionalDocumentsPayloadDto) {
+    const userAccessRule = await this.usersService.getUserAccessRule(
+      data.userId,
+    );
+
+    const userPermissions = await this.permissionsService.getModulePermissions(
+      process.env.MODULE_DOCUMENTS_ID,
+      data.userId,
+    );
+
+    const isAllowedToUpdate =
+      userPermissions.canAdd ||
+      userAccessRule.isAdmin ||
+      userAccessRule.isSuperUser;
+
+    if (!isAllowedToUpdate) {
+      throw new AppError('Not Authorized to update', 401);
+    }
+
+    const savedDocument = await this.documentsRepository.findOne({
+      where: { id: data.id },
+    });
+
+    if (!savedDocument) {
+      throw new AppError('Document not found', 404);
+    }
+    const uploads = [];
+    if (data.documents && data.documents.length > 0) {
+      await Promise.all(
+        data.documents.map(async (file) => {
+          const res = await this.s3Service.uploadFile({
+            file: Buffer.from(file.base, 'base64'),
+            fileType: file.type,
+            fileName: file.name,
+            moduleId: process.env.MODULE_DOCUMENTS_ID,
+            companyId: savedDocument.companyId,
+            id: savedDocument.id,
+            path: `${savedDocument.companyId}/documents`,
+          });
+          uploads.push(res);
+        }),
+      );
+    }
+    return uploads;
+  }
+
+  async deleteAdditionalDocument(
+    userId: string,
+    companyId: string,
+    id: string,
+  ) {
+    const userAccessRule = await this.usersService.getUserAccessRule(userId);
+
+    const userPermissions = await this.permissionsService.getModulePermissions(
+      process.env.MODULE_DOCUMENTS_ID,
+      userId,
+    );
+
+    const isAllowedToDelete =
+      userPermissions.canDelete ||
+      userAccessRule.isAdmin ||
+      userAccessRule.isSuperUser;
+
+    if (!isAllowedToDelete) {
+      throw new AppError('Not Authorized to delete', 401);
+    }
+
+    const aditionalDocument = await this.uploadRepository.findOne({
+      where: { id, companyId },
+    });
+
+    if (!aditionalDocument) {
+      throw new AppError('Document not found', 404);
+    }
+
+    const resS3 = await this.s3Service.deleteFile(aditionalDocument.path);
+
+    if (resS3) {
+      await this.uploadRepository.remove(aditionalDocument);
+    }
+
+    return resS3;
+  }
+
+  async getAdditionalDocument(id: string) {
+    const additionalDocuments = await this.uploadRepository.find({
+      where: { moduleId: process.env.MODULE_DOCUMENTS_ID, module: id },
+    });
+    return { additionalDocuments };
   }
 
   async handlingFilters(
