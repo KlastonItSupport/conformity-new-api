@@ -12,7 +12,7 @@ import {
 
 @Entity('documents')
 export class Document {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('increment')
   id: string;
 
   @Column({ type: 'varchar', length: 255, name: 'status' })
