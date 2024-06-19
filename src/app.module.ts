@@ -16,6 +16,7 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { DepartamentModule } from './modules/departaments/departament.module';
 import { FeedModule } from './modules/feed/feed.module';
 import { DocumentRevisionsModule } from './modules/document-revisions/document-revision.module';
+import { EvaluatorModule } from './modules/evaluators/evaluator.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { DocumentRevisionsModule } from './modules/document-revisions/document-r
     DepartamentModule,
     FeedModule,
     DocumentRevisionsModule,
+    EvaluatorModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],
