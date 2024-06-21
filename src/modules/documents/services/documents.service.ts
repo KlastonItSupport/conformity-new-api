@@ -415,7 +415,30 @@ export class DocumentsService {
     const additionalDocuments = await this.uploadRepository.find({
       where: { moduleId: process.env.MODULE_DOCUMENTS_ID, module: id },
     });
-    return { additionalDocuments };
+
+    const document = await this.documentsRepository.findOne({
+      where: { id },
+    });
+
+    const category = this.categoriesRepository.findOne({
+      where: { id: document.categoryId },
+    });
+
+    const departament = this.departamentsRepository.findOne({
+      where: { id: document.departamentId },
+    });
+    const company = this.companiesRepository.findOne({
+      where: { id: document.companyId },
+    });
+
+    await Promise.all([category, departament, company]).then(
+      ([category, departament, company]) => {
+        document.categoryName = category.name;
+        document.departamentName = departament.name;
+        document.companyName = company.name;
+      },
+    );
+    return { additionalDocuments, document };
   }
 
   async handlingFilters(
