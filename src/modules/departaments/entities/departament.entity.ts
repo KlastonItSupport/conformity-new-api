@@ -6,6 +6,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Document } from 'src/modules/documents/entities/document.entity';
+import { DepartamentPermissions } from 'src/modules/departaments-permissions/entities/departament-permissions.entity';
 
 @Entity('departaments')
 export class Departament {
@@ -23,4 +24,10 @@ export class Departament {
 
   @OneToMany(() => Document, (document) => document.departament)
   documents: Document[];
+
+  @OneToMany(
+    () => DepartamentPermissions,
+    (permission) => permission.department,
+  )
+  permissions: DepartamentPermissions[];
 }
