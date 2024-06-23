@@ -41,6 +41,8 @@ export class DocumentRelatedsService {
 
     delete relatedDoc.category;
     delete relatedDoc.departament;
+
+    relatedDoc['relatedDocumentId'] = relatedDoc.id;
     relatedDoc['id'] = relatedSaved.id as unknown as string;
 
     return relatedDoc;
@@ -59,6 +61,7 @@ export class DocumentRelatedsService {
         });
 
         if (document) {
+          document['relatedDocumentId'] = document.id;
           document['id'] = related.id as unknown as string;
           document.categoryName = document.category?.name;
           document.departamentName = document.departament?.name;
