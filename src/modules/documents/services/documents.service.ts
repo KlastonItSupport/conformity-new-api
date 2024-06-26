@@ -318,7 +318,9 @@ export class DocumentsService {
           companyNamePromise,
         ]);
 
-        document.categoryName = categoryName ? categoryName.name : null;
+        if (document.categoryId) {
+          document.categoryName = categoryName ? categoryName.name : null;
+        }
         document.departamentName = departamentName
           ? departamentName.name
           : null;
