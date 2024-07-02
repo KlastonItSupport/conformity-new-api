@@ -1,3 +1,4 @@
+import { Evaluators } from 'src/modules/evaluators/entities/evaluators.entity';
 import { Feed } from 'src/modules/feed/entities/feed.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
@@ -59,4 +60,7 @@ export class User {
   status: string;
 
   companyName?: string;
+
+  @OneToMany(() => Evaluators, (evaluator) => evaluator.user)
+  approvals: Evaluators[];
 }

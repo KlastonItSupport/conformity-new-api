@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { User } from 'src/modules/users/entities/users.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity({ name: 'documents_approvals' })
 export class Evaluators {
@@ -14,20 +21,20 @@ export class Evaluators {
   @Column({ name: 'document_approvals_user_id_fk' })
   userId: string;
 
-  @Column({ type: 'boolean' })
-  approved?: boolean;
+  @Column({ type: 'int' })
+  approved?: number;
 
-  @Column({ type: 'boolean' })
-  reviewed: boolean;
+  @Column({ type: 'int' })
+  reviewed: number;
 
-  @Column({ type: 'boolean' })
-  cancelled: boolean;
+  @Column({ type: 'int' })
+  cancelled: number;
 
-  @Column({ type: 'boolean' })
-  deleted: boolean;
+  @Column({ type: 'int' })
+  deleted: number;
 
-  @Column({ type: 'boolean' })
-  edited: boolean;
+  @Column({ type: 'int' })
+  edited: number;
 
   @Column({
     name: 'cancel_description',
@@ -39,12 +46,7 @@ export class Evaluators {
 
   userName: string;
 
-  // Se não desejar relacionamentos, remova as anotações abaixo
-  // @ManyToOne(() => Document)
-  // @JoinColumn({ name: 'document_approvals_document_id_fk' })
-  // document: Document;
-
-  // @ManyToOne(() => User)
-  // @JoinColumn({ name: 'document_approvals_user_id_fk' })
-  // user: User;
+  @ManyToOne(() => User, (user) => user.approvals)
+  @JoinColumn({ name: 'document_approvals_user_id_fk' }) // Ajuste o nome da coluna aqui
+  user: User;
 }

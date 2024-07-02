@@ -8,19 +8,19 @@ export class EvaluatorCreatePayload {
   userId: string;
 
   @IsNotEmpty()
-  approved: boolean;
+  approved: number;
 
   @IsNotEmpty()
-  reviewed: boolean;
+  reviewed: number;
 
   @IsNotEmpty()
-  cancelled: boolean;
+  cancelled: number;
 
   @IsNotEmpty()
-  deleted: boolean;
+  deleted: number;
 
   @IsNotEmpty()
-  edited: boolean;
+  edited: number;
 
   @IsOptional()
   cancelDescription?: string;
