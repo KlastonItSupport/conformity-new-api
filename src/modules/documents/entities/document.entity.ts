@@ -1,5 +1,6 @@
 import { Category } from 'src/modules/categories/entities/category.entity';
 import { Departament } from 'src/modules/departaments/entities/departament.entity';
+import { DocumentRevision } from 'src/modules/document-revisions/entities/document-revision.entity';
 import ConvertedFile from 'src/modules/shared/dtos/converted-file';
 import {
   Entity,
@@ -8,6 +9,7 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('documents')
@@ -96,4 +98,7 @@ export class Document {
   categoryName?: string;
   departamentName?: string;
   companyName?: string;
+
+  @OneToMany(() => DocumentRevision, (revision) => revision.document)
+  documentRevisions: DocumentRevision[];
 }

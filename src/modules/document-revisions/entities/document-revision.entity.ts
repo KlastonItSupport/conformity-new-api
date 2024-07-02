@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Document } from 'src/modules/documents/entities/document.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity('document_revisions')
 export class DocumentRevision {
@@ -22,4 +29,12 @@ export class DocumentRevision {
   documentId: string;
 
   userName?: string;
+  documentName?: string;
+
+  @ManyToOne(() => Document, (document) => document.documentRevisions) //
+  @JoinColumn({
+    name: 'document_revisions_document_id_fk',
+    referencedColumnName: 'id',
+  })
+  document: Document;
 }
