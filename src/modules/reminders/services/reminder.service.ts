@@ -98,8 +98,9 @@ export class ReminderService {
   }
 
   async sendDocumentReminders() {
-    const currentDate = format(new Date(), 'yyyy-MM-dd');
-    const currentHour = format(new Date(), 'HH:00');
+    const timeZone = 'America/Sao_Paulo';
+    const currentDate = format(new Date(timeZone), 'yyyy-MM-dd');
+    const currentHour = format(new Date(timeZone), 'HH:00');
     console.log('currentHour', currentHour);
     console.log('currentDate', currentDate);
 
