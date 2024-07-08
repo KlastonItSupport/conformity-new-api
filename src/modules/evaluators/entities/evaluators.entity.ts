@@ -1,3 +1,4 @@
+import { Document } from 'src/modules/documents/entities/document.entity';
 import { User } from 'src/modules/users/entities/users.entity';
 import {
   Entity,
@@ -49,4 +50,8 @@ export class Evaluators {
   @ManyToOne(() => User, (user) => user.approvals)
   @JoinColumn({ name: 'document_approvals_user_id_fk' }) // Ajuste o nome da coluna aqui
   user: User;
+
+  @ManyToOne(() => Document, (document) => document.evaluators)
+  @JoinColumn({ name: 'document_approvals_document_id_fk' })
+  document: Document;
 }

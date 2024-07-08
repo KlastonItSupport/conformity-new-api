@@ -19,6 +19,8 @@ import { DocumentRevisionsModule } from './modules/document-revisions/document-r
 import { EvaluatorModule } from './modules/evaluators/evaluator.module';
 import { DocumentRelatedsModule } from './modules/document-relateds/document-relateds.module';
 import { DepartamentsPermissionsModule } from './modules/departaments-permissions/departaments-permissions.module';
+import { ReminderModule } from './modules/reminders/reminder.module';
+import { MailerModule } from './modules/mailer/mailer.module';
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { DepartamentsPermissionsModule } from './modules/departaments-permission
     EvaluatorModule,
     DocumentRelatedsModule,
     DepartamentsPermissionsModule,
+    ReminderModule,
+    MailerModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],

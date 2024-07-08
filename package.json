@@ -35,6 +35,9 @@
     "jsdom": "^24.1.0",
     "moment": "^2.30.1",
     "mysql2": "^3.9.2",
+    "nodemailer": "^6.9.9",
+    "@nestjs-modules/mailer": "^1.10.3",
+    "@types/nodemailer": "^6.4.14",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.20",
@@ -42,7 +45,7 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
-    "@nestjs/config": "^3.0.0",
+    "@nestjs/config": "^3.1.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
     "@nestjs/typeorm": "^10.0.0",
