@@ -98,9 +98,14 @@ export class ReminderService {
   }
 
   async sendDocumentReminders() {
-    const timeZone = 'America/Sao_Paulo';
-    const currentDate = format(new Date(timeZone), 'yyyy-MM-dd');
-    const currentHour = format(new Date(timeZone), 'HH:00');
+    const currentDate = format(
+      new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }),
+      'yyyy-MM-dd',
+    );
+    const currentHour = format(
+      new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }),
+      'HH:00',
+    );
     console.log('currentHoxxxur', currentHour);
     console.log('currentDate', currentDate);
 
