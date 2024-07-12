@@ -14,5 +14,6 @@ import { UsersModule } from '../users/users.module';
   ],
   controllers: [EvaluatorController],
   providers: [EvaluatorService],
+  exports: [EvaluatorService],
 })
 export class EvaluatorModule {}

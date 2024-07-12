@@ -10,5 +10,6 @@ import { Document } from '../documents/entities/document.entity';
   imports: [TypeOrmModule.forFeature([DocumentRevision, User, Document])],
   controllers: [DocumentRevisionsController],
   providers: [DocumentRevisionService],
+  exports: [DocumentRevisionService],
 })
 export class DocumentRevisionsModule {}

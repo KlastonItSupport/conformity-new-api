@@ -65,13 +65,13 @@ export class Document {
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
-  @Column({ type: 'date', nullable: true, name: 'revision_date' })
+  @Column({ type: 'datetime', nullable: true, name: 'revision_date' })
   revisionDate?: Date;
 
-  @Column({ type: 'date', nullable: true, name: 'system_inclusion_date' })
+  @Column({ type: 'datetime', nullable: true, name: 'system_inclusion_date' })
   inclusionDate?: Date;
 
-  @Column({ type: 'date', nullable: true, name: 'system_created_date' })
+  @Column({ type: 'datetime', nullable: true, name: 'system_created_date' })
   physicalDocumentCreatedDate?: Date;
 
   @Column({ type: 'varchar', length: 255, name: 'document_company_fk' })

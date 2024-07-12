@@ -111,11 +111,12 @@ export class DocumentsService {
     return pagination;
   }
 
-  async createDocument(data: CreateDocumentDto) {
+  async createDocument(data: CreateDocumentDto, isImporting: boolean = false) {
+    delete data.projectId;
     const document = this.documentsRepository.create({
       ...data,
     });
-    if (data.description && data.description.length > 0) {
+    if (data.description && data.description.length > 0 && !isImporting) {
       const dom = new JSDOM(data.description);
       const images = Array.from(dom.window.document.querySelectorAll('img'));
 
@@ -143,7 +144,7 @@ export class DocumentsService {
     }
     const savedDocument = await this.documentsRepository.save(document);
 
-    if (data.document && data.document.length > 0) {
+    if (data.document && data.document.length > 0 && !isImporting) {
       await Promise.all(
         data.document.map(async (file) => {
           await this.s3Service.uploadFile({
@@ -440,6 +441,7 @@ export class DocumentsService {
         document.companyName = company.name;
       },
     );
+
     return { additionalDocuments, document };
   }
 

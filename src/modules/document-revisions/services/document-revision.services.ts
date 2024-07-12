@@ -31,6 +31,7 @@ export class DocumentRevisionService {
     const user = await this.userRepository.findOne({
       where: { id: data.userId },
     });
+
     savedDocumentRevision.userName = user?.name;
     return savedDocumentRevision;
   }

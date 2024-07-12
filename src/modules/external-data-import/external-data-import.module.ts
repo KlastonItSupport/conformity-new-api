@@ -14,6 +14,17 @@ import { Permissions } from '../permissions/entities/permissions.entity';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { PermissionsServices } from '../permissions/services/permissions.service';
 import { SharedModule } from '../shared/shared.module';
+import { DocumentsModule } from '../documents/documents.module';
+import { DepartamentModule } from '../departaments/departament.module';
+import { CategoriesModule } from '../categories/categories.module';
+import { DocumentRevisionsModule } from '../document-revisions/document-revision.module';
+import { FeedModule } from '../feed/feed.module';
+import { DepartamentsPermissionsModule } from '../departaments-permissions/departaments-permissions.module';
+import { EvaluatorModule } from '../evaluators/evaluator.module';
+import { Departament } from '../departaments/entities/departament.entity';
+import { DocumentRelatedsModule } from '../document-relateds/document-relateds.module';
+import { ReminderModule } from '../reminders/reminder.module';
+import { DocumentsImportService } from './services/documents-import.services';
 
 @Module({
   imports: [
@@ -23,16 +34,27 @@ import { SharedModule } from '../shared/shared.module';
       Groups,
       Permissions,
       GroupModulePermission,
+      Departament,
     ]),
     UsersModule,
     CompaniesModule,
     PermissionsModule,
     SharedModule,
+    DocumentsModule,
+    DepartamentModule,
+    CategoriesModule,
+    DocumentRevisionsModule,
+    FeedModule,
+    DepartamentsPermissionsModule,
+    EvaluatorModule,
+    DocumentRelatedsModule,
+    ReminderModule,
   ],
   exports: [ExternalDataImportService],
   controllers: [ExternalDataImportController],
   providers: [
     ExternalDataImportService,
+    DocumentsImportService,
     UsersServices,
     CompanyService,
     PermissionsServices,

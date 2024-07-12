@@ -1,11 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { AppError } from 'src/errors/app-error';
 import { CompanyService } from 'src/modules/companies/services/company.service';
 import { UsersServices } from 'src/modules/users/services/users.services';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { formatCompany } from '../formatters/companies.formatters';
 import { formatUser } from '../formatters/users.formatters';
+import { DocumentsService } from 'src/modules/documents/services/documents.service';
+import { DepartamentService } from 'src/modules/departaments/services/departament.services';
+import { CategoriesService } from 'src/modules/categories/services/categories.services';
+import { S3Service } from 'src/modules/shared/services/s3.service';
+import { DocumentRevisionService } from 'src/modules/document-revisions/services/document-revision.services';
+import { FeedService } from 'src/modules/feed/services/feed.service';
+import { DepartamentPermissionsService } from 'src/modules/departaments-permissions/services/departament-permissions.services';
+import { EvaluatorService } from 'src/modules/evaluators/services/evaluator.services';
+import { Departament } from 'src/modules/departaments/entities/departament.entity';
+import { DocumentRelatedsService } from 'src/modules/document-relateds/services/document-relateds.services';
+import { ReminderService } from 'src/modules/reminders/services/reminder.service';
 
 @Injectable()
 export class ExternalDataImportService {
@@ -15,6 +26,19 @@ export class ExternalDataImportService {
 
     private readonly usersServices: UsersServices,
     private readonly companiesServices: CompanyService,
+    private readonly documentsServices: DocumentsService,
+    private readonly departmentsServices: DepartamentService,
+    private readonly categoriesServices: CategoriesService,
+    private readonly documentRevisionService: DocumentRevisionService,
+    private readonly s3Service: S3Service,
+    private readonly feedService: FeedService,
+    private readonly departamentsPermissionsService: DepartamentPermissionsService,
+    private readonly evaluatorsService: EvaluatorService,
+    private readonly documentRelatedsService: DocumentRelatedsService,
+    private readonly reminderService: ReminderService,
+
+    @InjectRepository(Departament)
+    private readonly departamentRepository: Repository<Departament>,
   ) {}
 
   async importData(
@@ -47,6 +71,7 @@ export class ExternalDataImportService {
     }
 
     const companyFormatted = formatCompany(companies[0]);
+    companyFormatted['id'] = companyId;
     const company = await this.companiesServices.createCompany(
       companyFormatted,
       data.userId,

@@ -15,11 +15,10 @@ import { Company } from '../companies/entities/company.entity';
   imports: [
     TypeOrmModule.forFeature([Category, Document, Departament, Company]),
     SharedModule,
-
     PermissionsModule,
     UsersModule,
   ],
   providers: [DocumentsService],
-  exports: [],
+  exports: [DocumentsService],
 })
 export class DocumentsModule {}

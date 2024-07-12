@@ -29,8 +29,9 @@ const formatStatus = (status: string): string => {
   return 'inactive';
 };
 
-export const formatUser = (data): CreateUserDto => {
+export const formatUser = (data) => {
   return {
+    id: data?.id,
     name: data?.nome,
     email: data?.email,
     password: data?.senha,

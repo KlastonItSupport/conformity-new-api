@@ -106,8 +106,6 @@ export class ReminderService {
       new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }),
       'HH:00',
     );
-    console.log('currentHoxxxur', currentHour);
-    console.log('currentDate', currentDate);
 
     const users = [];
     const reminders = await this.reminderRepository.find({

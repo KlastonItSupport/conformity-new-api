@@ -1,10 +1,12 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ExternalDataImportService } from '../services/external-data-import.services';
+import { DocumentsImportService } from '../services/documents-import.services';
 
 @Controller('import')
 export class ExternalDataImportController {
   constructor(
     private readonly externalDataImportServices: ExternalDataImportService,
+    private readonly documentsImportService: DocumentsImportService,
   ) {}
 
   @Post('/companies/:id')
@@ -14,5 +16,10 @@ export class ExternalDataImportController {
       userId: data.userId,
       defaultPassword: data.defaultPassword,
     });
+  }
+
+  @Get('/company/documents/:id')
+  async getDocuments(@Param() param): Promise<any> {
+    return this.documentsImportService.getDocuments(param.id);
   }
 }

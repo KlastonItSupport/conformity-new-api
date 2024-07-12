@@ -9,6 +9,6 @@ import { Document } from '../documents/entities/document.entity';
   imports: [TypeOrmModule.forFeature([Category, Document])],
   providers: [CategoriesService],
   controllers: [CategoryController],
-  exports: [TypeOrmModule.forFeature([Category])],
+  exports: [TypeOrmModule.forFeature([Category]), CategoriesService],
 })
 export class CategoriesModule {}

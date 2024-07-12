@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { Upload } from '../entities/upload.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
 
 interface UploadFileParams {
   file: Buffer;
@@ -87,6 +88,36 @@ export class S3Service {
       return responseS3.$metadata.httpStatusCode === 204;
     } catch (error) {
       console.error('Erro ao deletar arquivo do S3:', error);
+      throw error;
+    }
+  }
+
+  async transferObject(
+    sourceUrl: string,
+    destinationPath: string,
+    name: string,
+    companyId: string,
+    moduleId: string,
+    id: string,
+  ) {
+    try {
+      const response = await axios.get(sourceUrl, {
+        responseType: 'arraybuffer',
+      });
+
+      const uploadResult = await this.uploadFile({
+        file: response.data,
+        fileType: 'Content-Disposition: inline',
+        fileName: name,
+        moduleId: moduleId,
+        companyId: companyId,
+        id: id,
+        path: destinationPath,
+      });
+
+      return uploadResult.link;
+    } catch (error) {
+      console.error('Erro ao transferir objeto:', error);
       throw error;
     }
   }

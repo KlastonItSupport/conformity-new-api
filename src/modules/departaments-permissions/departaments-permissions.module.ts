@@ -9,5 +9,6 @@ import { Departament } from '../departaments/entities/departament.entity';
   imports: [TypeOrmModule.forFeature([DepartamentPermissions, Departament])],
   providers: [DepartamentPermissionsService],
   controllers: [DepartamentsPermissionsController],
+  exports: [DepartamentPermissionsService],
 })
 export class DepartamentsPermissionsModule {}
