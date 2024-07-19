@@ -17,6 +17,7 @@ import { Company } from 'src/modules/companies/entities/company.entity';
 import { SearchSelectsDto } from '../dtos/search-selects.dto';
 import { Upload } from 'src/modules/shared/entities/upload.entity';
 import { AdditionalDocumentsPayloadDto } from '../dtos/additional-documents-payload.dto';
+import { getFileTypeFromBase64 } from 'src/helpers/files';
 
 @Injectable()
 export class DocumentsService {
@@ -40,11 +41,6 @@ export class DocumentsService {
     private readonly usersService: UsersServices,
     private readonly s3Service: S3Service,
   ) {}
-
-  getFileTypeFromBase64(base64: string): string {
-    const result = /^data:(.+);base64,/.exec(base64);
-    return result ? result[1] : null;
-  }
 
   async getDocuments(
     companyId: string,
@@ -124,7 +120,7 @@ export class DocumentsService {
         const base64Data = image.src.split(';base64,').pop();
         if (!base64Data) continue;
 
-        const fileType = this.getFileTypeFromBase64(image.src);
+        const fileType = getFileTypeFromBase64(image.src);
         const buffer = Buffer.from(base64Data, 'base64');
         const fileName = uuidv4();
 
@@ -258,7 +254,7 @@ export class DocumentsService {
           const base64Data = image.src.split(';base64,').pop();
           if (!base64Data) continue;
 
-          const fileType = this.getFileTypeFromBase64(image.src);
+          const fileType = getFileTypeFromBase64(image.src);
           const buffer = Buffer.from(base64Data, 'base64');
           const fileName = uuidv4();
 

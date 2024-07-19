@@ -21,6 +21,7 @@ import { DocumentRelatedsModule } from './modules/document-relateds/document-rel
 import { DepartamentsPermissionsModule } from './modules/departaments-permissions/departaments-permissions.module';
 import { ReminderModule } from './modules/reminders/reminder.module';
 import { MailerModule } from './modules/mailer/mailer.module';
+import { TasksModule } from './modules/tasks/tasks.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { MailerModule } from './modules/mailer/mailer.module';
     DepartamentsPermissionsModule,
     ReminderModule,
     MailerModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],
