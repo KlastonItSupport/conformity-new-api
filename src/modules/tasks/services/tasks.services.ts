@@ -16,6 +16,8 @@ import { PermissionsServices } from 'src/modules/permissions/services/permission
 import { PagesParamsTasks } from '../dtos/pages.dto';
 import { TasksSearchParams } from '../dtos/search-params.dto';
 import { PaginationTasksDto } from '../dtos/pagination-tasks.dto';
+import { CreateAdditionalDocumentsDto } from '../dtos/create-additional-document.dto';
+import { Upload } from 'src/modules/shared/entities/upload.entity';
 
 @Injectable()
 export class TasksService {
@@ -25,8 +27,12 @@ export class TasksService {
 
     @InjectRepository(TaskType)
     private taskTypesRepository: Repository<TaskType>,
+
     @InjectRepository(TaskOrigin)
     private taskOriginsRepository: Repository<TaskOrigin>,
+
+    @InjectRepository(Upload)
+    private readonly uploadRepository: Repository<Upload>,
 
     private readonly s3Service: S3Service,
     private readonly usersService: UsersServices,
@@ -35,6 +41,7 @@ export class TasksService {
 
   async getTasks(
     userId,
+    companyId,
     pages: PagesParamsTasks,
     searchParams: TasksSearchParams,
   ) {
@@ -44,7 +51,7 @@ export class TasksService {
     const userAccessRule = await this.usersService.getUserAccessRule(userId);
 
     const userPermissions = await this.permissionsService.getModulePermissions(
-      process.env.MODULE_DOCUMENTS_ID,
+      process.env.MODULE_TASKS_ID,
       userId,
     );
 
@@ -62,8 +69,8 @@ export class TasksService {
     const queryBuilder = this.tasksRepository.createQueryBuilder('tasks');
 
     if (!userAccessRule.isAdmin) {
-      queryBuilder.where('tasks.task_company_fk = :companyId', {
-        companyId: userId,
+      queryBuilder.where('tasks.tasks_company_fk = :companyId', {
+        companyId,
       });
     }
 
@@ -113,12 +120,42 @@ export class TasksService {
     return pagination;
   }
 
+  async getSpecificTask(id: number, userId: string) {
+    const userAccessRule = await this.usersService.getUserAccessRule(userId);
+
+    const userPermissions = await this.permissionsService.getModulePermissions(
+      process.env.MODULE_TASKS_ID,
+      userId,
+    );
+
+    const isAllowedToGetTask =
+      userPermissions.canRead ||
+      userAccessRule.isAdmin ||
+      userAccessRule.isSuperUser;
+
+    if (!isAllowedToGetTask) {
+      throw new AppError('Not Authorized to get tasks', 401);
+    }
+
+    const task = await this.tasksRepository.findOne({
+      where: { id },
+      relations: ['origin', 'classification', 'type'],
+    });
+
+    return {
+      ...task,
+      origin: task.origin?.name,
+      classification: task.classification?.name,
+      type: task.type?.name,
+    };
+  }
+
   async createTask(data: CreateTaskDto, userId: string) {
     delete data['project'];
     const userAccessRule = await this.usersService.getUserAccessRule(userId);
 
     const userPermissions = await this.permissionsService.getModulePermissions(
-      process.env.MODULE_DOCUMENTS_ID,
+      process.env.MODULE_TASKS_ID,
       userId,
     );
 
@@ -152,7 +189,7 @@ export class TasksService {
           file: buffer,
           fileType: fileType,
           fileName: fileName,
-          moduleId: process.env.MODULE_DOCUMENTS_ID,
+          moduleId: process.env.MODULE_TASKS_ID,
           companyId: data.companyId,
           id: 'empty',
           path: `${data.companyId}/tasks`,
@@ -177,11 +214,22 @@ export class TasksService {
     }
   }
 
+  async closeTask(id: number) {
+    const task = await this.tasksRepository.findOne({ where: { id } });
+    if (task.status === 'Fechada') {
+      task.status = 'Aberta';
+      return await this.tasksRepository.save(task);
+    }
+    if (task.status === 'Aberta') {
+      task.status = 'Fechada';
+      return await this.tasksRepository.save(task);
+    }
+  }
   async updateTask(id: number, data: UpdateTaskDto, userId: string) {
     const userAccessRule = await this.usersService.getUserAccessRule(userId);
 
     const userPermissions = await this.permissionsService.getModulePermissions(
-      process.env.MODULE_DOCUMENTS_ID,
+      process.env.MODULE_TASKS_ID,
       userId,
     );
 
@@ -329,5 +377,100 @@ export class TasksService {
         }),
       );
     }
+  }
+
+  async createAdditionalDocuments(data: CreateAdditionalDocumentsDto) {
+    const userAccessRule = await this.usersService.getUserAccessRule(
+      data.userId,
+    );
+
+    const userPermissions = await this.permissionsService.getModulePermissions(
+      process.env.MODULE_TASKS_ID,
+      data.userId,
+    );
+
+    const isAllowedToCreateTask =
+      userPermissions.canAdd ||
+      userAccessRule.isAdmin ||
+      userAccessRule.isSuperUser;
+
+    if (!isAllowedToCreateTask) {
+      throw new AppError('Not Authorized to create tasks', 401);
+    }
+
+    const uploads = [];
+    await Promise.all(
+      data.documents.map(async (file) => {
+        const res = await this.s3Service.uploadFile({
+          file: Buffer.from(file.base, 'base64'),
+          fileType: file.type,
+          fileName: file.name,
+          moduleId: process.env.MODULE_TASKS_ID,
+          companyId: data.companyId,
+          id: data.taskId.toString(),
+          path: `${data.companyId}/tasks`,
+        });
+        uploads.push(res);
+      }),
+    );
+    return uploads;
+  }
+
+  async deleteAdditionalDocuments(id: string, userId: string) {
+    const userAccessRule = await this.usersService.getUserAccessRule(userId);
+
+    const userPermissions = await this.permissionsService.getModulePermissions(
+      process.env.MODULE_TASKS_ID,
+      userId,
+    );
+
+    const isAllowedToDelete =
+      userPermissions.canDelete ||
+      userAccessRule.isAdmin ||
+      userAccessRule.isSuperUser;
+
+    if (!isAllowedToDelete) {
+      throw new AppError('Not Authorized to delete', 401);
+    }
+
+    const aditionalDocument = await this.uploadRepository.findOne({
+      where: { id, moduleId: process.env.MODULE_TASKS_ID },
+    });
+
+    if (!aditionalDocument) {
+      throw new AppError('Document not found', 404);
+    }
+
+    const resS3 = await this.s3Service.deleteFile(aditionalDocument.path);
+
+    if (resS3) {
+      await this.uploadRepository.remove(aditionalDocument);
+    }
+
+    return resS3;
+  }
+
+  async getAdditionalDocuments(taskId: string, userId: string) {
+    const userAccessRule = await this.usersService.getUserAccessRule(userId);
+
+    const userPermissions = await this.permissionsService.getModulePermissions(
+      process.env.MODULE_TASKS_ID,
+      userId,
+    );
+
+    const isAllowedToGetTask =
+      userPermissions.canRead ||
+      userAccessRule.isAdmin ||
+      userAccessRule.isSuperUser;
+
+    if (!isAllowedToGetTask) {
+      throw new AppError('Not Authorized to get tasks', 401);
+    }
+
+    const additionalDocuments = await this.uploadRepository.find({
+      where: { moduleId: process.env.LE_TASKS_ID, module: taskId },
+    });
+
+    return additionalDocuments;
   }
 }

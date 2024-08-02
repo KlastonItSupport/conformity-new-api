@@ -1,5 +1,10 @@
 import { Evaluators } from 'src/modules/evaluators/entities/evaluators.entity';
 import { Feed } from 'src/modules/feed/entities/feed.entity';
+import { TasksDeadlinesHistory } from 'src/modules/tasks-details/entities/deadlines.entity';
+import { TaskEvaluator } from 'src/modules/tasks-details/entities/evaluator.entity';
+import { ImmediateAction } from 'src/modules/tasks-details/entities/immediate-actions.entity';
+import { TaskIshikawa } from 'src/modules/tasks-details/entities/ishikawa.entity';
+import { TaskRootCauseAnalysis } from 'src/modules/tasks-details/entities/root-cause-analysis.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity('users')
@@ -53,14 +58,35 @@ export class User {
   @Column({ name: 'profile_pic' })
   profilePic?: string;
 
-  @OneToMany(() => Feed, (feed) => feed.user)
-  feeds: Feed[];
-
   @Column()
   status: string;
 
   companyName?: string;
 
+  @OneToMany(() => Feed, (feed) => feed.user)
+  feeds: Feed[];
+
   @OneToMany(() => Evaluators, (evaluator) => evaluator.user)
   approvals: Evaluators[];
+
+  @OneToMany(() => TaskEvaluator, (taskEvaluator) => taskEvaluator.user)
+  taskEvaluators: TaskEvaluator[];
+
+  @OneToMany(
+    () => TasksDeadlinesHistory,
+    (tasksDeadlinesHistory) => tasksDeadlinesHistory.user,
+  )
+  tasksDeadlinesHistories: TasksDeadlinesHistory[];
+
+  @OneToMany(
+    () => TaskRootCauseAnalysis,
+    (taskRootCauseAnalysis) => taskRootCauseAnalysis.user,
+  )
+  taskRootCauseAnalyses: TaskRootCauseAnalysis[];
+
+  @OneToMany(() => ImmediateAction, (immediateAction) => immediateAction.user)
+  immediateActions: ImmediateAction[];
+
+  @OneToMany(() => TaskIshikawa, (taskIshikawa) => taskIshikawa.user)
+  ishikawa: TaskIshikawa[];
 }

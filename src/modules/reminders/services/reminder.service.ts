@@ -38,7 +38,7 @@ export class ReminderService {
     return await this.reminderRepository.save(reminder);
   }
 
-  async getDocumentReminder(
+  async getReminder(
     moduleId: string | number,
     page: number = 1,
     limit: number = 10,
@@ -86,13 +86,15 @@ export class ReminderService {
     pagination.items = reminders[0];
     pagination.pages = links;
 
-    const document = await this.documentRepository.findOne({
-      where: { id: moduleId.toString() },
-    });
+    if (moduleId === 'documentos') {
+      const document = await this.documentRepository.findOne({
+        where: { id: moduleId.toString() },
+      });
 
-    pagination.items.forEach((reminder) => {
-      reminder['documentName'] = document.name;
-    });
+      pagination.items.forEach((reminder) => {
+        reminder['documentName'] = document.name;
+      });
+    }
 
     return pagination;
   }

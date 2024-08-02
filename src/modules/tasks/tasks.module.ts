@@ -16,6 +16,7 @@ import { ClassificationsServices } from './services/classifications.services';
 import { TaskClassifications } from './entities/task-classifications.entity';
 import { TypesController } from './controllers/types.controller';
 import { TypesServices } from './services/types.services';
+import { Upload } from '../shared/entities/upload.entity';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { TypesServices } from './services/types.services';
       TaskOrigin,
       TaskClassifications,
       Company,
+      Upload,
     ]),
     SharedModule,
     PermissionsModule,

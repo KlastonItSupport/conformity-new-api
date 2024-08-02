@@ -31,10 +31,10 @@ export class ReminderController {
     return await this.reminderService.sendDocumentReminders();
   }
 
-  @Get('documents/:id')
+  @Get(':id')
   @UseGuards(AuthGuard)
   async getDocumentReminder(@Param('id') id: string, @Query() data) {
-    return await this.reminderService.getDocumentReminder(
+    return await this.reminderService.getReminder(
       id,
       data.page,
       data.limit,

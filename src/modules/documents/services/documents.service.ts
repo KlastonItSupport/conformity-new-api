@@ -113,6 +113,7 @@ export class DocumentsService {
       ...data,
     });
     if (data.description && data.description.length > 0 && !isImporting) {
+      // TODO: Avaliar para o feed
       const dom = new JSDOM(data.description);
       const images = Array.from(dom.window.document.querySelectorAll('img'));
 

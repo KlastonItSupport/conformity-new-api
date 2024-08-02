@@ -14,6 +14,7 @@ import { TasksService } from '../services/tasks.services';
 import { CreateTaskDto } from '../dtos/create-task-payload.dto';
 import { UpdateTaskDto } from '../dtos/update-task-payload.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { CreateAdditionalDocumentsDto } from '../dtos/create-additional-document.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -22,7 +23,7 @@ export class TasksController {
   @Get()
   @UseGuards(AuthGuard)
   getTasks(@Req() req, @Query() data) {
-    return this.tasksService.getTasks(req.user.id, data, {
+    return this.tasksService.getTasks(req.user.id, req.user.companyId, data, {
       status: data?.status,
       origin: data?.origin,
       classification: data?.classification,
@@ -55,5 +56,41 @@ export class TasksController {
   @Delete(':id')
   async deleteTask(@Param('id') id: number, @Req() req) {
     return this.tasksService.deleteTask(id, req.user.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('additional-documents')
+  async createAdditionalDocuments(
+    @Body() data: CreateAdditionalDocumentsDto,
+    @Req() req,
+  ) {
+    return this.tasksService.createAdditionalDocuments({
+      ...data,
+      userId: req.user.id,
+      companyId: req.user.companyId,
+    });
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete('additional-documents/:id')
+  async deleteAdditionalDocuments(@Param('id') id: string, @Req() req) {
+    return this.tasksService.deleteAdditionalDocuments(id, req.user.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('additional-documents/:taskId')
+  async getAdditionalDocuments(@Param('taskId') taskId: string, @Req() req) {
+    return this.tasksService.getAdditionalDocuments(taskId, req.user.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(':id')
+  async getTask(@Param('id') id: number, @Req() req) {
+    return this.tasksService.getSpecificTask(id, req.user.id);
+  }
+
+  @Get('close-task/:id')
+  async closeTask(@Param('id') id: number) {
+    return this.tasksService.closeTask(id);
   }
 }

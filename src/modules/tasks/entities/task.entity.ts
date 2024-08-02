@@ -8,10 +8,13 @@ import {
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { TaskType } from './task-type.entity';
 import { TaskOrigin } from './task-origin.entity';
 import { TaskClassifications } from './task-classifications.entity';
+import { TaskEvaluator } from 'src/modules/tasks-details/entities/evaluator.entity';
+import { TaskSubtask } from 'src/modules/tasks-details/entities/relateds.entity';
 
 @Entity('tasks')
 export class Task {
@@ -48,6 +51,9 @@ export class Task {
   @JoinColumn({ name: 'tasks_classification_fk' })
   classification: TaskClassifications;
 
+  @OneToMany(() => TaskEvaluator, (taskEvaluator) => taskEvaluator.task)
+  taskEvaluators: TaskEvaluator[];
+
   @Column({ type: 'varchar' })
   title: string;
 
@@ -80,6 +86,9 @@ export class Task {
 
   @Column({ type: 'varchar', name: 'date_immediate_action' })
   dateImmediateAction: string;
+
+  @OneToMany(() => TaskSubtask, (taskSubtask) => taskSubtask.task)
+  subtasks: TaskSubtask[];
 
   //   @Column({ name: 'tasks_project_fk' })
   //   projectId?: string;
