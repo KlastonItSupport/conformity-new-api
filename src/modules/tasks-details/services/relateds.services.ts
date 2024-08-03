@@ -11,9 +11,6 @@ export class RelatedsServices {
   constructor(
     @InjectRepository(TaskSubtask)
     private readonly subtasksRepository: Repository<TaskSubtask>,
-
-    @InjectRepository(TaskChecklist)
-    private readonly checklistsRepository: Repository<TaskChecklist>,
   ) {}
 
   async createRelateds(data: CreateRelatedTasksPayload) {
@@ -54,17 +51,6 @@ export class RelatedsServices {
       throw new AppError('Subtask not found', 404);
     }
 
-    const checklist = await this.checklistsRepository.find({
-      where: { subtaskId: id },
-    });
-
-    const promiseChecklist = checklist.map(async (checkItem) => {
-      checkItem.isCompleted = true;
-      await this.checklistsRepository.save(checkItem);
-      return checkItem;
-    });
-
-    await Promise.all(promiseChecklist);
     subtask.completed = true;
     return await this.subtasksRepository.save(subtask);
   }
