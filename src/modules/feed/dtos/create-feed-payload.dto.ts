@@ -16,4 +16,7 @@ export class CreateFeedPayloadDto {
   @IsNotEmpty()
   @IsString()
   moduleId: string;
+
+  @IsNotEmpty()
+  companyId: string;
 }

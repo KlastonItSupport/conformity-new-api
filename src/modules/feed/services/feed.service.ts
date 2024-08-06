@@ -38,9 +38,9 @@ export class FeedService {
           fileType: fileType,
           fileName: fileName,
           moduleId: process.env.MODULE_TASKS_ID,
-          companyId: '4',
+          companyId: data.companyId,
           id: `feed-${data.externalId}`,
-          path: `${4}/tasks`,
+          path: `${data.companyId}/tasks`,
         });
         image.src = upload.link;
       }
@@ -94,7 +94,7 @@ export class FeedService {
     return await this.feedRepository.remove(feed);
   }
 
-  async updateFeedItem(id: string, text: string) {
+  async updateFeedItem(id: string, text: string, companyId: string) {
     const feed = await this.feedRepository.findOne({
       where: { id },
     });
@@ -107,6 +107,9 @@ export class FeedService {
 
       for (const image of images) {
         const base64Data = image.src.split(';base64,').pop();
+        if (image.src.includes('http')) {
+          continue;
+        }
         if (!base64Data) continue;
 
         const fileType = getFileTypeFromBase64(image.src);
@@ -118,9 +121,9 @@ export class FeedService {
           fileType: fileType,
           fileName: fileName,
           moduleId: process.env.MODULE_TASKS_ID,
-          companyId: '4',
+          companyId: companyId,
           id: `feed-${feed.externalId}`,
-          path: `${4}/tasks`,
+          path: `${companyId}/tasks`,
         });
         image.src = upload.link;
       }

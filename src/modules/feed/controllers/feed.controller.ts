@@ -6,17 +6,24 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateFeedPayloadDto } from '../dtos/create-feed-payload.dto';
 import { FeedService } from '../services/feed.service';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @Controller('feed')
 export class FeedController {
   constructor(private readonly feedService: FeedService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
-  async createFeed(@Body() data: CreateFeedPayloadDto) {
-    return await this.feedService.createFeed(data);
+  async createFeed(@Body() data: CreateFeedPayloadDto, @Req() req) {
+    return await this.feedService.createFeed({
+      ...data,
+      companyId: req.user.companyId,
+    });
   }
 
   @Get('')
@@ -32,8 +39,13 @@ export class FeedController {
     return await this.feedService.deleteFeedItem(id);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  async updateFeedItem(@Query('id') id: string, @Body() data) {
-    return await this.feedService.updateFeedItem(id, data.text);
+  async updateFeedItem(@Query('id') id: string, @Body() data, @Req() req) {
+    return await this.feedService.updateFeedItem(
+      id,
+      data.text,
+      req.user.companyId,
+    );
   }
 }
