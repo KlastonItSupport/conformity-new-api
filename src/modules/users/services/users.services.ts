@@ -104,8 +104,11 @@ export class UsersServices {
         path: `${user.companyId}/users`,
         fileType: userData.fileType,
         fileName: userData.fileName,
+        companyId: user.companyId,
+        moduleId: process.env.MODULE_DOCUMENTS_ID,
+        id: user.id,
       });
-      userData.profilePic = profilePicUrl;
+      userData.profilePic = profilePicUrl.link;
     }
 
     delete userData.passwordHash;
