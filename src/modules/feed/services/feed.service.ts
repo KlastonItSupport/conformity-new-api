@@ -4,16 +4,49 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateFeedPayloadDto } from '../dtos/create-feed-payload.dto';
 import { AppError } from 'src/errors/app-error';
+import { JSDOM } from 'jsdom';
+import { getFileTypeFromBase64 } from 'src/helpers/files';
+import { v4 as uuidv4 } from 'uuid';
+import { S3Service } from 'src/modules/shared/services/s3.service';
 
 @Injectable()
 export class FeedService {
   constructor(
     @InjectRepository(Feed)
     private readonly feedRepository: Repository<Feed>,
+
+    private readonly s3Service: S3Service,
   ) {}
 
   async createFeed(data: CreateFeedPayloadDto) {
     const feed = this.feedRepository.create(data);
+
+    if (data.text && data.text.length) {
+      const dom = new JSDOM(data.text);
+      const images = Array.from(dom.window.document.querySelectorAll('img'));
+
+      for (const image of images) {
+        const base64Data = image.src.split(';base64,').pop();
+        if (!base64Data) continue;
+
+        const fileType = getFileTypeFromBase64(image.src);
+        const buffer = Buffer.from(base64Data, 'base64');
+        const fileName = uuidv4();
+
+        const upload = await this.s3Service.uploadFile({
+          file: buffer,
+          fileType: fileType,
+          fileName: fileName,
+          moduleId: process.env.MODULE_TASKS_ID,
+          companyId: '4',
+          id: `feed-${data.externalId}`,
+          path: `${4}/tasks`,
+        });
+        image.src = upload.link;
+      }
+      feed.text = dom.serialize();
+    }
+
     const savedFeed = await this.feedRepository.save(feed);
     const feedWithUser = await this.feedRepository.findOne({
       where: { id: savedFeed.id },
@@ -68,7 +101,31 @@ export class FeedService {
     if (!feed) {
       throw new AppError('Feed not found', 404);
     }
-    feed.text = text;
+    if (text && text.length) {
+      const dom = new JSDOM(text);
+      const images = Array.from(dom.window.document.querySelectorAll('img'));
+
+      for (const image of images) {
+        const base64Data = image.src.split(';base64,').pop();
+        if (!base64Data) continue;
+
+        const fileType = getFileTypeFromBase64(image.src);
+        const buffer = Buffer.from(base64Data, 'base64');
+        const fileName = uuidv4();
+
+        const upload = await this.s3Service.uploadFile({
+          file: buffer,
+          fileType: fileType,
+          fileName: fileName,
+          moduleId: process.env.MODULE_TASKS_ID,
+          companyId: '4',
+          id: `feed-${feed.externalId}`,
+          path: `${4}/tasks`,
+        });
+        image.src = upload.link;
+      }
+      feed.text = dom.serialize();
+    }
 
     return await this.feedRepository.save(feed);
   }
