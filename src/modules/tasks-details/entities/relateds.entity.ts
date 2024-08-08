@@ -27,6 +27,9 @@ export class TaskSubtask {
   @Column({ type: 'date', name: 'end_date' })
   endDate: Date;
 
+  @Column({ type: 'int', default: false })
+  order?: number;
+
   @Column({ type: 'boolean', default: false })
   completed: boolean;
 

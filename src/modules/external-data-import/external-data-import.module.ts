@@ -25,6 +25,13 @@ import { Departament } from '../departaments/entities/departament.entity';
 import { DocumentRelatedsModule } from '../document-relateds/document-relateds.module';
 import { ReminderModule } from '../reminders/reminder.module';
 import { DocumentsImportService } from './services/documents-import.services';
+import { TasksImportService } from './services/tasks-import.services';
+import { TasksModule } from '../tasks/tasks.module';
+import { TaskOrigin } from '../tasks/entities/task-origin.entity';
+import { TaskType } from '../tasks/entities/task-type.entity';
+import { TaskClassifications } from '../tasks/entities/task-classifications.entity';
+import { Task } from '../tasks/entities/task.entity';
+import { TasksDetailsModule } from '../tasks-details/tasks-details.module';
 
 @Module({
   imports: [
@@ -35,6 +42,10 @@ import { DocumentsImportService } from './services/documents-import.services';
       Permissions,
       GroupModulePermission,
       Departament,
+      TaskOrigin,
+      TaskType,
+      TaskClassifications,
+      Task,
     ]),
     UsersModule,
     CompaniesModule,
@@ -49,6 +60,8 @@ import { DocumentsImportService } from './services/documents-import.services';
     EvaluatorModule,
     DocumentRelatedsModule,
     ReminderModule,
+    TasksModule,
+    TasksDetailsModule,
   ],
   exports: [ExternalDataImportService],
   controllers: [ExternalDataImportController],
@@ -58,6 +71,7 @@ import { DocumentsImportService } from './services/documents-import.services';
     UsersServices,
     CompanyService,
     PermissionsServices,
+    TasksImportService,
   ],
 })
 export class ExternalDataImportModule {}

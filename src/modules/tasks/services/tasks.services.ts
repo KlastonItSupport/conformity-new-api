@@ -139,18 +139,19 @@ export class TasksService {
 
     const task = await this.tasksRepository.findOne({
       where: { id },
-      relations: ['origin', 'classification', 'type'],
+      relations: ['origin', 'classification', 'type', 'user'],
     });
 
     return {
       ...task,
+      responsable: task.user?.name,
       origin: task.origin?.name,
       classification: task.classification?.name,
       type: task.type?.name,
     };
   }
 
-  async createTask(data: CreateTaskDto, userId: string) {
+  async createTask(data: CreateTaskDto, userId: string, isImporting = false) {
     delete data['project'];
     const userAccessRule = await this.usersService.getUserAccessRule(userId);
 
@@ -164,7 +165,7 @@ export class TasksService {
       userAccessRule.isAdmin ||
       userAccessRule.isSuperUser;
 
-    if (!isAllowedToCreateTask) {
+    if (!isAllowedToCreateTask && !isImporting) {
       throw new AppError('Not Authorized to create tasks', 401);
     }
 
@@ -173,7 +174,7 @@ export class TasksService {
     });
 
     data.companyId = data['company'];
-    if (data.description && data.description.length > 0) {
+    if (data.description && data.description.length > 0 && !isImporting) {
       const dom = new JSDOM(data.description);
       const images = Array.from(dom.window.document.querySelectorAll('img'));
 
@@ -191,7 +192,7 @@ export class TasksService {
           fileName: fileName,
           moduleId: process.env.MODULE_TASKS_ID,
           companyId: data.companyId,
-          id: 'empty',
+          id: 'tasks-description',
           path: `${data.companyId}/tasks`,
         });
         image.src = upload.link;
@@ -468,7 +469,7 @@ export class TasksService {
     }
 
     const additionalDocuments = await this.uploadRepository.find({
-      where: { moduleId: process.env.LE_TASKS_ID, module: taskId },
+      where: { moduleId: process.env.MODULE_TASKS_ID, module: taskId },
     });
 
     return additionalDocuments;

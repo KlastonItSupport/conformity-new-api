@@ -66,5 +66,14 @@ import { TaskSubtask } from './entities/relateds.entity';
     RelatedsServices,
     CheckListServices,
   ],
+  exports: [
+    EvaluatorService,
+    DeadlinesServices,
+    RootCauseAnalysisServices,
+    IshikawaServices,
+    RootCauseServices,
+    ImmediateActionsServices,
+    CorrectiveActionsServices,
+  ],
 })
 export class TasksDetailsModule {}

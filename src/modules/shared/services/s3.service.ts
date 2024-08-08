@@ -105,9 +105,13 @@ export class S3Service {
         responseType: 'arraybuffer',
       });
 
+      const fileType = sourceUrl.endsWith('.pdf')
+        ? 'application/pdf'
+        : 'Content-Disposition: inline';
+
       const uploadResult = await this.uploadFile({
         file: response.data,
-        fileType: 'Content-Disposition: inline',
+        fileType: fileType,
         fileName: name,
         moduleId: moduleId,
         companyId: companyId,

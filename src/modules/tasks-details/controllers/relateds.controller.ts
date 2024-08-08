@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { CreateRelatedTasksPayload } from '../dtos/create-related-tasks.payload';
 import { RelatedsServices } from '../services/relateds.services';
 
@@ -29,5 +37,10 @@ export class RelatedsController {
   @Get('uncomplete-subtasks/:id')
   async getUncompleteSubtasks(@Param('id') id: number) {
     return await this.relatedsService.uncompleteSubtasks(id);
+  }
+
+  @Get('change-order/:id')
+  async changeOrder(@Param('id') id: number, @Query('order') order: number) {
+    return await this.relatedsService.changeOrder(id, order);
   }
 }

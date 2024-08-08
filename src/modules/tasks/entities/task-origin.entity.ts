@@ -13,6 +13,9 @@ export class TaskOrigin {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ type: 'varchar', name: 'origin_company_fk' })
+  companyId: string;
+
   @ManyToOne(() => Company)
   @JoinColumn({ name: 'origin_company_fk' })
   company: Company;

@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { CreateRelatedTasksPayload } from '../dtos/create-related-tasks.payload';
 import { AppError } from 'src/errors/app-error';
 import { TaskSubtask } from '../entities/relateds.entity';
-import { TaskChecklist } from '../entities/checklist.entity';
 
 @Injectable()
 export class RelatedsServices {
@@ -33,6 +32,7 @@ export class RelatedsServices {
   async getRelateds(id: number) {
     const subtask = await this.subtasksRepository.find({
       where: { taskId: id },
+      order: { order: 'ASC' },
     });
 
     if (!subtask) {
@@ -54,6 +54,7 @@ export class RelatedsServices {
     subtask.completed = true;
     return await this.subtasksRepository.save(subtask);
   }
+
   async uncompleteSubtasks(id: number) {
     const subtask = await this.subtasksRepository.findOne({
       where: { id: id },
@@ -65,5 +66,41 @@ export class RelatedsServices {
 
     subtask.completed = false;
     return await this.subtasksRepository.save(subtask);
+  }
+
+  async changeOrder(id: number, newOrder: number) {
+    const subtask = await this.subtasksRepository.findOne({
+      where: { id: id },
+    });
+
+    if (!subtask) {
+      throw new AppError('Subtask not found', 404);
+    }
+
+    const relatedSubtasks = await this.subtasksRepository.find({
+      where: { taskId: subtask.taskId },
+      order: { order: 'ASC' },
+    });
+
+    const indexOfUpdatedSubtask = relatedSubtasks.findIndex(
+      (task) => task.id === Number(id),
+    );
+
+    const [movedSubtask] = relatedSubtasks.splice(indexOfUpdatedSubtask, 1);
+
+    const adjustedNewOrder = Math.min(
+      Math.max(newOrder - 1, 0),
+      relatedSubtasks.length,
+    );
+
+    relatedSubtasks.splice(adjustedNewOrder, 0, movedSubtask);
+
+    for (let i = 0; i < relatedSubtasks.length; i++) {
+      relatedSubtasks[i].order = i + 1;
+    }
+
+    await this.subtasksRepository.save(relatedSubtasks);
+
+    return movedSubtask;
   }
 }

@@ -13,6 +13,9 @@ export class TaskType {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ type: 'varchar', name: 'task_types_company_fk' })
+  companyId: string;
+
   @ManyToOne(() => Company)
   @JoinColumn({ name: 'task_types_company_fk' })
   company: Company;

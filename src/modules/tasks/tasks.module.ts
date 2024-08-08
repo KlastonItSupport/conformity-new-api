@@ -44,5 +44,6 @@ import { Upload } from '../shared/entities/upload.entity';
     ClassificationsServices,
     TypesServices,
   ],
+  exports: [TasksService],
 })
 export class TasksModule {}

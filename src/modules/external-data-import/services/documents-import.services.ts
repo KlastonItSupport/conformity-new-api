@@ -235,6 +235,7 @@ export class DocumentsImportService {
           user: feedItem.usuario_fk as string,
           moduleId: process.env.MODULE_DOCUMENTS_ID,
           userId: feedItem.usuario_fk as string,
+          companyId: feedItem.company_fk as string,
         };
         await this.feedService.createFeed(feedFormatted);
       });

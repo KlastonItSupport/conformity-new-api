@@ -48,6 +48,11 @@ export class TasksRelateds1722343999257 implements MigrationInterface {
             type: 'boolean',
             default: false,
           },
+          {
+            name: 'order',
+            type: 'int',
+            default: 0,
+          },
         ],
         foreignKeys: [
           {
