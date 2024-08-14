@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { TypesServices } from '../services/types.services';
 import { AuthGuard } from 'src/guards/auth.guard';
 
@@ -8,8 +19,12 @@ export class TypesController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async getTypes(@Req() req) {
-    return await this.typesService.getTypes(req.user.companyId);
+  async getTypes(@Req() req, @Query() data) {
+    return await this.typesService.getTypes(req.user.companyId, {
+      page: data.page,
+      pageSize: data.pageSize,
+      search: data.search,
+    });
   }
 
   @Post()
@@ -19,5 +34,17 @@ export class TypesController {
       req.body.name,
       req.user.companyId,
     );
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard)
+  updateOrigin(@Body() data, @Req() req) {
+    return this.typesService.updateType(data.id, data.name, req.user.companyId);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  async deleteType(@Req() req, @Param('id') id) {
+    return await this.typesService.deleteType(id, req.user.companyId);
   }
 }
