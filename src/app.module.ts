@@ -23,6 +23,7 @@ import { ReminderModule } from './modules/reminders/reminder.module';
 import { MailerModule } from './modules/mailer/mailer.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { TasksDetailsModule } from './modules/tasks-details/tasks-details.module';
+import { EquipmentsModule } from './modules/equipments/equipments.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { TasksDetailsModule } from './modules/tasks-details/tasks-details.module
     MailerModule,
     TasksModule,
     TasksDetailsModule,
+    EquipmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],

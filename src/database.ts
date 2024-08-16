@@ -15,7 +15,7 @@ export default class Database {
       entities: [__dirname + '/../**/*.entity.js'],
       autoLoadEntities: false,
       synchronize: false,
-      timezone: 'Z',
+      timezone: '-03:00',
       migrationsRun: false,
       migrations: [`${__dirname}/migrations/{.ts,*.js}`],
     });
@@ -32,7 +32,7 @@ export default class Database {
       database: process.env.DB_NAME,
       entities: ['dist/src/modules/**/entities/*{.ts,.js}'],
       synchronize: false,
-      timezone: 'Z',
+      timezone: '-03:00',
       migrationsRun: true,
       migrations: [`${__dirname}/migrations/{.ts,*.js}`],
     };
