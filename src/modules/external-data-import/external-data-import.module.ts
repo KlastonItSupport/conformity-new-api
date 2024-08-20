@@ -32,6 +32,8 @@ import { TaskType } from '../tasks/entities/task-type.entity';
 import { TaskClassifications } from '../tasks/entities/task-classifications.entity';
 import { Task } from '../tasks/entities/task.entity';
 import { TasksDetailsModule } from '../tasks-details/tasks-details.module';
+import { EquipmentImportService } from './services/equipment-import.services';
+import { EquipmentsModule } from '../equipments/equipments.module';
 
 @Module({
   imports: [
@@ -62,6 +64,7 @@ import { TasksDetailsModule } from '../tasks-details/tasks-details.module';
     ReminderModule,
     TasksModule,
     TasksDetailsModule,
+    EquipmentsModule,
   ],
   exports: [ExternalDataImportService],
   controllers: [ExternalDataImportController],
@@ -72,6 +75,7 @@ import { TasksDetailsModule } from '../tasks-details/tasks-details.module';
     CompanyService,
     PermissionsServices,
     TasksImportService,
+    EquipmentImportService,
   ],
 })
 export class ExternalDataImportModule {}

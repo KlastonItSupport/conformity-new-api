@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ExternalDataImportService } from '../services/external-data-import.services';
 import { DocumentsImportService } from '../services/documents-import.services';
 import { TasksImportService } from '../services/tasks-import.services';
+import { EquipmentImportService } from '../services/equipment-import.services';
 
 @Controller('import')
 export class ExternalDataImportController {
@@ -9,6 +10,7 @@ export class ExternalDataImportController {
     private readonly externalDataImportServices: ExternalDataImportService,
     private readonly documentsImportService: DocumentsImportService,
     private readonly tasksImportService: TasksImportService,
+    private readonly equipmentImportService: EquipmentImportService,
   ) {}
 
   @Post('/companies/:id')
@@ -28,5 +30,10 @@ export class ExternalDataImportController {
   @Get('/company/tasks/:companyId')
   async getTasks(@Param() param) {
     return await this.tasksImportService.getTasks(param.companyId);
+  }
+
+  @Get('/company/equipments/:companyId')
+  async getEquipments(@Param() param) {
+    return await this.equipmentImportService.getAllEquipments(param.companyId);
   }
 }

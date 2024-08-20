@@ -21,5 +21,6 @@ import { EquipmentAction } from './entities/action.entity';
     ActionsController,
   ],
   providers: [EquipmentsService, AdditionalDocumentsService, ActionsService],
+  exports: [EquipmentsService, AdditionalDocumentsService, ActionsService],
 })
 export class EquipmentsModule {}
