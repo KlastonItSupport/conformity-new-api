@@ -3,9 +3,17 @@ import { AppModule } from './app.module';
 import { dataSource } from './database';
 import * as bodyParser from 'body-parser';
 import 'reflect-metadata';
+import * as fs from 'fs';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  let httpsOptions = {};
+  if (process.env.ENVIRONMENT === 'prod') {
+    httpsOptions = {
+      key: fs.readFileSync(process.env.SELF_SIGNED_KEY_PATH),
+      cert: fs.readFileSync(process.env.SELF_SIGNED_CRT_PATH),
+    };
+  }
+  const app = await NestFactory.create(AppModule, { cors: true, httpsOptions });
 
   await dataSource.initialize();
   await dataSource.runMigrations();
