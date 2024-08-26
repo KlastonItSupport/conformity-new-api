@@ -5,9 +5,12 @@ import * as bodyParser from 'body-parser';
 import 'reflect-metadata';
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
+import { Logger } from '@nestjs/common';
 
 dotenv.config();
 async function bootstrap() {
+  Logger.log('Using prod xxxxx');
+
   let httpsOptions = {};
   if (process.env.ENVIRONMENT === 'prod') {
     console.log('Using prod certs');
