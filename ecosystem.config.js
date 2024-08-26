@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
 module.exports = {
   apps: [
     {
@@ -7,9 +10,9 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3000,
-	SELF_SIGNED_KEY_PATH: '/root/server.key',
-        SELF_SIGNED_CRT_PATH: '/root/server.crt',
-      }
-    }
-  ]
+        SELF_SIGNED_KEY_PATH: process.env.SELF_SIGNED_KEY_PATH,
+        SELF_SIGNED_CRT_PATH: process.env.SELF_SIGNED_CRT_PATH,
+      },
+    },
+  ],
 };
