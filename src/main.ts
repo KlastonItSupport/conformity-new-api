@@ -18,6 +18,7 @@ async function bootstrap() {
   } else {
     console.log('Using dev certs');
   }
+  console.log('aaaaaaaa');
   const app = await NestFactory.create(AppModule, { cors: true, httpsOptions });
 
   await dataSource.initialize();
