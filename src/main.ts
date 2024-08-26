@@ -8,6 +8,8 @@ import * as dotenv from 'dotenv';
 import { Logger } from '@nestjs/common';
 
 dotenv.config();
+console.log('Starting...');
+
 async function bootstrap() {
   Logger.log('Using prod xxxxx');
 
