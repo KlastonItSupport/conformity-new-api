@@ -25,6 +25,11 @@ async function bootstrap() {
   }
   console.log('aaaaaaaa');
   const app = await NestFactory.create(AppModule, { cors: true, httpsOptions });
+  app.enableCors({
+    origin: ['http://localhost:3000', 'https://seusite.vercel.app'], // Adicione suas origens permitidas
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
   await dataSource.initialize();
   await dataSource.runMigrations();
