@@ -13,23 +13,23 @@ console.log('Starting...');
 async function bootstrap() {
   Logger.log('Using prod xxxxx');
 
-  let httpsOptions = {};
+  const httpsOptions = {};
   if (process.env.ENVIRONMENT === 'prod') {
     console.log('Using prod certs');
-    httpsOptions = {
-      key: fs.readFileSync(process.env.SELF_SIGNED_KEY_PATH),
-      cert: fs.readFileSync(process.env.SELF_SIGNED_CRT_PATH),
-    };
+    // httpsOptions = {
+    //   key: fs.readFileSync(process.env.SELF_SIGNED_KEY_PATH),
+    //   cert: fs.readFileSync(process.env.SELF_SIGNED_CRT_PATH),
+    // };
   } else {
     console.log('Using dev certs');
   }
   console.log('aaaaaaaa');
-  const app = await NestFactory.create(AppModule, { cors: true, httpsOptions });
-  app.enableCors({
-    origin: ['http://localhost:3000', 'https://seusite.vercel.app'], // Adicione suas origens permitidas
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
+  const app = await NestFactory.create(AppModule, { cors: true });
+  // app.enableCors({
+  //   origin: ['http://localhost:3000', 'https://seusite.vercel.app'], // Adicione suas origens permitidas
+  //   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  //   allowedHeaders: ['Content-Type', 'Authorization'],
+  // });
 
   await dataSource.initialize();
   await dataSource.runMigrations();
