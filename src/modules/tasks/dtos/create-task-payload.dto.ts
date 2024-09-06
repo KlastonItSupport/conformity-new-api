@@ -55,4 +55,8 @@ export class CreateTaskDto {
 
   @IsString()
   dateImmediateAction: string;
+
+  @IsString()
+  @IsOptional()
+  indicator?: number;
 }

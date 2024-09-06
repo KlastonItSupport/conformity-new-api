@@ -18,6 +18,7 @@ import { TasksSearchParams } from '../dtos/search-params.dto';
 import { PaginationTasksDto } from '../dtos/pagination-tasks.dto';
 import { CreateAdditionalDocumentsDto } from '../dtos/create-additional-document.dto';
 import { Upload } from 'src/modules/shared/entities/upload.entity';
+import { IndicatorTasks } from 'src/modules/indicators/entities/indicator-tasks.entity';
 
 @Injectable()
 export class TasksService {
@@ -33,6 +34,9 @@ export class TasksService {
 
     @InjectRepository(Upload)
     private readonly uploadRepository: Repository<Upload>,
+
+    @InjectRepository(IndicatorTasks)
+    private readonly indicatorTasksRepository: Repository<IndicatorTasks>,
 
     private readonly s3Service: S3Service,
     private readonly usersService: UsersServices,
@@ -205,12 +209,22 @@ export class TasksService {
       relations: ['origin', 'classification', 'type'],
     });
 
+    if (data.indicator) {
+      const taskIndicator = this.indicatorTasksRepository.create({
+        taskId: savedTask.id,
+        indicatorId: data.indicator,
+      });
+
+      await this.indicatorTasksRepository.save(taskIndicator);
+    }
+
     if (taskOnDb) {
       return {
         ...taskOnDb,
         origin: taskOnDb.origin?.name,
         classification: taskOnDb.classification?.name,
         type: taskOnDb.type?.name,
+        indicator: data.indicator,
       };
     }
   }

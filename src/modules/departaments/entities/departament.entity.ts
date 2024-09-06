@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Document } from 'src/modules/documents/entities/document.entity';
 import { DepartamentPermissions } from 'src/modules/departaments-permissions/entities/departament-permissions.entity';
+import { Indicator } from 'src/modules/indicators/entities/indicators.entity';
 
 @Entity('departaments')
 export class Departament {
@@ -24,6 +25,9 @@ export class Departament {
 
   @OneToMany(() => Document, (document) => document.departament)
   documents: Document[];
+
+  @OneToMany(() => Indicator, (indicator) => indicator.department)
+  indicators: Indicator[];
 
   @OneToMany(
     () => DepartamentPermissions,

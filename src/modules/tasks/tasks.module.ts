@@ -17,6 +17,7 @@ import { TaskClassifications } from './entities/task-classifications.entity';
 import { TypesController } from './controllers/types.controller';
 import { TypesServices } from './services/types.services';
 import { Upload } from '../shared/entities/upload.entity';
+import { IndicatorTasks } from '../indicators/entities/indicator-tasks.entity';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { Upload } from '../shared/entities/upload.entity';
       TaskClassifications,
       Company,
       Upload,
+      IndicatorTasks,
     ]),
     SharedModule,
     PermissionsModule,

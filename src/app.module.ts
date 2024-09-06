@@ -24,6 +24,7 @@ import { MailerModule } from './modules/mailer/mailer.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { TasksDetailsModule } from './modules/tasks-details/tasks-details.module';
 import { EquipmentsModule } from './modules/equipments/equipments.module';
+import { IndicatorsModule } from './modules/indicators/indicators.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { EquipmentsModule } from './modules/equipments/equipments.module';
     TasksModule,
     TasksDetailsModule,
     EquipmentsModule,
+    IndicatorsModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],
