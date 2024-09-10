@@ -18,7 +18,11 @@ export class IndicatorsService {
     private readonly indicatorAnswerRepository: Repository<IndicatorAnswer>,
   ) {}
 
-  async getAll(pagesParam: PagesParams, companyId: string) {
+  async getAll(
+    pagesParam: PagesParams,
+    companyId: string,
+    departmentId?: string,
+  ) {
     const queryBuilder = this.indicatorsRepository
       .createQueryBuilder('indicators')
       .leftJoinAndSelect('indicators.department', 'department')
@@ -26,6 +30,14 @@ export class IndicatorsService {
       .take(pagesParam?.pageSize)
       .skip((pagesParam?.page - 1) * pagesParam?.pageSize);
 
+    if (departmentId) {
+      queryBuilder.andWhere(
+        'indicators.indicators_department_fk = :departmentId',
+        {
+          departmentId,
+        },
+      );
+    }
     if (pagesParam?.search) {
       const searchParam = `%${pagesParam.search}%`;
       queryBuilder.andWhere(

@@ -21,7 +21,11 @@ export class IndicatorsController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async getAll(@Query() data: PagesParams, @Req() req) {
+  async getAll(
+    @Query() data: PagesParams,
+    @Req() req,
+    @Query('departmentId') departmentId,
+  ) {
     return await this.indicatorsService.getAll(
       {
         page: data.page ?? 1,
@@ -29,6 +33,7 @@ export class IndicatorsController {
         search: data.search,
       },
       req.user.companyId,
+      departmentId,
     );
   }
 

@@ -22,7 +22,6 @@ export class IndicatorAnswerService {
       initialDate?: string;
       finalDate?: string;
     },
-    // companyId: string,
   ) {
     const hasSearchSelects =
       searchSelects &&
@@ -32,6 +31,7 @@ export class IndicatorAnswerService {
       .createQueryBuilder('indicator_answers')
       .leftJoinAndSelect('indicator_answers.indicator', 'indicators')
       .leftJoinAndSelect('indicator_answers.indicatorTasks', 'indicator_tasks')
+      .orderBy('indicator_answers.date', 'ASC')
       .where('indicator_answers.indicator_fk = :indicatorId', {
         indicatorId,
       });
