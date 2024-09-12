@@ -34,6 +34,9 @@ import { Task } from '../tasks/entities/task.entity';
 import { TasksDetailsModule } from '../tasks-details/tasks-details.module';
 import { EquipmentImportService } from './services/equipment-import.services';
 import { EquipmentsModule } from '../equipments/equipments.module';
+import { IndicatorsImportService } from './services/indicators-import.service';
+import { IndicatorsModule } from '../indicators/indicators.module';
+import { IndicatorTasks } from '../indicators/entities/indicator-tasks.entity';
 
 @Module({
   imports: [
@@ -48,6 +51,7 @@ import { EquipmentsModule } from '../equipments/equipments.module';
       TaskType,
       TaskClassifications,
       Task,
+      IndicatorTasks,
     ]),
     UsersModule,
     CompaniesModule,
@@ -65,6 +69,7 @@ import { EquipmentsModule } from '../equipments/equipments.module';
     TasksModule,
     TasksDetailsModule,
     EquipmentsModule,
+    IndicatorsModule,
   ],
   exports: [ExternalDataImportService],
   controllers: [ExternalDataImportController],
@@ -76,6 +81,7 @@ import { EquipmentsModule } from '../equipments/equipments.module';
     PermissionsServices,
     TasksImportService,
     EquipmentImportService,
+    IndicatorsImportService,
   ],
 })
 export class ExternalDataImportModule {}

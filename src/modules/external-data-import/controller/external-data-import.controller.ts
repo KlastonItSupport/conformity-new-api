@@ -3,6 +3,7 @@ import { ExternalDataImportService } from '../services/external-data-import.serv
 import { DocumentsImportService } from '../services/documents-import.services';
 import { TasksImportService } from '../services/tasks-import.services';
 import { EquipmentImportService } from '../services/equipment-import.services';
+import { IndicatorsImportService } from '../services/indicators-import.service';
 
 @Controller('import')
 export class ExternalDataImportController {
@@ -11,6 +12,7 @@ export class ExternalDataImportController {
     private readonly documentsImportService: DocumentsImportService,
     private readonly tasksImportService: TasksImportService,
     private readonly equipmentImportService: EquipmentImportService,
+    private readonly indicatorsImportService: IndicatorsImportService,
   ) {}
 
   @Post('/companies/:id')
@@ -35,5 +37,10 @@ export class ExternalDataImportController {
   @Get('/company/equipments/:companyId')
   async getEquipments(@Param() param) {
     return await this.equipmentImportService.getAllEquipments(param.companyId);
+  }
+
+  @Get('/company/indicators/:companyId')
+  async getIndicators(@Param() param) {
+    return await this.indicatorsImportService.importIndicators(param.companyId);
   }
 }

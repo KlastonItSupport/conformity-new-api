@@ -9,11 +9,11 @@ import {
 export class CreateIndicatorDto {
   @IsString()
   @IsNotEmpty()
-  indicatorsCompanyFk: string;
+  companyId: string;
 
   @IsString()
   @IsNotEmpty()
-  indicatorsDepartmentFk: string;
+  departamentId: string;
 
   @IsInt()
   @IsOptional()
@@ -26,10 +26,6 @@ export class CreateIndicatorDto {
   @IsString()
   @IsNotEmpty()
   goal: string;
-
-  @IsString()
-  @IsNotEmpty()
-  resulting: string;
 
   @IsString()
   @IsNotEmpty()

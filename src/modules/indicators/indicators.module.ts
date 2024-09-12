@@ -14,6 +14,6 @@ import { IndicatorTasks } from './entities/indicator-tasks.entity';
   ],
   controllers: [IndicatorsController, IndicatorAnswerController],
   providers: [IndicatorsService, IndicatorAnswerService],
-  exports: [],
+  exports: [IndicatorsService, IndicatorAnswerService],
 })
 export class IndicatorsModule {}
