@@ -3,9 +3,7 @@ import { AppModule } from './app.module';
 import { dataSource } from './database';
 import * as bodyParser from 'body-parser';
 import 'reflect-metadata';
-import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { Logger } from '@nestjs/common';
 
 dotenv.config();
 console.log('Starting...');
