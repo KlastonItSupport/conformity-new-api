@@ -26,6 +26,8 @@ import { TasksDetailsModule } from './modules/tasks-details/tasks-details.module
 import { EquipmentsModule } from './modules/equipments/equipments.module';
 import { IndicatorsModule } from './modules/indicators/indicators.module';
 import { ServiceModule } from './modules/services/service.module';
+import { ContractModule } from './modules/contracts/contracts.module';
+import { CrmCompaniesModule } from './modules/crm-companies/crm-companies.module';
 
 @Module({
   imports: [
@@ -62,6 +64,8 @@ import { ServiceModule } from './modules/services/service.module';
     EquipmentsModule,
     IndicatorsModule,
     ServiceModule,
+    CrmCompaniesModule,
+    ContractModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],
