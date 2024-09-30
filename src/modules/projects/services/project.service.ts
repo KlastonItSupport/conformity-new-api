@@ -26,6 +26,7 @@ export class ProjectService {
     searchParams: PagesServices,
     searchSelects: { clientSupplier: string; status: string },
   ) {
+    console.log('getall');
     const queryBuilder = this.projectRepository
       .createQueryBuilder('projects')
       .leftJoinAndSelect('projects.crmCompany', 'crmCompany');
