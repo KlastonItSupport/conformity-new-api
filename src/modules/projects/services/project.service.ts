@@ -91,6 +91,7 @@ export class ProjectService {
   }
 
   async create(data: CreateProjectPayloadDto) {
+    console.log('createa');
     const project = this.projectRepository.create(data);
     return await this.projectRepository.save(project);
   }
