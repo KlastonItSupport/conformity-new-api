@@ -80,7 +80,7 @@ export class ProjectService {
     const formattedItemsPromise = projects.map(async (project) => {
       const formattedItem = {
         ...project,
-        clientName: project.crmCompany.fantasyName,
+        clientName: ' project.crmCompany.fantasyName ??',
         progress: await this.updateProgress(project.id),
       };
       delete formattedItem.crmCompany;
