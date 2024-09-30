@@ -13,6 +13,9 @@ export class CrmCompany {
   @Column({ name: 'client_type', type: 'varchar', nullable: true })
   clientType: string;
 
+  @Column({ name: 'person_type', type: 'varchar', nullable: true })
+  personType?: string;
+
   @Column({ name: 'social_reason', type: 'varchar', nullable: true })
   socialReason: string;
 
