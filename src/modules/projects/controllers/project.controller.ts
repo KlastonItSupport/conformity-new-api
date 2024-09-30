@@ -17,8 +17,8 @@ export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
   @Get()
-  getProjects(@Req() req, @Query() query) {
-    return this.projectService.getAll(
+  async getProjects(@Req() req, @Query() query) {
+    return await this.projectService.getAll(
       {
         page: query.page ?? 1,
         pageSize: query.pageSize ?? 10,
@@ -32,20 +32,20 @@ export class ProjectController {
   }
 
   @Post()
-  createProject(@Body() data: CreateProjectPayloadDto) {
-    return this.projectService.create(data);
+  async createProject(@Body() data: CreateProjectPayloadDto) {
+    return await this.projectService.create(data);
   }
 
   @Delete(':id')
-  deleteProject(@Param('id') id: string) {
-    return this.projectService.delete(id);
+  async deleteProject(@Param('id') id: string) {
+    return await this.projectService.delete(id);
   }
 
   @Patch(':id')
-  editProject(
+  async editProject(
     @Param('id') id: string,
     @Body() data: Partial<CreateProjectPayloadDto>,
   ) {
-    return this.projectService.edit(id, data);
+    return await this.projectService.edit(id, data);
   }
 }

@@ -26,7 +26,6 @@ export class ProjectService {
     searchParams: PagesServices,
     searchSelects: { clientSupplier: string; status: string },
   ) {
-    console.log('getall');
     const queryBuilder = this.projectRepository
       .createQueryBuilder('projects')
       .leftJoinAndSelect('projects.crmCompany', 'crmCompany');
@@ -80,7 +79,7 @@ export class ProjectService {
     const formattedItemsPromise = projects.map(async (project) => {
       const formattedItem = {
         ...project,
-        clientName: ' project.crmCompany.fantasyName ??',
+        clientName: project.crmCompany.fantasyName,
         progress: await this.updateProgress(project.id),
       };
       delete formattedItem.crmCompany;
@@ -92,7 +91,6 @@ export class ProjectService {
   }
 
   async create(data: CreateProjectPayloadDto) {
-    console.log('createa');
     const project = this.projectRepository.create(data);
     return await this.projectRepository.save(project);
   }
