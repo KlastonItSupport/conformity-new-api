@@ -28,6 +28,7 @@ import { IndicatorsModule } from './modules/indicators/indicators.module';
 import { ServiceModule } from './modules/services/service.module';
 import { ContractModule } from './modules/contracts/contracts.module';
 import { CrmCompaniesModule } from './modules/crm-companies/crm-companies.module';
+import { ProjectModule } from './modules/projects/projects.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { CrmCompaniesModule } from './modules/crm-companies/crm-companies.module
     ServiceModule,
     CrmCompaniesModule,
     ContractModule,
+    ProjectModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],

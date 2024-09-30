@@ -1,4 +1,5 @@
 import { Contract } from 'src/modules/contracts/entities/contract.entity';
+import { Project } from 'src/modules/projects/entities/project.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity({ name: 'crm_companies' })
@@ -77,4 +78,7 @@ export class CrmCompany {
 
   @OneToMany(() => Contract, (contract) => contract.crmCompany)
   contracts: Contract[];
+
+  @OneToMany(() => Project, (project) => project.crmCompany)
+  projects: Project[];
 }
