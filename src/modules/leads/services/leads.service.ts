@@ -7,6 +7,11 @@ import { AppError } from 'src/errors/app-error';
 import { PagesServices } from 'src/modules/services/dtos/pages.dto';
 import { UsersServices } from 'src/modules/users/services/users.services';
 import { buildPaginationLinks } from 'src/helpers/pagination';
+import { getFileTypeFromBase64 } from 'src/helpers/files';
+import { v4 as uuidv4 } from 'uuid';
+import { JSDOM } from 'jsdom';
+import { S3Service } from 'src/modules/shared/services/s3.service';
+import { Upload } from 'src/modules/shared/entities/upload.entity';
 
 @Injectable()
 export class LeadsService {
@@ -14,7 +19,11 @@ export class LeadsService {
     @InjectRepository(Lead)
     private readonly leadsRepository: Repository<Lead>,
 
+    @InjectRepository(Upload)
+    private readonly uploadsRepository: Repository<Upload>,
+
     private readonly usersService: UsersServices,
+    private readonly s3Service: S3Service,
   ) {}
 
   async getAll(searchParams: PagesServices, userId: string, companyId: string) {
@@ -105,7 +114,36 @@ export class LeadsService {
 
   async create(data: CreateLeadDto) {
     const lead = this.leadsRepository.create(data);
-    return await this.leadsRepository.save(lead);
+    const savedLead = await this.leadsRepository.save(lead);
+
+    if (data.description && data.description.length > 0) {
+      const dom = new JSDOM(data.description);
+      const images = Array.from(dom.window.document.querySelectorAll('img'));
+
+      for (const image of images) {
+        const base64Data = image.src.split(';base64,').pop();
+        if (!base64Data) continue;
+
+        const fileType = getFileTypeFromBase64(image.src);
+        const buffer = Buffer.from(base64Data, 'base64');
+        const fileName = uuidv4();
+
+        const upload = await this.s3Service.uploadFile({
+          file: buffer,
+          fileType: fileType,
+          fileName: fileName,
+          moduleId: process.env.MODULE_CRM_ID,
+          companyId: data.companyId,
+          id: savedLead.id.toString(),
+          path: `${data.companyId}/crm`,
+        });
+        image.src = upload.link;
+      }
+      savedLead.description = dom.serialize();
+    }
+
+    const leadSavedWithDescription = await this.leadsRepository.save(savedLead);
+    return leadSavedWithDescription;
   }
 
   async delete(id: number) {
@@ -115,6 +153,18 @@ export class LeadsService {
 
     if (!lead) {
       throw new AppError('Lead not found', 404);
+    }
+
+    const uploads = await this.uploadsRepository.find({
+      where: {
+        moduleId: process.env.MODULE_CRM_ID,
+        module: lead.id.toString(),
+      },
+    });
+
+    for (const upload of uploads) {
+      await this.s3Service.deleteFile(upload.path);
+      await this.uploadsRepository.remove(upload);
     }
 
     const leadDeleted = await this.leadsRepository.remove(lead);
@@ -134,5 +184,31 @@ export class LeadsService {
     const leadEdited = await this.leadsRepository.save(lead);
 
     return leadEdited;
+  }
+
+  async getLeadPerStatus() {
+    const requested = await this.leadsRepository.find({
+      where: { status: 'solicitado' },
+    });
+    const refused = await this.leadsRepository.find({
+      where: { status: 'recusado' },
+    });
+    const cancelled = await this.leadsRepository.find({
+      where: { status: 'cancelado' },
+    });
+    const inProgress = await this.leadsRepository.find({
+      where: { status: 'em andamento' },
+    });
+    const completed = await this.leadsRepository.find({
+      where: { status: 'concluído' },
+    });
+
+    return {
+      requested: requested.length,
+      refused: refused.length,
+      cancelled: cancelled.length,
+      inProgress: inProgress.length,
+      completed: completed.length,
+    };
   }
 }
