@@ -62,10 +62,13 @@ export class CrmCompany {
   address: string;
 
   @Column({ name: 'address_number', type: 'varchar', nullable: true })
-  addressNumber: string;
+  number: string;
 
   @Column({ name: 'address_complement', type: 'varchar', nullable: true })
   addressComplement: string;
+
+  @Column({ name: 'state', type: 'varchar', nullable: true })
+  state: string;
 
   @Column({ name: 'supplier', type: 'boolean', default: false, nullable: true })
   supplier: boolean;

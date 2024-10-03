@@ -30,6 +30,7 @@ import { ContractModule } from './modules/contracts/contracts.module';
 import { CrmCompaniesModule } from './modules/crm-companies/crm-companies.module';
 import { ProjectModule } from './modules/projects/projects.module';
 import { LeadsModule } from './modules/leads/leads.module';
+import { CnpjInfoModule } from './modules/cnpj-infos/cnpj-info.module';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { LeadsModule } from './modules/leads/leads.module';
     ContractModule,
     ProjectModule,
     LeadsModule,
+    CnpjInfoModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],

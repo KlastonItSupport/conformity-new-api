@@ -7,6 +7,7 @@ import { AppError } from 'src/errors/app-error';
 import { PagesServices } from 'src/modules/services/dtos/pages.dto';
 import { UsersServices } from 'src/modules/users/services/users.services';
 import { buildPaginationLinks } from 'src/helpers/pagination';
+import { capitalizeFirstLetter } from 'src/helpers/string';
 
 @Injectable()
 export class CrmServices {
@@ -29,6 +30,9 @@ export class CrmServices {
             searchParam,
           })
             .orWhere('crmCompany.clientType LIKE :searchParam', {
+              searchParam,
+            })
+            .orWhere('crmCompany.email LIKE :searchParam', {
               searchParam,
             })
             .orWhere('crmCompany.cnpjCpf LIKE :searchParam', {
@@ -68,7 +72,14 @@ export class CrmServices {
   }
 
   async create(data: CreateCrmCompanyDto) {
-    const crm = this.crmRepository.create(data);
+    const crm = this.crmRepository.create({
+      ...data,
+      client: data.type === 'cliente' ? true : false,
+      supplier: data.type === 'fornecedor' ? true : false,
+      clientType: capitalizeFirstLetter(data.clientType),
+      personType: capitalizeFirstLetter(data.personType),
+      cnpjCpf: data.document,
+    });
     const savedCrm = await this.crmRepository.save(crm);
     return savedCrm;
   }
@@ -90,9 +101,24 @@ export class CrmServices {
       throw new AppError('Crm not found', 404);
     }
 
+    if (data.document) {
+      crm.cnpjCpf = data.document;
+    }
+
     delete data.companyId;
     Object.assign(crm, data);
 
-    return await this.crmRepository.save(crm);
+    const saved = await this.crmRepository.save(crm);
+    const savedCrmFomatted = saved;
+
+    if (data.clientType) {
+      savedCrmFomatted.clientType = capitalizeFirstLetter(data.clientType);
+    }
+
+    if (data.personType) {
+      savedCrmFomatted.personType = capitalizeFirstLetter(data.personType);
+    }
+
+    return savedCrmFomatted;
   }
 }

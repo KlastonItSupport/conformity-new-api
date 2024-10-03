@@ -20,15 +20,26 @@ export class CreateCrmCompanyDto {
 
   @IsString()
   @IsOptional()
-  clientType: string;
-
-  @IsString()
-  @IsOptional()
-  socialReason: string;
+  personType: string;
 
   @IsString()
   @IsOptional()
   fantasyName: string;
+
+  @IsString()
+  @IsOptional()
+  document: string;
+
+  @IsString()
+  @IsOptional()
+  clientType: string;
+
+  @IsOptional()
+  type: string;
+
+  @IsString()
+  @IsOptional()
+  socialReason: string;
 
   @IsString()
   @IsOptional()
@@ -101,6 +112,10 @@ export class CreateCrmCompanyDto {
   @IsString()
   @IsNotEmpty()
   status: string;
+
+  @IsString()
+  @IsNotEmpty()
+  state: string;
 
   @IsNumber()
   @IsNotEmpty()
