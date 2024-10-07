@@ -46,4 +46,13 @@ export class ContractsController {
   async editContract(@Param('id') id: number, @Body() data: CreateContractDto) {
     return await this.contractsService.editContract(id, data);
   }
+
+  @Get('/contracts-status')
+  @UseGuards(AuthGuard)
+  async getContractsStatus(@Req() req) {
+    return await this.contractsService.getContractsStatus(
+      req.user.companyId,
+      req.user.id,
+    );
+  }
 }

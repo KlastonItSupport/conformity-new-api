@@ -64,6 +64,12 @@ export class ContractsService {
       pageSize: searchParams.pageSize,
       totalData: totalItems,
     });
+    paginationLinks.items = paginationLinks.items.map((contract) => {
+      return {
+        ...contract,
+        clientSupplier: contract.crmCompany?.socialReason,
+      };
+    });
 
     return paginationLinks;
   }
@@ -85,7 +91,20 @@ export class ContractsService {
       contract.link = contractFile.link;
     }
 
-    return await this.contractsRepository.save(contract);
+    await this.contractsRepository.save(contract);
+
+    const savedContractWithDoc = await this.contractsRepository.findOne({
+      where: { id: contractSaved.id },
+      relations: ['crmCompany'],
+    });
+
+    const formattedContrat = {
+      ...savedContractWithDoc,
+      clientSupplier: savedContractWithDoc.crmCompany?.socialReason,
+    };
+
+    delete formattedContrat.crmCompany;
+    return formattedContrat;
   }
 
   async deleteContract(id: number) {
@@ -103,8 +122,11 @@ export class ContractsService {
         moduleId: process.env.MODULE_CRM_ID,
       },
     });
-    await this.s3Service.deleteFile(contractFile.path);
-    await this.uploadRepository.remove(contractFile);
+
+    if (contractFile.link) {
+      await this.s3Service.deleteFile(contractFile.path);
+      await this.uploadRepository.remove(contractFile);
+    }
 
     const contractDeleted = await this.contractsRepository.remove(contract);
 
@@ -150,6 +172,42 @@ export class ContractsService {
 
       contractEdited.link = contractFileEdited.link;
     }
-    return await this.contractsRepository.save(contractEdited);
+    await this.contractsRepository.save(contractEdited);
+
+    const savedContractWithDoc = await this.contractsRepository.findOne({
+      where: { id: contractEdited.id },
+      relations: ['crmCompany'],
+    });
+
+    const formattedContrat = {
+      ...savedContractWithDoc,
+      clientSupplier: savedContractWithDoc.crmCompany?.socialReason,
+    };
+
+    delete formattedContrat.crmCompany;
+    return formattedContrat;
+  }
+
+  async getContractsStatus(companyId: string, userId: string) {
+    const userAccessRule = await this.usersService.getUserAccessRule(userId);
+    const companyFilter = userAccessRule.isAdmin ? {} : { companyId };
+
+    const activeContracts = await this.contractsRepository.find({
+      where: { ...companyFilter, status: 'Ativo' },
+    });
+
+    const unactiveContracts = await this.contractsRepository.find({
+      where: { ...companyFilter, status: 'Inativo' },
+    });
+
+    const cancelledContracts = await this.contractsRepository.find({
+      where: { ...companyFilter, status: 'Cancelado' },
+    });
+
+    return {
+      active: activeContracts.length,
+      unactive: unactiveContracts.length,
+      cancelled: cancelledContracts.length,
+    };
   }
 }
