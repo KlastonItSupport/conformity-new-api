@@ -24,4 +24,7 @@ export class CreateProjectPayloadDto {
 
   @IsNotEmpty()
   crmCompanyId: number;
+
+  @IsNotEmpty()
+  description: string;
 }

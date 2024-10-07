@@ -8,6 +8,11 @@ import { PagesServices } from 'src/modules/services/dtos/pages.dto';
 import { buildPaginationLinks } from 'src/helpers/pagination';
 import { Task } from 'src/modules/tasks/entities/task.entity';
 import { Document } from 'src/modules/documents/entities/document.entity';
+import { UsersServices } from 'src/modules/users/services/users.services';
+import { JSDOM } from 'jsdom';
+import { v4 as uuidv4 } from 'uuid';
+import { getFileTypeFromBase64 } from 'src/helpers/files';
+import { S3Service } from 'src/modules/shared/services/s3.service';
 
 @Injectable()
 export class ProjectService {
@@ -20,6 +25,9 @@ export class ProjectService {
 
     @InjectRepository(Task)
     private readonly tasksRepository: Repository<Task>,
+
+    private readonly s3Service: S3Service,
+    private readonly userService: UsersServices,
   ) {}
 
   async getAll(
@@ -79,7 +87,7 @@ export class ProjectService {
     const formattedItemsPromise = projects.map(async (project) => {
       const formattedItem = {
         ...project,
-        clientName: project.crmCompany.fantasyName,
+        clientName: project.crmCompany.socialReason,
         progress: await this.updateProgress(project.id),
       };
       delete formattedItem.crmCompany;
@@ -92,7 +100,47 @@ export class ProjectService {
 
   async create(data: CreateProjectPayloadDto) {
     const project = this.projectRepository.create(data);
-    return await this.projectRepository.save(project);
+    const projectOnDb = await this.projectRepository.save(project);
+
+    const projectWithRelation = await this.projectRepository.findOne({
+      where: { id: projectOnDb.id },
+      relations: ['crmCompany'],
+    });
+
+    if (data.text && data.text.length > 0) {
+      const dom = new JSDOM(data.text);
+      const images = Array.from(dom.window.document.querySelectorAll('img'));
+
+      for (const image of images) {
+        const base64Data = image.src.split(';base64,').pop();
+        if (!base64Data) continue;
+
+        const fileType = getFileTypeFromBase64(image.src);
+        const buffer = Buffer.from(base64Data, 'base64');
+        const fileName = uuidv4();
+
+        const upload = await this.s3Service.uploadFile({
+          file: buffer,
+          fileType: fileType,
+          fileName: fileName,
+          moduleId: process.env.MODULE_CRM_ID,
+          companyId: data.companyId,
+          id: projectWithRelation.id.toString(),
+          path: `${data.companyId}/projects`,
+        });
+        image.src = upload.link;
+      }
+
+      projectWithRelation.text = dom.serialize();
+    }
+
+    const formattedProject = {
+      ...projectWithRelation,
+      clientName: projectWithRelation.crmCompany?.socialReason,
+    };
+    delete formattedProject.crmCompany;
+
+    return formattedProject;
   }
 
   async delete(id: string) {
@@ -112,11 +160,49 @@ export class ProjectService {
     }
 
     delete data.companyId;
-    delete data.crmCompanyId;
     delete data['id'];
 
     Object.assign(project, data);
-    return await this.projectRepository.save(project);
+    if (data.text && data.text.length > 0) {
+      const dom = new JSDOM(data.text);
+      const images = Array.from(dom.window.document.querySelectorAll('img'));
+
+      for (const image of images) {
+        const base64Data = image.src.split(';base64,').pop();
+        if (!base64Data) continue;
+
+        const fileType = getFileTypeFromBase64(image.src);
+        const buffer = Buffer.from(base64Data, 'base64');
+        const fileName = uuidv4();
+
+        const upload = await this.s3Service.uploadFile({
+          file: buffer,
+          fileType: fileType,
+          fileName: fileName,
+          moduleId: process.env.MODULE_CRM_ID,
+          companyId: project.companyId,
+          id: project.id.toString(),
+          path: `${project.companyId}/projects`,
+        });
+        image.src = upload.link;
+      }
+
+      project.text = dom.serialize();
+    }
+    await this.projectRepository.save(project);
+
+    const editedProject = await this.projectRepository.findOne({
+      where: { id },
+      relations: ['crmCompany'],
+    });
+
+    const formattedProject = {
+      ...editedProject,
+      clientName: editedProject.crmCompany?.socialReason,
+    };
+    delete formattedProject.crmCompany;
+
+    return formattedProject;
   }
 
   async updateProgress(id: string) {
@@ -144,5 +230,39 @@ export class ProjectService {
     await this.projectRepository.save(project);
 
     return Math.floor(progress);
+  }
+
+  async getProjectsByStatus(companyId: string, userId: string) {
+    const userAccessRule = await this.userService.getUserAccessRule(userId);
+    const companyFilter = userAccessRule.isAdmin ? {} : { companyId };
+
+    const startedProjects = await this.projectRepository.find({
+      where: { ...companyFilter, status: 'Iniciado' },
+    });
+
+    const stopProjects = await this.projectRepository.find({
+      where: { ...companyFilter, status: 'Parado' },
+    });
+
+    const endedProjects = await this.projectRepository.find({
+      where: {
+        ...companyFilter,
+        status: 'Finalizado',
+      },
+    });
+
+    const inProgressProjects = await this.projectRepository.find({
+      where: {
+        ...companyFilter,
+        status: 'Em andamento',
+      },
+    });
+
+    return {
+      started: startedProjects.length,
+      stopped: stopProjects.length,
+      ended: endedProjects.length,
+      inProgress: inProgressProjects.length,
+    };
   }
 }

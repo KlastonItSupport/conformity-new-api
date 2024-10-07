@@ -8,9 +8,11 @@ import {
   Post,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ProjectService } from '../services/project.service';
 import { CreateProjectPayloadDto } from '../dtos/create-project-payload.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @Controller('projects')
 export class ProjectController {
@@ -47,5 +49,14 @@ export class ProjectController {
     @Body() data: Partial<CreateProjectPayloadDto>,
   ) {
     return await this.projectService.edit(id, data);
+  }
+
+  @Get('status')
+  @UseGuards(AuthGuard)
+  async getProjectsByStatus(@Req() req) {
+    return await this.projectService.getProjectsByStatus(
+      req.user.companyId,
+      req.user.id,
+    );
   }
 }
