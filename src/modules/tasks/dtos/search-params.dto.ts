@@ -14,7 +14,7 @@ export class TasksSearchParams {
   type?: string;
 
   @IsOptional()
-  project?: string;
+  projectId?: string;
 
   @IsOptional()
   departament?: string;

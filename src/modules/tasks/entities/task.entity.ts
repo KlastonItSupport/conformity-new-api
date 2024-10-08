@@ -15,6 +15,7 @@ import { TaskOrigin } from './task-origin.entity';
 import { TaskClassifications } from './task-classifications.entity';
 import { TaskEvaluator } from 'src/modules/tasks-details/entities/evaluator.entity';
 import { TaskSubtask } from 'src/modules/tasks-details/entities/relateds.entity';
+import { Project } from 'src/modules/projects/entities/project.entity';
 
 @Entity('tasks')
 export class Task {
@@ -25,7 +26,7 @@ export class Task {
   createdAt: Date;
 
   @Column({ name: 'tasks_project_fk' })
-  project: string;
+  projectId: string;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'tasks_users_fk' })
@@ -42,6 +43,10 @@ export class Task {
   @ManyToOne(() => TaskType)
   @JoinColumn({ name: 'tasks_type_fk' })
   type: TaskType;
+
+  @ManyToOne(() => Project, (project) => project.tasks)
+  @JoinColumn({ name: 'tasks_project_fk' })
+  project: Project;
 
   @ManyToOne(() => TaskOrigin)
   @JoinColumn({ name: 'tasks_origin_fk' })
@@ -89,6 +94,8 @@ export class Task {
 
   @OneToMany(() => TaskSubtask, (taskSubtask) => taskSubtask.task)
   subtasks: TaskSubtask[];
+
+  projectName?: string;
 
   //   @Column({ name: 'tasks_project_fk' })
   //   projectId?: string;

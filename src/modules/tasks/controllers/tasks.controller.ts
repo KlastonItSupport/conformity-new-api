@@ -28,7 +28,7 @@ export class TasksController {
       origin: data?.origin,
       classification: data?.classification,
       type: data?.type,
-      project: data?.project,
+      projectId: data?.projectId,
       departament: data?.departament,
     });
   }

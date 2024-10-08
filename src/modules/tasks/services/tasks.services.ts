@@ -117,6 +117,7 @@ export class TasksService {
         type: task.type?.name,
         typeId: task.type?.id,
       };
+      delete taskFormatted.project;
       return taskFormatted;
     });
     pagination.pages = links;
@@ -143,20 +144,23 @@ export class TasksService {
 
     const task = await this.tasksRepository.findOne({
       where: { id },
-      relations: ['origin', 'classification', 'type', 'user'],
+      relations: ['origin', 'classification', 'type', 'user', 'project'],
     });
 
-    return {
+    const formattedTask = {
       ...task,
       responsable: task.user?.name,
       origin: task.origin?.name,
       classification: task.classification?.name,
       type: task.type?.name,
+      projectName: task.project?.title,
     };
+
+    delete formattedTask.project;
+    return formattedTask;
   }
 
   async createTask(data: CreateTaskDto, userId: string, isImporting = false) {
-    delete data['project'];
     const userAccessRule = await this.usersService.getUserAccessRule(userId);
 
     const userPermissions = await this.permissionsService.getModulePermissions(
@@ -343,6 +347,7 @@ export class TasksService {
     queryBuilder
       .leftJoinAndSelect('tasks.origin', 'origin')
       .leftJoinAndSelect('tasks.classification', 'classification')
+      .leftJoinAndSelect('tasks.project', 'project')
       .leftJoinAndSelect('tasks.type', 'type');
 
     const hasSearchSelects =
@@ -363,7 +368,11 @@ export class TasksService {
               classificationId: `%${searchSelects.classification}%`,
             });
           }
-
+          if (searchSelects.projectId) {
+            qb.andWhere('project.id LIKE :projectId', {
+              projectId: searchSelects.projectId,
+            });
+          }
           if (searchSelects.type) {
             qb.andWhere('type.id LIKE :typeId', {
               typeId: `%${searchSelects.type}%`,

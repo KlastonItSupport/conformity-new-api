@@ -1,5 +1,6 @@
 import { CrmCompany } from 'src/modules/crm-companies/entities/crm-company.entity';
 import { Document } from 'src/modules/documents/entities/document.entity';
+import { Task } from 'src/modules/tasks/entities/task.entity';
 import {
   Entity,
   Column,
@@ -44,4 +45,7 @@ export class Project {
 
   @OneToMany(() => Document, (document) => document.project)
   documents: Document[];
+
+  @OneToMany(() => Task, (document) => document.project)
+  tasks: Task[];
 }

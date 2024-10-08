@@ -207,7 +207,7 @@ export class ProjectService {
 
   async updateProgress(id: string) {
     const tasks = await this.tasksRepository.find({
-      where: { project: id },
+      where: { projectId: id },
     });
 
     if (tasks.length === 0) {
