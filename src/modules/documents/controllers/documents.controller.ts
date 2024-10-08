@@ -23,8 +23,11 @@ export class DocumentsController {
 
   @Get()
   @UseGuards(AuthGuard)
-  getDocuments(@Req() req, @Query() data): Promise<PaginationDocumentsDto> {
-    return this.documentsService.getDocuments(
+  async getDocuments(
+    @Req() req,
+    @Query() data,
+  ): Promise<PaginationDocumentsDto> {
+    return await this.documentsService.getDocuments(
       req.user.companyId,
       req.user.id,
       data.page,
@@ -36,16 +39,16 @@ export class DocumentsController {
         departamentId: data?.departamentId,
         categoryId: data?.categoryId,
         author: data?.author,
+        projectId: data?.projectId,
       },
     );
   }
 
   @Post()
   @UseGuards(AuthGuard)
-  createDocument(@Body() data: CreateDocumentDto, @Req() req) {
-    data.projectId = '1';
+  async createDocument(@Body() data: CreateDocumentDto, @Req() req) {
     data.status = '';
-    return this.documentsService.createDocument({
+    return await this.documentsService.createDocument({
       ...data,
       companyId: req.user.companyId,
     });
@@ -53,8 +56,8 @@ export class DocumentsController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  deleteDocument(@Req() req, @Param('id') id: string) {
-    return this.documentsService.deleteDocument(
+  async deleteDocument(@Req() req, @Param('id') id: string) {
+    return await this.documentsService.deleteDocument(
       req.user.id,
       req.user.companyId,
       id,
@@ -63,8 +66,12 @@ export class DocumentsController {
 
   @Patch(':id')
   @UseGuards(AuthGuard)
-  updateDocument(@Req() req, @Param('id') id: string, @Body() data: Document) {
-    return this.documentsService.updateDocument(
+  async updateDocument(
+    @Req() req,
+    @Param('id') id: string,
+    @Body() data: Document,
+  ) {
+    return await this.documentsService.updateDocument(
       req.user.id,
       req.user.companyId,
       id,
@@ -74,8 +81,8 @@ export class DocumentsController {
 
   @Delete('additional-documents/:id')
   @UseGuards(AuthGuard)
-  deleteAditionalDocument(@Req() req, @Param('id') id: string) {
-    return this.documentsService.deleteAdditionalDocument(
+  async deleteAditionalDocument(@Req() req, @Param('id') id: string) {
+    return await this.documentsService.deleteAdditionalDocument(
       req.user.id,
       req.user.companyId,
       id,
@@ -84,17 +91,17 @@ export class DocumentsController {
 
   @Get('document-details/:id')
   @UseGuards(AuthGuard)
-  getAditionalDocument(@Req() req, @Param('id') id: string) {
-    return this.documentsService.getAdditionalDocument(id);
+  async getAditionalDocument(@Req() req, @Param('id') id: string) {
+    return await this.documentsService.getAdditionalDocument(id);
   }
 
   @Post('additional-documents')
   @UseGuards(AuthGuard)
-  createAdditionalDocument(
+  async createAdditionalDocument(
     @Req() req,
     @Body() data: AdditionalDocumentsPayloadDto,
   ) {
-    return this.documentsService.createAdditionalDocument({
+    return await this.documentsService.createAdditionalDocument({
       ...data,
       userId: req.user.id,
     });

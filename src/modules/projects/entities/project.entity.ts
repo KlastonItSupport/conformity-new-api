@@ -1,10 +1,12 @@
 import { CrmCompany } from 'src/modules/crm-companies/entities/crm-company.entity';
+import { Document } from 'src/modules/documents/entities/document.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity({ name: 'projects' })
@@ -39,4 +41,7 @@ export class Project {
   @ManyToOne(() => CrmCompany, (crmCompany) => crmCompany.projects)
   @JoinColumn({ name: 'projects_crm_companies_fk' })
   crmCompany: CrmCompany;
+
+  @OneToMany(() => Document, (document) => document.project)
+  documents: Document[];
 }

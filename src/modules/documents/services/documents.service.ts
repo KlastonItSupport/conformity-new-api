@@ -108,7 +108,6 @@ export class DocumentsService {
   }
 
   async createDocument(data: CreateDocumentDto, isImporting: boolean = false) {
-    delete data.projectId;
     const document = this.documentsRepository.create({
       ...data,
     });
@@ -453,6 +452,8 @@ export class DocumentsService {
 
     queryBuilder.leftJoin('documents.category', 'category');
     queryBuilder.leftJoin('documents.departament', 'departament');
+    queryBuilder.leftJoin('documents.project', 'project');
+
     const hasSearchSelects =
       searchSelects &&
       Object.values(searchSelects).some((value) => value !== undefined);
@@ -495,6 +496,12 @@ export class DocumentsService {
       if (searchSelects.categoryId) {
         queryBuilder.andWhere('documents.document_category_fk = :categoryId', {
           categoryId: searchSelects.categoryId,
+        });
+      }
+
+      if (searchSelects.projectId) {
+        queryBuilder.andWhere('documents.document_project_fk = :projectId', {
+          projectId: searchSelects.projectId,
         });
       }
 

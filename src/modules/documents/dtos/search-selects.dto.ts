@@ -14,5 +14,8 @@ export class SearchSelectsDto {
   categoryId?: string;
 
   @IsOptional()
+  projectId?: string;
+
+  @IsOptional()
   author?: string;
 }

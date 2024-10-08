@@ -2,6 +2,7 @@ import { Category } from 'src/modules/categories/entities/category.entity';
 import { Departament } from 'src/modules/departaments/entities/departament.entity';
 import { DocumentRevision } from 'src/modules/document-revisions/entities/document-revision.entity';
 import { Evaluators } from 'src/modules/evaluators/entities/evaluators.entity';
+import { Project } from 'src/modules/projects/entities/project.entity';
 import ConvertedFile from 'src/modules/shared/dtos/converted-file';
 import {
   Entity,
@@ -95,6 +96,10 @@ export class Document {
   @ManyToOne(() => Departament, (departament) => departament.documents)
   @JoinColumn({ name: 'document_departament_fk' })
   departament: Departament;
+
+  @ManyToOne(() => Project, (project) => project.documents)
+  @JoinColumn({ name: 'document_project_fk' })
+  project: Project;
 
   categoryName?: string;
   departamentName?: string;
