@@ -81,6 +81,12 @@ export class LeadsService {
       });
     }
 
+    if (searchParams.page && searchParams.pageSize) {
+      queryBuilder
+        .offset((searchParams.page - 1) * searchParams.pageSize)
+        .limit(searchParams.pageSize);
+    }
+
     const [leads, totalItems] = await queryBuilder.getManyAndCount();
 
     const lastPage = searchParams.pageSize
@@ -261,8 +267,15 @@ export class LeadsService {
     const inProgress = await this.leadsRepository.find({
       where: { ...companyFilter, status: 'em andamento' },
     });
+
     const completed = await this.leadsRepository.find({
       where: { ...companyFilter, status: 'concluído' },
+    });
+
+    const total = await this.leadsRepository.find({
+      where: {
+        ...companyFilter,
+      },
     });
 
     return {
@@ -271,6 +284,7 @@ export class LeadsService {
       cancelled: cancelled.length,
       inProgress: inProgress.length,
       completed: completed.length,
+      total: total.length,
     };
   }
 }

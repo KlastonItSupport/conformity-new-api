@@ -22,7 +22,9 @@ export class TasksLeadsService {
 
     const queryBuilder = this.leadTaskRepository
       .createQueryBuilder('leads')
-      .leftJoinAndSelect('leads.user', 'user');
+      .leftJoinAndSelect('leads.user', 'user')
+      .leftJoinAndSelect('leads.lead', 'leadOriginal')
+      .leftJoinAndSelect('leadOriginal.crmCompany', 'crmCompany');
 
     if (searchParams.search) {
       const searchParam = `%${searchParams.search}%`;
@@ -37,6 +39,9 @@ export class TasksLeadsService {
               searchParam,
             })
             .orWhere('user.name LIKE :searchParam', {
+              searchParam,
+            })
+            .orWhere('crmCompany.socialReason LIKE :searchParam', {
               searchParam,
             });
           if (
@@ -60,6 +65,11 @@ export class TasksLeadsService {
       });
     }
 
+    if (searchParams.page && searchParams.pageSize) {
+      queryBuilder
+        .offset((Number(searchParams.page) - 1) * searchParams.pageSize)
+        .limit(searchParams.pageSize);
+    }
     const [leads, totalItems] = await queryBuilder.getManyAndCount();
 
     const lastPage = searchParams.pageSize
@@ -74,7 +84,30 @@ export class TasksLeadsService {
       totalData: totalItems,
     });
 
+    paginationLinks.items = paginationLinks.items.map((taskLead: LeadTask) => {
+      const formatted = {
+        ...taskLead,
+        clientName: taskLead?.lead?.crmCompany?.socialReason ?? '',
+        userName: taskLead?.user?.name ?? '',
+      };
+
+      delete formatted.lead;
+      delete formatted.user;
+
+      return formatted;
+    });
     return paginationLinks;
+  }
+
+  async getByLeadId(id: number) {
+    const taskLead = await this.leadTaskRepository.find({
+      where: { leadId: id },
+    });
+
+    if (!taskLead) {
+      throw new AppError('Task not found', 404);
+    }
+    return taskLead;
   }
 
   async createTask(data: CreateLeadTaskDto) {

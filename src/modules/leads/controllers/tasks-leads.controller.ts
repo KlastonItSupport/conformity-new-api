@@ -32,6 +32,11 @@ export class TasksLeadsController {
     );
   }
 
+  @Get('/:id')
+  async getByLeadId(@Param('id') id: number) {
+    return await this.tasksLeadsService.getByLeadId(id);
+  }
+
   @Post()
   @UseGuards(AuthGuard)
   async createTask(@Body() data: CreateLeadTaskDto, @Req() req) {
