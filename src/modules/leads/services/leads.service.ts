@@ -99,7 +99,7 @@ export class LeadsService {
       const formattedItem = {
         ...item,
         username: item.user.name,
-        crmCompanyName: item.crmCompany.fantasyName,
+        crmCompanyName: item.crmCompany.socialReason ?? '',
       };
 
       delete formattedItem.user;
@@ -142,8 +142,24 @@ export class LeadsService {
       savedLead.description = dom.serialize();
     }
 
-    const leadSavedWithDescription = await this.leadsRepository.save(savedLead);
-    return leadSavedWithDescription;
+    await this.leadsRepository.save(savedLead);
+    const leadSavedWithDescriptionAndRelatiom =
+      await this.leadsRepository.findOne({
+        where: { id: savedLead.id },
+        relations: ['user', 'crmCompany'],
+      });
+
+    const formattedItem = {
+      ...leadSavedWithDescriptionAndRelatiom,
+      username: leadSavedWithDescriptionAndRelatiom.user.name,
+      crmCompanyName:
+        leadSavedWithDescriptionAndRelatiom.crmCompany.socialReason ?? '',
+    };
+
+    delete formattedItem.user;
+    delete formattedItem.crmCompany;
+
+    return formattedItem;
   }
 
   async delete(id: number) {
@@ -181,26 +197,72 @@ export class LeadsService {
     }
 
     Object.assign(lead, data);
-    const leadEdited = await this.leadsRepository.save(lead);
 
-    return leadEdited;
+    if (data.description && data.description.length > 0) {
+      const dom = new JSDOM(data.description);
+      const images = Array.from(dom.window.document.querySelectorAll('img'));
+
+      for (const image of images) {
+        const base64Data = image.src.split(';base64,').pop();
+        if (!base64Data) continue;
+        if (image.src.includes('amazonaws')) continue;
+
+        const fileType = getFileTypeFromBase64(image.src);
+        const buffer = Buffer.from(base64Data, 'base64');
+        const fileName = uuidv4();
+
+        const upload = await this.s3Service.uploadFile({
+          file: buffer,
+          fileType: fileType,
+          fileName: fileName,
+          moduleId: process.env.MODULE_CRM_ID,
+          companyId: lead.companyId,
+          id: lead.id.toString(),
+          path: `${data.companyId}/crm`,
+        });
+        image.src = upload.link;
+      }
+      lead.description = dom.serialize();
+    }
+
+    lead.updatedAt = new Date();
+    await this.leadsRepository.save(lead);
+
+    const leadEdited = await this.leadsRepository.findOne({
+      where: { id },
+      relations: ['user', 'crmCompany'],
+    });
+
+    const formattedItem = {
+      ...leadEdited,
+      username: leadEdited.user.name,
+      crmCompanyName: leadEdited.crmCompany.socialReason ?? '',
+    };
+
+    delete formattedItem.user;
+    delete formattedItem.crmCompany;
+
+    return formattedItem;
   }
 
-  async getLeadPerStatus() {
+  async getLeadPerStatus(userId: string, companyId: string) {
+    const userAccessRule = await this.usersService.getUserAccessRule(userId);
+    const companyFilter = userAccessRule.isAdmin ? {} : { companyId };
+
     const requested = await this.leadsRepository.find({
-      where: { status: 'solicitado' },
+      where: { ...companyFilter, status: 'solicitado' },
     });
     const refused = await this.leadsRepository.find({
-      where: { status: 'recusado' },
+      where: { ...companyFilter, status: 'recusado' },
     });
     const cancelled = await this.leadsRepository.find({
-      where: { status: 'cancelado' },
+      where: { ...companyFilter, status: 'cancelado' },
     });
     const inProgress = await this.leadsRepository.find({
-      where: { status: 'em andamento' },
+      where: { ...companyFilter, status: 'em andamento' },
     });
     const completed = await this.leadsRepository.find({
-      where: { status: 'concluído' },
+      where: { ...companyFilter, status: 'concluído' },
     });
 
     return {

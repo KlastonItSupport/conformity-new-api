@@ -69,7 +69,7 @@ export class Lead {
   @Column({ name: 'solicitation_year', type: 'int', nullable: true })
   solicitationYear: number;
 
-  @Column({ name: 'updated_at', type: 'date', nullable: true })
+  @Column({ name: 'updated_at', type: 'datetime', nullable: true })
   updatedAt: Date;
 
   username: string;

@@ -33,8 +33,12 @@ export class LeadsController {
   }
 
   @Get('/status')
-  async getLeadPerStatus() {
-    return await this.leadsService.getLeadPerStatus();
+  @UseGuards(AuthGuard)
+  async getLeadPerStatus(@Req() req) {
+    return await this.leadsService.getLeadPerStatus(
+      req.user.id,
+      req.user.companyId,
+    );
   }
 
   @Post()
