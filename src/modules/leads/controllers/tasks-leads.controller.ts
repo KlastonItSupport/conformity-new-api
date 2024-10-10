@@ -29,6 +29,7 @@ export class TasksLeadsController {
       },
       req.user.id,
       req.user.companyId,
+      query.leadId,
     );
   }
 

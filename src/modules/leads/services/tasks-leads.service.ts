@@ -7,6 +7,11 @@ import { AppError } from 'src/errors/app-error';
 import { UsersServices } from 'src/modules/users/services/users.services';
 import { buildPaginationLinks } from 'src/helpers/pagination';
 import { PagesServices } from 'src/modules/services/dtos/pages.dto';
+import { Lead } from '../entities/leads.entity';
+import { v4 as uuidv4 } from 'uuid';
+import { JSDOM } from 'jsdom';
+import { getFileTypeFromBase64 } from 'src/helpers/files';
+import { S3Service } from 'src/modules/shared/services/s3.service';
 
 @Injectable()
 export class TasksLeadsService {
@@ -14,10 +19,19 @@ export class TasksLeadsService {
     @InjectRepository(LeadTask)
     private readonly leadTaskRepository: Repository<LeadTask>,
 
+    @InjectRepository(Lead)
+    private readonly leadRepository: Repository<Lead>,
+
     private readonly usersService: UsersServices,
+    private readonly s3Service: S3Service,
   ) {}
 
-  async getAll(searchParams: PagesServices, userId: string, companyId: string) {
+  async getAll(
+    searchParams: PagesServices,
+    userId: string,
+    companyId: string,
+    leadId?: number,
+  ) {
     const userAccessRule = await this.usersService.getUserAccessRule(userId);
 
     const queryBuilder = this.leadTaskRepository
@@ -43,6 +57,9 @@ export class TasksLeadsService {
             })
             .orWhere('crmCompany.socialReason LIKE :searchParam', {
               searchParam,
+            })
+            .orWhere('leads.time LIKE :searchParam', {
+              searchParam,
             });
           if (
             positiveSearchParams.includes(searchParams.search.toLowerCase())
@@ -62,6 +79,12 @@ export class TasksLeadsService {
     if (!userAccessRule.isAdmin) {
       queryBuilder.andWhere('leads.companyId = :companyId', {
         companyId,
+      });
+    }
+
+    if (leadId) {
+      queryBuilder.andWhere('leads.leadId = :leadId', {
+        leadId,
       });
     }
 
@@ -112,7 +135,52 @@ export class TasksLeadsService {
 
   async createTask(data: CreateLeadTaskDto) {
     const taskLead = this.leadTaskRepository.create(data);
-    return await this.leadTaskRepository.save(taskLead);
+    const savedTaskLead = await this.leadTaskRepository.save(taskLead);
+    const lead = await this.leadRepository.findOne({
+      where: { id: data.leadId },
+    });
+
+    if (data.description && data.description.length > 0) {
+      const dom = new JSDOM(data.description);
+      const images = Array.from(dom.window.document.querySelectorAll('img'));
+
+      for (const image of images) {
+        const base64Data = image.src.split(';base64,').pop();
+        if (!base64Data) continue;
+
+        const fileType = getFileTypeFromBase64(image.src);
+        const buffer = Buffer.from(base64Data, 'base64');
+        const fileName = uuidv4();
+
+        const upload = await this.s3Service.uploadFile({
+          file: buffer,
+          fileType: fileType,
+          fileName: fileName,
+          moduleId: process.env.MODULE_CRM_ID,
+          companyId: lead.companyId,
+          id: savedTaskLead.id.toString(),
+          path: `${lead.companyId}/crm`,
+        });
+        image.src = upload.link;
+      }
+      savedTaskLead.description = dom.serialize();
+    }
+    await this.leadTaskRepository.save(taskLead);
+
+    const taskLeadSavedWithDescriptionAndRelation =
+      await this.leadTaskRepository.findOne({
+        where: { id: savedTaskLead.id },
+        relations: ['user', 'lead'],
+      });
+
+    const formattedItem = {
+      ...taskLeadSavedWithDescriptionAndRelation,
+      clientName:
+        taskLeadSavedWithDescriptionAndRelation?.lead?.crmCompany
+          ?.socialReason ?? '',
+      userName: taskLeadSavedWithDescriptionAndRelation?.user?.name ?? '',
+    };
+    return formattedItem;
   }
 
   async delete(id: number) {
