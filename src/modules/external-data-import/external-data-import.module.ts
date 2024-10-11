@@ -37,6 +37,8 @@ import { EquipmentsModule } from '../equipments/equipments.module';
 import { IndicatorsImportService } from './services/indicators-import.service';
 import { IndicatorsModule } from '../indicators/indicators.module';
 import { IndicatorTasks } from '../indicators/entities/indicator-tasks.entity';
+import { CrmImportServices } from './services/crm-import.services';
+import { ContractModule } from '../contracts/contracts.module';
 
 @Module({
   imports: [
@@ -70,6 +72,7 @@ import { IndicatorTasks } from '../indicators/entities/indicator-tasks.entity';
     TasksDetailsModule,
     EquipmentsModule,
     IndicatorsModule,
+    ContractModule,
   ],
   exports: [ExternalDataImportService],
   controllers: [ExternalDataImportController],
@@ -82,6 +85,7 @@ import { IndicatorTasks } from '../indicators/entities/indicator-tasks.entity';
     TasksImportService,
     EquipmentImportService,
     IndicatorsImportService,
+    CrmImportServices,
   ],
 })
 export class ExternalDataImportModule {}

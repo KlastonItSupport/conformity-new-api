@@ -51,6 +51,11 @@ export class ContractsService {
         companyId,
       });
     }
+    if (searchParams.page && searchParams.pageSize) {
+      queryBuilder
+        .offset((searchParams.page - 1) * searchParams.pageSize)
+        .limit(searchParams.pageSize);
+    }
 
     const [contracts, totalItems] = await queryBuilder.getManyAndCount();
 
