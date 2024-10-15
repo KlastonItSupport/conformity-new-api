@@ -71,6 +71,12 @@ export class ProjectService {
       });
     }
 
+    if (searchParams.page && searchParams.pageSize) {
+      queryBuilder
+        .offset((searchParams.page - 1) * searchParams.pageSize)
+        .limit(searchParams.pageSize);
+    }
+
     const [projects, totalItems] = await queryBuilder.getManyAndCount();
 
     const lastPage = searchParams.pageSize
@@ -206,6 +212,14 @@ export class ProjectService {
   }
 
   async updateProgress(id: string) {
+    const project = await this.projectRepository.findOne({
+      where: { id },
+    });
+
+    if (!project.updateProgressAutomatically) {
+      return project.progress;
+    }
+
     const tasks = await this.tasksRepository.find({
       where: { projectId: id },
     });
@@ -217,10 +231,6 @@ export class ProjectService {
     const completedTasks = tasks.filter((task) => task.status === 'Fechada');
 
     const progress = (completedTasks.length / tasks.length) * 100;
-
-    const project = await this.projectRepository.findOne({
-      where: { id },
-    });
 
     if (!project) {
       throw new AppError('Project not found', 404);

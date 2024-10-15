@@ -16,6 +16,6 @@ import { SharedModule } from '../shared/shared.module';
   ],
   controllers: [ProjectController],
   providers: [ProjectService],
-  exports: [],
+  exports: [ProjectService],
 })
 export class ProjectModule {}

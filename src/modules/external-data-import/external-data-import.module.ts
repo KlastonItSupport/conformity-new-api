@@ -41,6 +41,7 @@ import { CrmImportServices } from './services/crm-import.services';
 import { ContractModule } from '../contracts/contracts.module';
 import { ServiceModule } from '../services/service.module';
 import { CrmCompaniesModule } from '../crm-companies/crm-companies.module';
+import { ProjectModule } from '../projects/projects.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { CrmCompaniesModule } from '../crm-companies/crm-companies.module';
     ContractModule,
     ServiceModule,
     CrmCompaniesModule,
+    ProjectModule,
   ],
   exports: [ExternalDataImportService],
   controllers: [ExternalDataImportController],

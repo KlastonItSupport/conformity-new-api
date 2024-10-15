@@ -7,6 +7,8 @@ import { ServiceService } from 'src/modules/services/services/service.service';
 import { formatService } from '../formatters/services.formatter';
 import { CrmServices } from 'src/modules/crm-companies/services/crm-companies.service';
 import { formatCrm } from '../formatters/crm.formatter';
+import { formatProject } from '../formatters/project.formatter';
+import { ProjectService } from 'src/modules/projects/services/project.service';
 
 @Injectable()
 export class CrmImportServices {
@@ -17,6 +19,7 @@ export class CrmImportServices {
     private readonly contractServices: ContractsService,
     private readonly serviceServices: ServiceService,
     private readonly crmServices: CrmServices,
+    private readonly projectServices: ProjectService,
   ) {}
 
   async getContracts(companyId: string) {
@@ -113,7 +116,7 @@ export class CrmImportServices {
     };
   }
 
-  async getProjects(companyId: string, additionalSql: string = '') {
+  async getProjects(companyId: string) {
     const rawQuery = `
       SELECT crm_empresas.nome_fantasia, a.*,
         CASE
@@ -124,12 +127,34 @@ export class CrmImportServices {
         END as status
       FROM projetos a
       LEFT JOIN crm_empresas ON crm_empresas.id = a.cliente
-      WHERE a.empresa = ? ${additionalSql}
+      WHERE a.empresa = ?
     `;
 
-    const projetos = await this.connection.query(rawQuery, [companyId]);
+    const projects = await this.connection.query(rawQuery, [companyId]);
+    const projectsFormatted = projects.map((project) =>
+      formatProject(project, companyId),
+    );
 
-    return projetos;
+    const errors = [];
+    const promiseProjects = projectsFormatted.map(async (project) => {
+      try {
+        if (!project.crmCompanyId) {
+          errors.push({ error: 'Crm not found', id: project.id });
+          return;
+        }
+        return await this.projectServices.create(project);
+      } catch (e) {
+        errors.push({ error: e, id: project.id });
+      }
+    });
+
+    const projectsCreated = await Promise.all(promiseProjects);
+    return {
+      toImport: projects.length,
+      imported: projectsCreated.length - errors.length,
+      errors,
+      projects: projectsCreated,
+    };
   }
 
   async getCrmModule(companyId: string) {

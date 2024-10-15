@@ -39,6 +39,13 @@ export class Project {
   @Column({ name: 'projects_crm_companies_fk', type: 'int' })
   crmCompanyId: number;
 
+  @Column({
+    name: 'update_progress_automatically',
+    type: 'boolean',
+    default: true,
+  })
+  updateProgressAutomatically: boolean;
+
   @ManyToOne(() => CrmCompany, (crmCompany) => crmCompany.projects)
   @JoinColumn({ name: 'projects_crm_companies_fk' })
   crmCompany: CrmCompany;
