@@ -9,5 +9,6 @@ import { UsersModule } from '../users/users.module';
   imports: [TypeOrmModule.forFeature([CrmCompany]), UsersModule],
   controllers: [CrmController],
   providers: [CrmServices],
+  exports: [CrmServices],
 })
 export class CrmCompaniesModule {}

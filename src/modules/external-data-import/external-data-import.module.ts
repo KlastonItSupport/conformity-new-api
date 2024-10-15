@@ -40,6 +40,7 @@ import { IndicatorTasks } from '../indicators/entities/indicator-tasks.entity';
 import { CrmImportServices } from './services/crm-import.services';
 import { ContractModule } from '../contracts/contracts.module';
 import { ServiceModule } from '../services/service.module';
+import { CrmCompaniesModule } from '../crm-companies/crm-companies.module';
 
 @Module({
   imports: [
@@ -75,6 +76,7 @@ import { ServiceModule } from '../services/service.module';
     IndicatorsModule,
     ContractModule,
     ServiceModule,
+    CrmCompaniesModule,
   ],
   exports: [ExternalDataImportService],
   controllers: [ExternalDataImportController],

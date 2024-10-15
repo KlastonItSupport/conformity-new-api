@@ -24,7 +24,8 @@ export class CrmController {
     return await this.crmServices.getAll(
       {
         page: query.page ?? 1,
-        pageSize: query.pageSize ?? 10,
+        pageSize: 10,
+        // pageSize: query.pageSize ?? 10,
         search: query.search ?? '',
       },
       req.user.id,

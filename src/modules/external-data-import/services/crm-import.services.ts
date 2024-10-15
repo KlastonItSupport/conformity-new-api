@@ -5,6 +5,8 @@ import { DataSource } from 'typeorm';
 import { formatContract } from '../formatters/contract.formatter';
 import { ServiceService } from 'src/modules/services/services/service.service';
 import { formatService } from '../formatters/services.formatter';
+import { CrmServices } from 'src/modules/crm-companies/services/crm-companies.service';
+import { formatCrm } from '../formatters/crm.formatter';
 
 @Injectable()
 export class CrmImportServices {
@@ -14,6 +16,7 @@ export class CrmImportServices {
 
     private readonly contractServices: ContractsService,
     private readonly serviceServices: ServiceService,
+    private readonly crmServices: CrmServices,
   ) {}
 
   async getContracts(companyId: string) {
@@ -81,7 +84,57 @@ export class CrmImportServices {
   }
 
   async getCrm(companyId: string) {
-    return await this.getServices(companyId);
+    const rawQuery = `
+        SELECT crm_empresas.*, 
+          CASE 
+            WHEN crm_empresas.cf = 1 THEN 'Cliente' 
+            WHEN crm_empresas.cf = 2 THEN 'Fornecedor' 
+          END as tipo
+        FROM crm_empresas
+        WHERE crm_empresas.cliente = 1 
+          AND crm_empresas.status = 'ativa' 
+          AND crm_empresas.empresa = ?
+      `;
+
+    const companies = await this.connection.query(rawQuery, [companyId]);
+    const formatCompanies = companies.map((company) => formatCrm(company));
+
+    const createCrmPromise = formatCompanies.map(async (company) => {
+      const crm = await this.crmServices.create(company);
+      return crm;
+    });
+
+    const created = await Promise.all(createCrmPromise);
+
+    return {
+      toImport: companies.length,
+      imported: created.length,
+      crm: created,
+    };
+  }
+
+  async getProjects(companyId: string, additionalSql: string = '') {
+    const rawQuery = `
+      SELECT crm_empresas.nome_fantasia, a.*,
+        CASE
+          WHEN a.status LIKE 'iniciado' THEN 'Iniciado'
+          WHEN a.status LIKE 'parado' THEN 'Parado'
+          WHEN a.status LIKE 'finalizado' THEN 'Finalizado'
+          WHEN a.status LIKE 'andamento' THEN 'Em andamento'
+        END as status
+      FROM projetos a
+      LEFT JOIN crm_empresas ON crm_empresas.id = a.cliente
+      WHERE a.empresa = ? ${additionalSql}
+    `;
+
+    const projetos = await this.connection.query(rawQuery, [companyId]);
+
+    return projetos;
+  }
+
+  async getCrmModule(companyId: string) {
+    return await this.getProjects(companyId);
+    // return await this.getServices(companyId);
     // return await this.getContracts(companyId);
   }
 }

@@ -54,6 +54,12 @@ export class CrmServices {
       });
     }
 
+    if (searchParams.page && searchParams.pageSize) {
+      queryBuilder
+        .offset((searchParams.page - 1) * searchParams.pageSize)
+        .limit(searchParams.pageSize);
+    }
+
     const [crmCompanies, totalItems] = await queryBuilder.getManyAndCount();
 
     const lastPage = searchParams.pageSize
