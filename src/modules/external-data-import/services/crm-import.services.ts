@@ -3,6 +3,8 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { ContractsService } from 'src/modules/contracts/services/contracts.service';
 import { DataSource } from 'typeorm';
 import { formatContract } from '../formatters/contract.formatter';
+import { ServiceService } from 'src/modules/services/services/service.service';
+import { formatService } from '../formatters/services.formatter';
 
 @Injectable()
 export class CrmImportServices {
@@ -11,6 +13,7 @@ export class CrmImportServices {
     private connection: DataSource,
 
     private readonly contractServices: ContractsService,
+    private readonly serviceServices: ServiceService,
   ) {}
 
   async getContracts(companyId: string) {
@@ -46,7 +49,39 @@ export class CrmImportServices {
     };
   }
 
+  async getServices(companyId: string) {
+    const rawQuery = `
+      SELECT servicos.*
+      FROM servicos
+      WHERE servicos.empresa = ?
+    `;
+
+    const services = await this.connection.query(rawQuery, [companyId]);
+    const formattedServices = services.map((service: any) => {
+      const serviceFormatted = formatService(service);
+      return serviceFormatted;
+    });
+
+    const servicesCreatedPromise = formattedServices.map(async (service) => {
+      try {
+        const serviceCreated = await this.serviceServices.create(service);
+        return serviceCreated;
+      } catch (e) {
+        console.log('Erro ao criar serviço Id: -', e);
+      }
+    });
+
+    const servicesCreated = await Promise.all(servicesCreatedPromise);
+
+    return {
+      toImport: services.length,
+      imported: servicesCreated.length,
+      services: servicesCreated,
+    };
+  }
+
   async getCrm(companyId: string) {
-    return await this.getContracts(companyId);
+    return await this.getServices(companyId);
+    // return await this.getContracts(companyId);
   }
 }

@@ -48,6 +48,6 @@ export class ExternalDataImportController {
 
   @Get('/company/crm/:companyId')
   async getCrm(@Param('companyId') companyId) {
-    return await this.crmImportServices.getContracts(companyId);
+    return await this.crmImportServices.getCrm(companyId);
   }
 }
