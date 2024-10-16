@@ -96,9 +96,9 @@ export class ExternalDataImportService {
       usersOld.map(async (user: any) => {
         try {
           const userFormatted = formatUser(user);
-          if (user?.acesso == false || user?.status == 'cancelado') {
-            return null;
-          }
+          // if (user?.acesso == false || user?.status == 'cancelado') {
+          //   return null;
+          // }
 
           const mainUserNew = await this.usersServices.createUser(
             {
@@ -112,6 +112,7 @@ export class ExternalDataImportService {
           return mainUserNew;
         } catch (e) {
           console.log('ERRO', e);
+          console.log('Id:', user.id);
         }
       }),
     );

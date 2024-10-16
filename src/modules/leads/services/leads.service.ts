@@ -159,7 +159,7 @@ export class LeadsService {
       ...leadSavedWithDescriptionAndRelatiom,
       username: leadSavedWithDescriptionAndRelatiom.user.name,
       crmCompanyName:
-        leadSavedWithDescriptionAndRelatiom.crmCompany.socialReason ?? '',
+        leadSavedWithDescriptionAndRelatiom?.crmCompany?.socialReason ?? '',
     };
 
     delete formattedItem.user;

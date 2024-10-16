@@ -17,5 +17,6 @@ import { SharedModule } from '../shared/shared.module';
   ],
   controllers: [LeadsController, TasksLeadsController],
   providers: [LeadsService, TasksLeadsService],
+  exports: [LeadsService, TasksLeadsService],
 })
 export class LeadsModule {}

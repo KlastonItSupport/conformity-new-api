@@ -9,6 +9,8 @@ import { CrmServices } from 'src/modules/crm-companies/services/crm-companies.se
 import { formatCrm } from '../formatters/crm.formatter';
 import { formatProject } from '../formatters/project.formatter';
 import { ProjectService } from 'src/modules/projects/services/project.service';
+import { formatLead } from '../formatters/leads.formatter';
+import { LeadsService } from 'src/modules/leads/services/leads.service';
 
 @Injectable()
 export class CrmImportServices {
@@ -20,6 +22,7 @@ export class CrmImportServices {
     private readonly serviceServices: ServiceService,
     private readonly crmServices: CrmServices,
     private readonly projectServices: ProjectService,
+    private readonly leadsServices: LeadsService,
   ) {}
 
   async getContracts(companyId: string) {
@@ -95,9 +98,9 @@ export class CrmImportServices {
           END as tipo
         FROM crm_empresas
         WHERE crm_empresas.cliente = 1 
-          AND crm_empresas.status = 'ativa' 
           AND crm_empresas.empresa = ?
       `;
+    // AND crm_empresas.status = 'ativa'
 
     const companies = await this.connection.query(rawQuery, [companyId]);
     const formatCompanies = companies.map((company) => formatCrm(company));
@@ -157,8 +160,46 @@ export class CrmImportServices {
     };
   }
 
+  async getLeads(companyId: string) {
+    const rawQuery = `
+        SELECT crm_empresas.nome_fantasia as nomecli, atividades_comerciais.*, usuarios.nome as usuario, usuarios.empresa as usuarioEmpresa
+        FROM atividades_comerciais
+        LEFT JOIN crm_empresas ON crm_empresas.id = atividades_comerciais.cliente
+        LEFT JOIN usuarios ON usuarios.id = atividades_comerciais.usuario_id
+        WHERE atividades_comerciais.empresa = ?
+        ORDER BY atividades_comerciais.dt_atualizacao DESC
+      `;
+
+    const leads = await this.connection.query(rawQuery, [companyId]);
+    const formattedLeads = leads.map((lead) => formatLead(lead));
+    const errors = [];
+
+    const createLeadsPromise = formattedLeads.map(async (lead) => {
+      try {
+        if (lead.userCompanyId != companyId) return;
+        const leadCreated = await this.leadsServices.create(lead);
+        return leadCreated;
+      } catch (e) {
+        console.log('Erro no lead:', lead);
+        console.log('Erro: ', e);
+        errors.push({ error: e, lead });
+      }
+    });
+
+    const created = await Promise.all(createLeadsPromise);
+
+    return {
+      imported: created.length - errors.length,
+      toImport: leads.length,
+      leads,
+      errors,
+    };
+  }
+
   async getCrmModule(companyId: string) {
-    return await this.getProjects(companyId);
+    // await this.getCrm(companyId);
+    // return await this.getLeads(companyId);
+    // return await this.getProjects(companyId);
     // return await this.getServices(companyId);
     // return await this.getContracts(companyId);
   }
