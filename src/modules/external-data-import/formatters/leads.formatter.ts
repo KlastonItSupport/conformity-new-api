@@ -2,6 +2,7 @@ import { capitalizeFirstLetter } from 'src/helpers/string';
 
 export const formatLead = (lead) => {
   return {
+    id: lead.id,
     companyId: lead.empresa,
     userId: lead.usuario_id,
     crmCompanyId: lead.cliente,

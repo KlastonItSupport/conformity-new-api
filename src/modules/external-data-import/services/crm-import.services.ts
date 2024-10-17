@@ -11,6 +11,8 @@ import { formatProject } from '../formatters/project.formatter';
 import { ProjectService } from 'src/modules/projects/services/project.service';
 import { formatLead } from '../formatters/leads.formatter';
 import { LeadsService } from 'src/modules/leads/services/leads.service';
+import { formatTaskLead } from '../formatters/tasks-leads.formatter';
+import { TasksLeadsService } from 'src/modules/leads/services/tasks-leads.service';
 
 @Injectable()
 export class CrmImportServices {
@@ -23,6 +25,7 @@ export class CrmImportServices {
     private readonly crmServices: CrmServices,
     private readonly projectServices: ProjectService,
     private readonly leadsServices: LeadsService,
+    private readonly leadsTasksService: TasksLeadsService,
   ) {}
 
   async getContracts(companyId: string) {
@@ -100,7 +103,6 @@ export class CrmImportServices {
         WHERE crm_empresas.cliente = 1 
           AND crm_empresas.empresa = ?
       `;
-    // AND crm_empresas.status = 'ativa'
 
     const companies = await this.connection.query(rawQuery, [companyId]);
     const formatCompanies = companies.map((company) => formatCrm(company));
@@ -196,11 +198,123 @@ export class CrmImportServices {
     };
   }
 
+  async getLeadsTasks(companyId: string) {
+    const pageSize = 2000;
+    let currentPage = 0;
+    let tasksLeads = [];
+    const errors = [];
+
+    let connection;
+
+    try {
+      connection = this.connection.createQueryRunner();
+
+      const countQuery = `
+        SELECT COUNT(*) as total
+        FROM atividades_tarefas
+        INNER JOIN atividades_comerciais ON atividades_comerciais.id = atividades_tarefas.atividade
+        WHERE atividades_comerciais.empresa = ?
+      `;
+
+      const result = await connection.query(countQuery, [companyId]);
+      const totalTasks = result[0].total;
+
+      const totalPages = Math.ceil(totalTasks / pageSize);
+
+      console.log('Total de tarefas:', totalTasks);
+      console.log('Total de páginas:', totalPages);
+
+      while (currentPage < totalPages) {
+        const offset = currentPage * pageSize;
+        const rawQuery = `
+          SELECT atividades_tarefas.*, usuarios.nome, crm_empresas.nome_fantasia AS nomecli
+          FROM atividades_tarefas
+          INNER JOIN atividades_comerciais ON atividades_comerciais.id = atividades_tarefas.atividade
+          INNER JOIN crm_empresas ON crm_empresas.id = atividades_comerciais.cliente
+          LEFT JOIN usuarios ON usuarios.id = atividades_tarefas.usuario
+          WHERE atividades_comerciais.empresa = ?
+          LIMIT ? OFFSET ?
+        `;
+
+        const tasks = await connection.query(rawQuery, [
+          companyId,
+          pageSize,
+          offset,
+        ]);
+
+        console.log(
+          `Tarefas obtidas para a página ${currentPage}:`,
+          tasks.length,
+        );
+
+        if (tasks.length === 0) break;
+
+        const formattedTasks = tasks.map((task: any) => formatTaskLead(task));
+
+        const tasksPromise = formattedTasks.map(async (task) => {
+          try {
+            const taskLead = await this.leadsTasksService.createTask(
+              task,
+              true,
+            );
+            return taskLead;
+          } catch (e) {
+            if (e.driverError.code === 'ER_NO_REFERENCED_ROW_2') {
+              errors.push(task.id);
+            }
+          }
+        });
+
+        const tasksInCurrentPage = (await Promise.all(tasksPromise)).filter(
+          (task) => task != null,
+        );
+
+        console.log(
+          'Tarefas processadas na página:',
+          tasksInCurrentPage.length,
+        );
+
+        tasksLeads = tasksLeads.concat(tasksInCurrentPage);
+
+        console.log('Página alterada - Página atual:', currentPage);
+        currentPage++;
+      }
+
+      console.log('Tarefas Leads finalizadas:', tasksLeads.length);
+
+      return {
+        errors,
+        totalTasks,
+        totalPages,
+        imported: tasksLeads.length,
+        tasks: tasksLeads,
+      };
+    } catch (error) {
+      console.error('Erro ao buscar tarefas: ', error);
+      throw error;
+    } finally {
+      if (connection) {
+        await connection.release();
+      }
+    }
+  }
+
   async getCrmModule(companyId: string) {
-    // await this.getCrm(companyId);
-    // return await this.getLeads(companyId);
-    // return await this.getProjects(companyId);
-    // return await this.getServices(companyId);
-    // return await this.getContracts(companyId);
+    const crm = await this.getCrm(companyId);
+    const projects = await this.getProjects(companyId);
+    const services = await this.getServices(companyId);
+    const contracts = await this.getContracts(companyId);
+    const leads = await this.getLeads(companyId);
+    const leadsTasks = await this.getLeadsTasks(companyId);
+    return {
+      crm,
+      projects,
+      services,
+      contracts,
+      leads,
+      leadsTasks,
+    };
+
+    // return await this.getLeadsTasks(companyId);
   }
 }

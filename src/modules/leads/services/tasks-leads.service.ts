@@ -133,14 +133,14 @@ export class TasksLeadsService {
     return taskLead;
   }
 
-  async createTask(data: CreateLeadTaskDto) {
+  async createTask(data: CreateLeadTaskDto, isImporting: boolean = false) {
     const taskLead = this.leadTaskRepository.create(data);
     const savedTaskLead = await this.leadTaskRepository.save(taskLead);
     const lead = await this.leadRepository.findOne({
       where: { id: data.leadId },
     });
 
-    if (data.description && data.description.length > 0) {
+    if (data.description && data.description.length > 0 && !isImporting) {
       const dom = new JSDOM(data.description);
       const images = Array.from(dom.window.document.querySelectorAll('img'));
 
