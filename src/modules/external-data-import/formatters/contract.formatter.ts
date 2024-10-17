@@ -24,7 +24,7 @@ export const formatContract = (contract: any) => {
     details: contract.detalhes,
     initialDate: transformDate(contract.data_inicial),
     endDate: transformDate(contract.data_final),
-    crmCompaniesId: 43, // TODO: Quando importar cliente, alterar aqui,
+    crmCompaniesId: contract.cliente,
     status: contract.status,
     link: contract.link,
     value: contract.valor,
