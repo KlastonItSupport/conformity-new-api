@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { School } from 'src/modules/schools/entities/schools.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity('companies')
 export class Company {
@@ -50,4 +51,7 @@ export class Company {
 
   @Column()
   status: string;
+
+  @OneToMany(() => School, (school) => school.company)
+  schools: School[];
 }
