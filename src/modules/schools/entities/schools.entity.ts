@@ -1,10 +1,12 @@
 import { Company } from 'src/modules/companies/entities/company.entity';
+import { Training } from 'src/modules/trainings/entities/training.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('schools')
@@ -38,4 +40,7 @@ export class School {
   city: string;
 
   companyName: string;
+
+  @OneToMany(() => Training, (training) => training.school)
+  trainings: Training[];
 }

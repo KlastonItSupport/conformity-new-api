@@ -32,6 +32,7 @@ import { ProjectModule } from './modules/projects/projects.module';
 import { LeadsModule } from './modules/leads/leads.module';
 import { CnpjInfoModule } from './modules/cnpj-infos/cnpj-info.module';
 import { SchoolsModule } from './modules/schools/schools.module';
+import { TrainingModule } from './modules/trainings/training.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { SchoolsModule } from './modules/schools/schools.module';
     LeadsModule,
     CnpjInfoModule,
     SchoolsModule,
+    TrainingModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],
