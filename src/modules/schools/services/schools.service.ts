@@ -79,7 +79,14 @@ export class SchoolsService {
 
   async createSchools(data: CreateSchoolDto) {
     const school = this.schoolsRepository.create(data);
-    return await this.schoolsRepository.save(school);
+    await this.schoolsRepository.save(school);
+
+    const savedSchool = await this.schoolsRepository.findOne({
+      where: { id: school.id },
+      relations: ['company'],
+    });
+
+    return this.format(savedSchool);
   }
 
   async delete(id: number) {
@@ -105,7 +112,14 @@ export class SchoolsService {
     }
 
     Object.assign(school, data);
-    return await this.schoolsRepository.save(school);
+    await this.schoolsRepository.save(school);
+
+    const savedSchool = await this.schoolsRepository.findOne({
+      where: { id: school.id },
+      relations: ['company'],
+    });
+
+    return this.format(savedSchool);
   }
 
   private format(school: School) {

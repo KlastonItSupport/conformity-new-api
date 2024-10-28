@@ -1,11 +1,13 @@
 import { Company } from 'src/modules/companies/entities/company.entity';
 import { School } from 'src/modules/schools/entities/schools.entity';
+import { TrainingUser } from 'src/modules/user-trainings/entities/user-training.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('trainings')
@@ -41,4 +43,7 @@ export class Training {
 
   companyName?: string;
   schoolName?: string;
+
+  @OneToMany(() => TrainingUser, (trainingUser) => trainingUser.training)
+  users: TrainingUser[];
 }

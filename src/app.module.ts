@@ -33,6 +33,7 @@ import { LeadsModule } from './modules/leads/leads.module';
 import { CnpjInfoModule } from './modules/cnpj-infos/cnpj-info.module';
 import { SchoolsModule } from './modules/schools/schools.module';
 import { TrainingModule } from './modules/trainings/training.module';
+import { UserTrainingsModule } from './modules/user-trainings/user-trainings.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { TrainingModule } from './modules/trainings/training.module';
     CnpjInfoModule,
     SchoolsModule,
     TrainingModule,
+    UserTrainingsModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],

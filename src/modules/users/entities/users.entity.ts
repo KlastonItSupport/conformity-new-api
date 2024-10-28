@@ -5,6 +5,7 @@ import { TaskEvaluator } from 'src/modules/tasks-details/entities/evaluator.enti
 import { ImmediateAction } from 'src/modules/tasks-details/entities/immediate-actions.entity';
 import { TaskIshikawa } from 'src/modules/tasks-details/entities/ishikawa.entity';
 import { TaskRootCauseAnalysis } from 'src/modules/tasks-details/entities/root-cause-analysis.entity';
+import { TrainingUser } from 'src/modules/user-trainings/entities/user-training.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity('users')
@@ -89,4 +90,7 @@ export class User {
 
   @OneToMany(() => TaskIshikawa, (taskIshikawa) => taskIshikawa.user)
   ishikawa: TaskIshikawa[];
+
+  @OneToMany(() => TrainingUser, (trainingUser) => trainingUser.user)
+  trainings: TrainingUser[];
 }
