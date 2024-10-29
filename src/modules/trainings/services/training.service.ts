@@ -75,8 +75,18 @@ export class TrainingService {
   }
 
   async create(data: CreateTrainingPayload) {
+    if (!data.expirationInMonths) {
+      delete data.expirationInMonths;
+    }
     const training = this.trainingRepository.create(data);
-    return await this.trainingRepository.save(training);
+    const savedTraining = await this.trainingRepository.save(training);
+
+    return this.format(
+      await this.trainingRepository.findOne({
+        where: { id: savedTraining.id },
+        relations: ['school', 'company'],
+      }),
+    );
   }
 
   async delete(id: number) {
@@ -103,7 +113,14 @@ export class TrainingService {
     }
 
     Object.assign(training, data);
-    return await this.trainingRepository.save(training);
+    await this.trainingRepository.save(training);
+
+    const savedTraining = await this.trainingRepository.findOne({
+      where: { id },
+      relations: ['school', 'company'],
+    });
+
+    return this.format(savedTraining);
   }
 
   format(training: Training) {
