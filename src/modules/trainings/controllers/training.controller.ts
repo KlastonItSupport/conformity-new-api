@@ -25,7 +25,7 @@ export class TrainingController {
     return await this.trainingService.get(
       {
         page: query.page ?? 1,
-        pageSize: 10,
+        pageSize: query.pageSize ?? 10,
         search: query.search ?? '',
       },
       req.user.id,

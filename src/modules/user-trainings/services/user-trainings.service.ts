@@ -67,7 +67,14 @@ export class UserTrainingsService {
 
   async create(data: CreateTrainingUserDto) {
     const trainingUser = this.trainingUserRepository.create(data);
-    return await this.trainingUserRepository.save(trainingUser);
+    const savedTraining = await this.trainingUserRepository.save(trainingUser);
+
+    return this.format(
+      await this.trainingUserRepository.findOne({
+        where: { id: savedTraining.id },
+        relations: ['training'],
+      }),
+    );
   }
 
   async update(id: number, data: UpdateUserTraining) {
@@ -80,7 +87,14 @@ export class UserTrainingsService {
     }
 
     Object.assign(trainingUser, data);
-    return await this.trainingUserRepository.save(trainingUser);
+    await this.trainingUserRepository.save(trainingUser);
+
+    return this.format(
+      await this.trainingUserRepository.findOne({
+        where: { id },
+        relations: ['training'],
+      }),
+    );
   }
 
   async delete(id: number) {
