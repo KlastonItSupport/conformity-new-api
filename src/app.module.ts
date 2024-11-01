@@ -34,6 +34,7 @@ import { CnpjInfoModule } from './modules/cnpj-infos/cnpj-info.module';
 import { SchoolsModule } from './modules/schools/schools.module';
 import { TrainingModule } from './modules/trainings/training.module';
 import { UserTrainingsModule } from './modules/user-trainings/user-trainings.module';
+import { MatrizModule } from './modules/matriz/matriz.module';
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { UserTrainingsModule } from './modules/user-trainings/user-trainings.mod
     SchoolsModule,
     TrainingModule,
     UserTrainingsModule,
+    MatrizModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],
