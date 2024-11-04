@@ -45,6 +45,7 @@ import { ProjectModule } from '../projects/projects.module';
 import { LeadsModule } from '../leads/leads.module';
 import { SchoolsModule } from '../schools/schools.module';
 import { TrainingsImportService } from './services/trainings.service';
+import { TrainingModule } from '../trainings/training.module';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { TrainingsImportService } from './services/trainings.service';
     ProjectModule,
     LeadsModule,
     SchoolsModule,
+    TrainingModule,
   ],
   exports: [ExternalDataImportService],
   controllers: [ExternalDataImportController],
