@@ -43,6 +43,8 @@ import { ServiceModule } from '../services/service.module';
 import { CrmCompaniesModule } from '../crm-companies/crm-companies.module';
 import { ProjectModule } from '../projects/projects.module';
 import { LeadsModule } from '../leads/leads.module';
+import { SchoolsModule } from '../schools/schools.module';
+import { TrainingsImportService } from './services/trainings.service';
 
 @Module({
   imports: [
@@ -81,6 +83,7 @@ import { LeadsModule } from '../leads/leads.module';
     CrmCompaniesModule,
     ProjectModule,
     LeadsModule,
+    SchoolsModule,
   ],
   exports: [ExternalDataImportService],
   controllers: [ExternalDataImportController],
@@ -94,6 +97,7 @@ import { LeadsModule } from '../leads/leads.module';
     EquipmentImportService,
     IndicatorsImportService,
     CrmImportServices,
+    TrainingsImportService,
   ],
 })
 export class ExternalDataImportModule {}

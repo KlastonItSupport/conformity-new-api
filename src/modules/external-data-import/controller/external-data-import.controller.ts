@@ -5,6 +5,7 @@ import { TasksImportService } from '../services/tasks-import.services';
 import { EquipmentImportService } from '../services/equipment-import.services';
 import { IndicatorsImportService } from '../services/indicators-import.service';
 import { CrmImportServices } from '../services/crm-import.services';
+import { TrainingsImportService } from '../services/trainings.service';
 
 @Controller('import')
 export class ExternalDataImportController {
@@ -15,6 +16,7 @@ export class ExternalDataImportController {
     private readonly equipmentImportService: EquipmentImportService,
     private readonly indicatorsImportService: IndicatorsImportService,
     private readonly crmImportServices: CrmImportServices,
+    private readonly trainingImportService: TrainingsImportService,
   ) {}
 
   @Post('/companies/:id')
@@ -49,5 +51,10 @@ export class ExternalDataImportController {
   @Get('/company/crm/:companyId')
   async getCrm(@Param('companyId') companyId) {
     return await this.crmImportServices.getCrmModule(companyId);
+  }
+
+  @Get('/company/trainings/:companyId')
+  async getTrainings(@Param('companyId') companyId) {
+    return await this.trainingImportService.getTrainingsModule(companyId);
   }
 }
