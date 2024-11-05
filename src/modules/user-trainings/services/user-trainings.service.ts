@@ -8,6 +8,9 @@ import { UpdateUserTraining } from '../dtos/update-user-training.dto';
 import { PagesServices } from 'src/modules/services/dtos/pages.dto';
 import { UsersServices } from 'src/modules/users/services/users.services';
 import { buildPaginationLinks } from 'src/helpers/pagination';
+import ConvertedFile from 'src/modules/shared/dtos/converted-file';
+import { S3Service } from 'src/modules/shared/services/s3.service';
+import { Upload } from 'src/modules/shared/entities/upload.entity';
 
 @Injectable()
 export class UserTrainingsService {
@@ -15,7 +18,11 @@ export class UserTrainingsService {
     @InjectRepository(TrainingUser)
     private readonly trainingUserRepository: Repository<TrainingUser>,
 
+    @InjectRepository(Upload)
+    private readonly uploadRepository: Repository<Upload>,
+
     private readonly userService: UsersServices,
+    private readonly s3Service: S3Service,
   ) {}
 
   async get(searchParams: PagesServices, userId: string) {
@@ -107,6 +114,102 @@ export class UserTrainingsService {
     }
 
     return await this.trainingUserRepository.remove(trainingUser);
+  }
+
+  async uploadCertificates(
+    documents: ConvertedFile[],
+    id: number,
+    companyId: string,
+  ) {
+    const uploads = [];
+    if (documents && documents.length > 0) {
+      await Promise.all(
+        documents.map(async (file) => {
+          uploads.push(
+            await this.s3Service.uploadFile({
+              file: Buffer.from(file.base, 'base64'),
+              fileType: file.type,
+              fileName: file.name,
+              moduleId: process.env.MODULE_TRAINING_ID,
+              companyId: companyId,
+              id: id.toString(),
+              path: `${companyId}/trainings`,
+            }),
+          );
+        }),
+      );
+    }
+    return uploads;
+  }
+
+  async getCertificates(id: number, searchParams: PagesServices) {
+    const queryBuilder = this.uploadRepository
+      .createQueryBuilder('upload')
+      .where({
+        moduleId: process.env.MODULE_TRAINING_ID,
+        module: id.toString(),
+      });
+
+    if (searchParams.search) {
+      const searchParam = `%${searchParams.search}%`;
+
+      queryBuilder.andWhere('upload.name LIKE :searchParam', {
+        searchParam,
+      });
+    }
+
+    if (searchParams.page && searchParams.pageSize) {
+      queryBuilder
+        .offset((searchParams.page - 1) * searchParams.pageSize)
+        .limit(searchParams.pageSize);
+    }
+
+    const [uploads, totalUploads] = await queryBuilder.getManyAndCount();
+
+    const lastPage = searchParams.pageSize
+      ? Math.ceil(totalUploads / searchParams.pageSize)
+      : 1;
+
+    const paginationLinks = buildPaginationLinks({
+      data: uploads,
+      lastPage,
+      page: searchParams.page,
+      pageSize: searchParams.pageSize,
+      totalData: totalUploads,
+    });
+
+    return paginationLinks;
+  }
+
+  async deleteCertificate(id: number) {
+    const uploads = await this.uploadRepository.findOne({
+      where: {
+        moduleId: process.env.MODULE_TRAINING_ID,
+        id: id.toString(),
+      },
+    });
+
+    if (!uploads) {
+      throw new AppError('Certificate not found', 404);
+    }
+
+    await this.s3Service.deleteFile(uploads.path);
+    return await this.uploadRepository.remove(uploads);
+  }
+
+  async getCertificatesDetails(id: number) {
+    const training = await this.trainingUserRepository.findOne({
+      where: { id },
+      relations: ['training', 'user'],
+    });
+
+    const formattedDetails = {
+      userName: training?.user?.name,
+      date: training?.date,
+      name: training?.training?.name,
+    };
+
+    return formattedDetails;
   }
 
   private format(training: TrainingUser) {
