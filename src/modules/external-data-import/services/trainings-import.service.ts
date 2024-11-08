@@ -7,6 +7,7 @@ import { formatTraining } from '../formatters/training.format';
 import { TrainingService } from 'src/modules/trainings/services/training.service';
 import { formatUsersTrainings } from '../formatters/users-training.formatter';
 import { UserTrainingsService } from 'src/modules/user-trainings/services/user-trainings.service';
+import { S3Service } from 'src/modules/shared/services/s3.service';
 
 @Injectable()
 export class TrainingsImportService {
@@ -14,6 +15,7 @@ export class TrainingsImportService {
     private readonly schoolsService: SchoolsService,
     private readonly trainingService: TrainingService,
     private readonly userTrainingsService: UserTrainingsService,
+    private readonly s3Service: S3Service,
 
     @InjectDataSource('externalConnection')
     private connection: DataSource,
@@ -58,16 +60,16 @@ export class TrainingsImportService {
       formatTraining(training),
     );
 
-    const trainingCreateSchool = trainingsFormatted.map(async (training) => {
+    const trainingCreate = trainingsFormatted.map(async (training) => {
       try {
-        const schoolCreated = await this.trainingService.create(training);
-        const usersTrainings = await this.getUsersTrainings(schoolCreated.id);
-        return { usersTrainings, ...schoolCreated };
+        const trainings = await this.trainingService.create(training);
+        const usersTrainings = await this.getUsersTrainings(training.id);
+        return { usersTrainings, ...trainings };
       } catch (error) {
         errors.push({ message: error.message, training: training });
       }
     });
-    return { trainings: await Promise.all(trainingCreateSchool), errors };
+    return { trainings: await Promise.all(trainingCreate), errors };
   }
 
   async getUsersTrainings(trainingId: number) {
@@ -108,7 +110,42 @@ export class TrainingsImportService {
     };
   }
 
+  async getCertificates(companyId: number) {
+    const query = `
+    SELECT * 
+    FROM uploads 
+    WHERE modulo = 'treinamentos'   
+    AND empresa = ?
+  `;
+
+    const documents = await this.connection.query(query, [companyId]);
+
+    const certificatePromise = documents.map(async (document) => {
+      const upload = await this.s3Service.transferObject(
+        document.link.replace(
+          'https://app.conformity.me/uploads/',
+          'http://localhost:5000/uploads/',
+        ),
+        `${companyId}/trainings`,
+        document.nome,
+        companyId.toString(),
+        process.env.MODULE_TRAINING_ID,
+        document['modulo_key'],
+      );
+
+      return {
+        upload,
+        id: document.id,
+      };
+    });
+    const certificates = await Promise.all(certificatePromise);
+    return { total: certificates.length, certificates };
+  }
+
   async getTrainingsModule(companyId: number) {
-    return await this.getTrainings(companyId);
+    const schools = await this.getSchools(companyId);
+    const trainings = await this.getTrainings(companyId);
+    const certificates = await this.getCertificates(companyId);
+    return { schools, trainings, certificates };
   }
 }

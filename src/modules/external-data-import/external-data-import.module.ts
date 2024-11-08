@@ -44,7 +44,7 @@ import { CrmCompaniesModule } from '../crm-companies/crm-companies.module';
 import { ProjectModule } from '../projects/projects.module';
 import { LeadsModule } from '../leads/leads.module';
 import { SchoolsModule } from '../schools/schools.module';
-import { TrainingsImportService } from './services/trainings.service';
+import { TrainingsImportService } from './services/trainings-import.service';
 import { TrainingModule } from '../trainings/training.module';
 import { UserTrainingsModule } from '../user-trainings/user-trainings.module';
 

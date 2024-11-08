@@ -22,7 +22,6 @@ export class MatrizController {
         endDate: query.endDate,
       },
       req.user.companyId,
-      req.user.id,
     );
   }
 }

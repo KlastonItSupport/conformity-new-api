@@ -6,13 +6,7 @@ import { Training } from 'src/modules/trainings/entities/training.entity';
 import { TrainingUser } from 'src/modules/user-trainings/entities/user-training.entity';
 import { User } from 'src/modules/users/entities/users.entity';
 import { UsersServices } from 'src/modules/users/services/users.services';
-import {
-  Between,
-  Brackets,
-  LessThanOrEqual,
-  MoreThanOrEqual,
-  Repository,
-} from 'typeorm';
+import { Between, Brackets, MoreThanOrEqual, Repository } from 'typeorm';
 import { FiltersMatriz } from '../dtos/matriz-filters';
 
 @Injectable()
@@ -34,10 +28,12 @@ export class MatrizService {
     searchParams: PagesServices,
     filters: FiltersMatriz,
     companyId: string,
-    userId: string,
   ) {
+    const whereClause = {
+      id: filters.trainingId,
+    } as any;
     const companyTrainings = await this.trainingRepository.find({
-      where: { companyId },
+      where: { companyId, ...whereClause },
       select: ['name', 'id'],
     });
 
@@ -59,7 +55,15 @@ export class MatrizService {
       filters,
     );
 
-    return { columnsName, usersTrainings, pages };
+    let formattedColumns = columnsName;
+    if (filters.userId) {
+      formattedColumns = columnsName.filter((columnName) => {
+        return usersTrainings.some((userTraining) =>
+          userTraining.hasOwnProperty(columnName),
+        );
+      });
+    }
+    return { columnsName: formattedColumns, usersTrainings, pages };
   }
 
   async getUsersTrainings(
@@ -69,15 +73,27 @@ export class MatrizService {
   ) {
     return await Promise.all(
       users.map(async (user: User) => {
-        const userTrainings: Record<string, any> = {}; // Inicializa como objeto
+        const userTrainings: Record<string, any> = {};
 
         await Promise.all(
           companyTrainings.map(async (training: Training) => {
+            let dateFilter;
+
+            if (filters.initialDate && filters.endDate) {
+              dateFilter = Between(filters.initialDate, filters.endDate);
+            }
+            if (filters.initialDate && !filters.endDate) {
+              dateFilter = MoreThanOrEqual(filters.initialDate);
+            }
+            if (!filters.initialDate && filters.endDate) {
+              dateFilter = MoreThanOrEqual(filters.endDate);
+            }
+
             const userHasTraining = await this.usersTrainingRepository.find({
               where: {
                 userId: user.id,
                 trainingId: training.id,
-                date: Between(filters.initialDate, filters.endDate),
+                date: dateFilter,
               },
               relations: ['training'],
             });

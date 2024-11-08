@@ -5,7 +5,7 @@ import { TasksImportService } from '../services/tasks-import.services';
 import { EquipmentImportService } from '../services/equipment-import.services';
 import { IndicatorsImportService } from '../services/indicators-import.service';
 import { CrmImportServices } from '../services/crm-import.services';
-import { TrainingsImportService } from '../services/trainings.service';
+import { TrainingsImportService } from '../services/trainings-import.service';
 
 @Controller('import')
 export class ExternalDataImportController {
