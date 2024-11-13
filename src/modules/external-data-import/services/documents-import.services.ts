@@ -17,6 +17,8 @@ import { formatCategory } from '../formatters/categories.formatter';
 import { formatDocumentRevision } from '../formatters/document-revisions.formatter';
 import { formatDepartament } from '../formatters/departaments.formatters';
 import { formatDocument } from '../formatters/documents.formatters';
+import { RolesService } from 'src/modules/roles/services/roles.services';
+import { formatRole } from '../formatters/roles.formatter';
 
 @Injectable()
 export class DocumentsImportService {
@@ -33,6 +35,7 @@ export class DocumentsImportService {
     private readonly evaluatorsService: EvaluatorService,
     private readonly documentRelatedsService: DocumentRelatedsService,
     private readonly reminderService: ReminderService,
+    private readonly rolesServices: RolesService,
 
     @InjectRepository(Departament)
     private readonly departamentRepository: Repository<Departament>,
@@ -47,8 +50,9 @@ export class DocumentsImportService {
     );
     const departamentPromise = this.createCompanyDepartments(companyId);
     const categoryPromise = this.createCategories(companyId);
+    const rolePromise = this.createRoles(companyId);
 
-    await Promise.all([departamentPromise, categoryPromise]);
+    await Promise.all([departamentPromise, categoryPromise, rolePromise]);
 
     const errors = [];
     const documentsFormatted = documents.map(async (document: any) => {
@@ -122,6 +126,27 @@ export class DocumentsImportService {
       console.error('Error executing query on createDepartamexxnts', error);
     }
   }
+
+  async createRoles(companyId: string) {
+    try {
+      const queryRunner = this.connection.createQueryRunner();
+
+      const roles = await queryRunner.query(
+        'SELECT * FROM selects WHERE empresa = ? AND chave = ? AND modulo = ?',
+        [companyId, 'funcoes', 'empresas'],
+      );
+
+      const rolePromise = roles.map(async (role: any) => {
+        const roleFormatted = formatRole(role);
+        await this.rolesServices.createCategory(roleFormatted);
+      });
+
+      return Promise.all(rolePromise);
+    } catch (e) {
+      console.error('Error creating roles', e);
+    }
+  }
+
   async createCategories(companyId: string) {
     try {
       const queryRunner = this.connection.createQueryRunner();

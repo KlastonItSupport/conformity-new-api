@@ -47,6 +47,7 @@ import { SchoolsModule } from '../schools/schools.module';
 import { TrainingsImportService } from './services/trainings-import.service';
 import { TrainingModule } from '../trainings/training.module';
 import { UserTrainingsModule } from '../user-trainings/user-trainings.module';
+import { RolesModule } from '../roles/roles.module';
 
 @Module({
   imports: [
@@ -88,6 +89,7 @@ import { UserTrainingsModule } from '../user-trainings/user-trainings.module';
     SchoolsModule,
     TrainingModule,
     UserTrainingsModule,
+    RolesModule,
   ],
   exports: [ExternalDataImportService],
   controllers: [ExternalDataImportController],
