@@ -30,6 +30,11 @@ export class RolesService {
       });
     }
 
+    if (searchParams.pageSize && searchParams.page) {
+      queryBuilder
+        .limit(searchParams.pageSize)
+        .offset((searchParams.page - 1) * searchParams.pageSize);
+    }
     const [services, totalItems] = await queryBuilder.getManyAndCount();
 
     const lastPage = searchParams.pageSize
