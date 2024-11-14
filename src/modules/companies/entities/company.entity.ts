@@ -1,5 +1,6 @@
 import { School } from 'src/modules/schools/entities/schools.entity';
 import { Training } from 'src/modules/trainings/entities/training.entity';
+import { Warning } from 'src/modules/warnings/entities/warning.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity('companies')
@@ -58,4 +59,7 @@ export class Company {
 
   @OneToMany(() => Training, (training) => training.company)
   trainings: Training[];
+
+  @OneToMany(() => Warning, (warnings) => warnings.company)
+  warnings: Warning[];
 }

@@ -36,6 +36,7 @@ import { TrainingModule } from './modules/trainings/training.module';
 import { UserTrainingsModule } from './modules/user-trainings/user-trainings.module';
 import { MatrizModule } from './modules/matriz/matriz.module';
 import { RolesModule } from './modules/roles/roles.module';
+import { WarningsModule } from './modules/warnings/warnings.module';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { RolesModule } from './modules/roles/roles.module';
     UserTrainingsModule,
     MatrizModule,
     RolesModule,
+    WarningsModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware],

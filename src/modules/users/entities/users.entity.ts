@@ -6,6 +6,7 @@ import { ImmediateAction } from 'src/modules/tasks-details/entities/immediate-ac
 import { TaskIshikawa } from 'src/modules/tasks-details/entities/ishikawa.entity';
 import { TaskRootCauseAnalysis } from 'src/modules/tasks-details/entities/root-cause-analysis.entity';
 import { TrainingUser } from 'src/modules/user-trainings/entities/user-training.entity';
+import { WarningReader } from 'src/modules/warnings/entities/warning-readers.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity('users')
@@ -93,4 +94,7 @@ export class User {
 
   @OneToMany(() => TrainingUser, (trainingUser) => trainingUser.user)
   trainings: TrainingUser[];
+
+  @OneToMany(() => WarningReader, (warningReader) => warningReader.user)
+  warningReaders: WarningReader[];
 }
