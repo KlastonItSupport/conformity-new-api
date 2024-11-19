@@ -27,14 +27,14 @@ export class WarningsService {
     private readonly s3Service: S3Service,
   ) {}
 
-  async createWarning(data: CreateWarningDto) {
+  async createWarning(data: CreateWarningDto, isImporting = false) {
     const companyWarning = await this.warningRepository.findOne({
       where: { companyId: data.companyId },
     });
 
     if (companyWarning) {
       await this.resetReaders(data.companyId);
-      return await this.updateWarning(data);
+      return await this.updateWarning({ ...data, id: companyWarning.id });
     }
 
     const warning = this.warningRepository.create(data);
@@ -46,22 +46,36 @@ export class WarningsService {
 
       for (const image of images) {
         const base64Data = image.src.split(';base64,').pop();
+        const isOnS3 = image.src.includes('s3.amazonaws');
+        if (isOnS3) continue;
         if (!base64Data) continue;
 
         const fileType = getFileTypeFromBase64(image.src);
         const buffer = Buffer.from(base64Data, 'base64');
         const fileName = uuidv4();
 
-        const upload = await this.s3Service.uploadFile({
-          file: buffer,
-          fileType: fileType,
-          fileName: fileName,
-          moduleId: process.env.MODULE_DOCUMENTS_ID,
-          companyId: data.companyId,
-          id: warningSaved.id.toString(),
-          path: `${data.companyId}/companies`,
-        });
-        image.src = upload.link;
+        if (!isImporting) {
+          const upload = await this.s3Service.uploadFile({
+            file: buffer,
+            fileType: fileType,
+            fileName: fileName,
+            moduleId: process.env.MODULE_COMPANIES_ID,
+            companyId: data.companyId,
+            id: warningSaved.id.toString(),
+            path: `${data.companyId}/companies`,
+          });
+          image.src = upload.link;
+        } else {
+          const upload = await this.s3Service.transferObject(
+            image.src,
+            `${data.companyId}/companies`,
+            fileName,
+            data.companyId,
+            process.env.MODULE_COMPANIES_ID,
+            warningSaved.id.toString(),
+          );
+          image.src = upload;
+        }
       }
       warningSaved.warningMessage = dom.serialize();
     }
@@ -92,7 +106,9 @@ export class WarningsService {
       .getOne();
 
     if (warning) {
-      const isExpired = warning?.expiredAt < new Date();
+      const isExpired = !warning?.expiredAt
+        ? false
+        : warning?.expiredAt < new Date();
       return { ...warning, isExpired };
     }
   }
@@ -134,7 +150,10 @@ export class WarningsService {
 
       for (const image of images) {
         const base64Data = image.src.split(';base64,').pop();
+        const isOnS3 = image.src.includes('s3.amazonaws.com');
+
         if (!base64Data) continue;
+        if (isOnS3) continue;
 
         const fileType = getFileTypeFromBase64(image.src);
         const buffer = Buffer.from(base64Data, 'base64');
@@ -153,6 +172,7 @@ export class WarningsService {
       }
       warning.warningMessage = dom.serialize();
     }
+
     warning.showWarning = data.showWarning;
     warning.expiredAt = data.expiredAt;
 

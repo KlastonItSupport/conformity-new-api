@@ -17,6 +17,7 @@ import { EvaluatorService } from 'src/modules/evaluators/services/evaluator.serv
 import { Departament } from 'src/modules/departaments/entities/departament.entity';
 import { DocumentRelatedsService } from 'src/modules/document-relateds/services/document-relateds.services';
 import { ReminderService } from 'src/modules/reminders/services/reminder.service';
+import { WarningsService } from 'src/modules/warnings/services/warnings.service';
 
 @Injectable()
 export class ExternalDataImportService {
@@ -36,6 +37,7 @@ export class ExternalDataImportService {
     private readonly evaluatorsService: EvaluatorService,
     private readonly documentRelatedsService: DocumentRelatedsService,
     private readonly reminderService: ReminderService,
+    private readonly warningsService: WarningsService,
 
     @InjectRepository(Departament)
     private readonly departamentRepository: Repository<Departament>,
@@ -116,8 +118,25 @@ export class ExternalDataImportService {
         }
       }),
     );
-
+    const warning = await this.getCompanyWarnings(companyId);
     await queryRunner.release();
-    return { company, users };
+    return { warning, company, users };
+  }
+
+  async getCompanyWarnings(companyId: string) {
+    const query = `SELECT * FROM avisos WHERE empresa = ?`;
+    const warning = await this.connection.query(query, [companyId]);
+    const warningFormatted = {
+      id: warning[0].id,
+      showWarning: warning[0].ativo,
+      companyId: companyId,
+      warningMessage: warning[0].aviso,
+    };
+
+    const warningCreated = await this.warningsService.createWarning(
+      warningFormatted,
+      true,
+    );
+    return { created: warningCreated, old: warning };
   }
 }

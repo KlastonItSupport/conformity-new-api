@@ -14,6 +14,6 @@ import { User } from '../users/entities/users.entity';
   ],
   controllers: [WarningsController],
   providers: [WarningsService],
-  exports: [],
+  exports: [WarningsService],
 })
 export class WarningsModule {}
