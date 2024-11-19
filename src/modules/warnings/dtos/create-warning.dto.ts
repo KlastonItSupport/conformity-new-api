@@ -1,4 +1,10 @@
-import { IsBoolean, IsOptional, IsString, IsNotEmpty } from 'class-validator';
+import {
+  IsBoolean,
+  IsOptional,
+  IsString,
+  IsNotEmpty,
+  IsDate,
+} from 'class-validator';
 
 export class CreateWarningDto {
   @IsOptional()
@@ -12,4 +18,11 @@ export class CreateWarningDto {
   @IsOptional()
   @IsString()
   warningMessage?: string;
+
+  @IsOptional()
+  @IsDate()
+  expiredAt?: Date;
+
+  @IsOptional()
+  id: number;
 }

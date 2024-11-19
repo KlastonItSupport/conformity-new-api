@@ -34,4 +34,10 @@ export class WarningsController {
   async readWarning(@Body() data: ReadWarningDto) {
     return await this.warningsService.readWarning(data);
   }
+
+  @UseGuards(AuthGuard)
+  @Get('/get-company-warnings/:companyId')
+  async getCompanyWarnings(@Param('companyId') companyId: string) {
+    return await this.warningsService.getCompanyWarnings(companyId);
+  }
 }

@@ -21,6 +21,11 @@ export class WarningsTable1731505998374 implements MigrationInterface {
             isNullable: true,
           },
           {
+            name: 'expired_at',
+            type: 'datetime',
+            isNullable: true,
+          },
+          {
             name: 'fk_warnings_company',
             type: 'varchar',
             isNullable: false,

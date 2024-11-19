@@ -28,6 +28,15 @@ export class WarningsService {
   ) {}
 
   async createWarning(data: CreateWarningDto) {
+    const companyWarning = await this.warningRepository.findOne({
+      where: { companyId: data.companyId },
+    });
+
+    if (companyWarning) {
+      await this.resetReaders(data.companyId);
+      return await this.updateWarning(data);
+    }
+
     const warning = this.warningRepository.create(data);
     const warningSaved = await this.warningRepository.save(warning);
 
@@ -69,7 +78,7 @@ export class WarningsService {
       throw new AppError('User not found or doenst belong to the company', 404);
     }
 
-    return await this.warningRepository
+    const warning = await this.warningRepository
       .createQueryBuilder('warning')
       .leftJoin(
         'warning.warningReaders',
@@ -78,9 +87,25 @@ export class WarningsService {
         { userId },
       )
       .where('warning.showWarning = :showWarning', { showWarning: true })
-      .andWhere('warningReader.id IS NULL') // Somente avisos não lidos pelo usuário
+      .andWhere('warningReader.id IS NULL')
       .andWhere('warning.companyId = :companyId', { companyId })
-      .getMany();
+      .getOne();
+
+    if (warning) {
+      const isExpired = warning?.expiredAt < new Date();
+      return { ...warning, isExpired };
+    }
+  }
+
+  async getCompanyWarnings(companyId: string) {
+    const warning = await this.warningRepository.findOne({
+      where: { companyId: companyId },
+    });
+
+    if (warning) {
+      const isExpired = warning.expiredAt < new Date();
+      return { ...warning, isExpired };
+    }
   }
 
   async readWarning(data: ReadWarningDto) {
@@ -96,5 +121,55 @@ export class WarningsService {
       return await this.warningReaderRepository.save(createWarning);
     }
     return warningReader;
+  }
+
+  async updateWarning(data: Partial<CreateWarningDto>) {
+    const warning = await this.warningRepository.findOne({
+      where: { id: data.id },
+    });
+
+    if (data.warningMessage && data.warningMessage.length > 0) {
+      const dom = new JSDOM(data.warningMessage);
+      const images = Array.from(dom.window.document.querySelectorAll('img'));
+
+      for (const image of images) {
+        const base64Data = image.src.split(';base64,').pop();
+        if (!base64Data) continue;
+
+        const fileType = getFileTypeFromBase64(image.src);
+        const buffer = Buffer.from(base64Data, 'base64');
+        const fileName = uuidv4();
+
+        const upload = await this.s3Service.uploadFile({
+          file: buffer,
+          fileType: fileType,
+          fileName: fileName,
+          moduleId: process.env.MODULE_DOCUMENTS_ID,
+          companyId: data.companyId,
+          id: warning.id.toString(),
+          path: `${data.companyId}/companies`,
+        });
+        image.src = upload.link;
+      }
+      warning.warningMessage = dom.serialize();
+    }
+    warning.showWarning = data.showWarning;
+    warning.expiredAt = data.expiredAt;
+
+    return await this.warningRepository.save(warning);
+  }
+
+  async resetReaders(companyId: string) {
+    const warning = await this.warningRepository.findOne({
+      where: { companyId: companyId },
+    });
+
+    const warningReaders = await this.warningReaderRepository.find({
+      where: { warningId: warning.id },
+    });
+
+    for (const warningReader of warningReaders) {
+      await this.warningReaderRepository.remove(warningReader);
+    }
   }
 }

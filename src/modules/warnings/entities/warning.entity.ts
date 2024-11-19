@@ -23,6 +23,9 @@ export class Warning {
   @Column({ name: 'warning_message', type: 'longtext', nullable: true })
   warningMessage: string;
 
+  @Column({ name: 'expired_at' })
+  expiredAt: Date;
+
   @ManyToOne(() => Company, (company) => company.warnings, {
     onDelete: 'CASCADE',
   })
