@@ -196,11 +196,11 @@ export class ReminderService {
             });
             if (user) {
               users.push(user);
-              await this.mailerService.sendEmail(
-                user.email,
-                'Conformity - Lembrete de documento',
-                'Lembrete do documento ',
-              );
+              await this.mailerService.sendEmail({
+                to: user.email,
+                subject: 'Conformity - Lembrete de documento',
+                html: 'Lembrete do documento ',
+              });
             }
           }
         }
