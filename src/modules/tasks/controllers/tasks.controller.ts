@@ -8,6 +8,7 @@ import {
   Post,
   Query,
   Req,
+  Response,
   UseGuards,
 } from '@nestjs/common';
 import { TasksService } from '../services/tasks.services';
@@ -15,6 +16,7 @@ import { CreateTaskDto } from '../dtos/create-task-payload.dto';
 import { UpdateTaskDto } from '../dtos/update-task-payload.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { CreateAdditionalDocumentsDto } from '../dtos/create-additional-document.dto';
+import { Response as Res } from 'express';
 
 @Controller('tasks')
 export class TasksController {
@@ -48,14 +50,26 @@ export class TasksController {
     @Param('id') id: number,
     @Body() data: UpdateTaskDto,
     @Req() req,
+    @Response() res: Res,
   ) {
-    return this.tasksService.updateTask(id, data, req.user.id);
+    const updatedTask = await this.tasksService.updateTask(
+      id,
+      data,
+      req.user.id,
+    );
+    return res
+      .set({ 'x-audit-event-complement': updatedTask.title })
+      .json(updatedTask);
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  async deleteTask(@Param('id') id: number, @Req() req) {
-    return this.tasksService.deleteTask(id, req.user.id);
+  async deleteTask(@Param('id') id: number, @Req() req, @Response() res: Res) {
+    const deletedTask = await this.tasksService.deleteTask(id, req.user.id);
+
+    return res
+      .set({ 'x-audit-event-complement': deletedTask.title })
+      .json(deletedTask);
   }
 
   @UseGuards(AuthGuard)

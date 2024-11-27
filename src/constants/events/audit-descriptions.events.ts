@@ -62,8 +62,19 @@ const DOCUMENTS_EVENTS = {
   DOCUMENTS_DELETE_CATEGORY: 'Deletou uma categoria $complement',
   DOCUMENTS_UPDATE_CATEGORY: 'Editou a categoria $complement',
 };
+
+const TASKS_EVENTS = {
+  TASKS_LIST: 'Acessou a lista de tarefas',
+  TASKS_ADD: 'Criou uma tarefa',
+  TASKS_UPDATED:
+    'Editou um item do módulo de tasks de código #$id ($complement)',
+  TASKS_DELETED:
+    'Deletou um item do módulo de tasks de código #$id ($complement)',
+};
+
 export const eventDescriptions = {
   ...USER_EVENTS,
+  ...TASKS_EVENTS,
   ...COMPANY_EVENTS,
   ...DOCUMENTS_EVENTS,
 } as const;
