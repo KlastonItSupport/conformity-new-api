@@ -1,3 +1,4 @@
+import { Audit } from 'src/modules/audit/entities/audit.entity';
 import { Evaluators } from 'src/modules/evaluators/entities/evaluators.entity';
 import { Feed } from 'src/modules/feed/entities/feed.entity';
 import { TasksDeadlinesHistory } from 'src/modules/tasks-details/entities/deadlines.entity';
@@ -97,4 +98,7 @@ export class User {
 
   @OneToMany(() => WarningReader, (warningReader) => warningReader.user)
   warningReaders: WarningReader[];
+
+  @OneToMany(() => Audit, (audit) => audit.user)
+  audits: Audit[];
 }

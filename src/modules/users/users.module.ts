@@ -11,6 +11,7 @@ import { PermissionsServices } from '../permissions/services/permissions.service
 import { Permissions } from '../permissions/entities/permissions.entity';
 import { GroupModulePermission } from '../permissions/entities/group_module_permissions.entity';
 import { SharedModule } from '../shared/shared.module';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SharedModule } from '../shared/shared.module';
     }),
     PermissionsModule,
     SharedModule,
+    AuditModule,
   ],
   providers: [UsersServices, PermissionsServices],
   controllers: [UsersController],

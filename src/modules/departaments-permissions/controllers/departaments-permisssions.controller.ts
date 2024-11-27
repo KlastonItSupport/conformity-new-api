@@ -1,6 +1,17 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Response,
+  UseGuards,
+} from '@nestjs/common';
 import { DepartamentPermissionsService } from '../services/departament-permissions.services';
 import { CreateDepartamentPermissionPayload } from '../dtos/create-departament-permission-payload';
+import { Response as Res } from 'express';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @Controller('departaments-permissions')
 export class DepartamentsPermissionsController {
@@ -9,10 +20,23 @@ export class DepartamentsPermissionsController {
   ) {}
 
   @Post('')
-  createDepartamentPermissions(
+  @UseGuards(AuthGuard)
+  async createDepartamentPermissions(
     @Body() data: CreateDepartamentPermissionPayload,
+    @Response() res: Res,
   ) {
-    return this.departamentPermissionsService.createDepartamentPermission(data);
+    const departamentAllowed =
+      await this.departamentPermissionsService.createDepartamentPermission(
+        data,
+      );
+
+    return res
+      .set({
+        'x-audit-event-complement': departamentAllowed
+          .map((pa) => pa.departamentName)
+          .join('|'),
+      })
+      .json(departamentAllowed);
   }
 
   @Get(':id')
@@ -21,7 +45,18 @@ export class DepartamentsPermissionsController {
   }
 
   @Delete(':id')
-  deleteDepartamentPermission(@Param('id') id: number) {
-    return this.departamentPermissionsService.deleteDepartamentPermission(id);
+  @UseGuards(AuthGuard)
+  async deleteDepartamentPermission(
+    @Param('id') id: number,
+    @Response() res: Res,
+  ) {
+    const departamentAllowed =
+      await this.departamentPermissionsService.deleteDepartamentPermission(id);
+
+    return res
+      .set({
+        'x-audit-event-complement': `${departamentAllowed.department.name} do documento ${departamentAllowed.documentId}`,
+      })
+      .json(departamentAllowed);
   }
 }

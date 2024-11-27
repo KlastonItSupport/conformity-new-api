@@ -60,7 +60,10 @@ export class DepartamentPermissionsService {
 
   async deleteDepartamentPermission(id: number) {
     const departamentPermission =
-      await this.departamentPermissionsRepository.findOne({ where: { id } });
+      await this.departamentPermissionsRepository.findOne({
+        where: { id },
+        relations: ['department'],
+      });
 
     return await this.departamentPermissionsRepository.remove(
       departamentPermission,

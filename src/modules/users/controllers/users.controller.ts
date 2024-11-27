@@ -9,6 +9,7 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersServices } from '../services/users.services';
 import {
@@ -19,8 +20,10 @@ import {
   SignInResponse,
 } from '../dtos/dtos';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { AuditInterceptor } from 'src/guards/interceptors/audit.interceptor';
 
 @Controller('users')
+@UseInterceptors(AuditInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersServices) {}
 
@@ -35,6 +38,7 @@ export class UsersController {
     return await this.usersService.signIn(data);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
   async editUser(@Body() userData, @Param('id') userId: string): Promise<any> {
     return this.usersService.editUser(userData, userId);

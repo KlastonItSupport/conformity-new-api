@@ -407,7 +407,7 @@ export class DocumentsService {
       await this.uploadRepository.remove(aditionalDocument);
     }
 
-    return resS3;
+    return { module: aditionalDocument.module };
   }
 
   async getAdditionalDocument(id: string) {

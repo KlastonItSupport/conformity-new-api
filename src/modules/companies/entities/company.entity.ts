@@ -1,3 +1,4 @@
+import { Audit } from 'src/modules/audit/entities/audit.entity';
 import { School } from 'src/modules/schools/entities/schools.entity';
 import { Training } from 'src/modules/trainings/entities/training.entity';
 import { Warning } from 'src/modules/warnings/entities/warning.entity';
@@ -62,4 +63,7 @@ export class Company {
 
   @OneToMany(() => Warning, (warnings) => warnings.company)
   warnings: Warning[];
+
+  @OneToMany(() => Audit, (audit) => audit.company)
+  audits: Audit[];
 }

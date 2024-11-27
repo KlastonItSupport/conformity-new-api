@@ -9,6 +9,7 @@ import { UsersModule } from '../users/users.module';
 import { Category } from '../categories/entities/category.entity';
 import { Departament } from '../departaments/entities/departament.entity';
 import { Company } from '../companies/entities/company.entity';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
   controllers: [DocumentsController],
@@ -17,6 +18,7 @@ import { Company } from '../companies/entities/company.entity';
     SharedModule,
     PermissionsModule,
     UsersModule,
+    AuditModule,
   ],
   providers: [DocumentsService],
   exports: [DocumentsService],

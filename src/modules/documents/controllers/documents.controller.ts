@@ -8,6 +8,7 @@ import {
   Post,
   Query,
   Req,
+  Response,
   UseGuards,
 } from '@nestjs/common';
 import { DocumentsService } from '../services/documents.service';
@@ -16,6 +17,7 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { Document } from '../entities/document.entity';
 import { PaginationDocumentsDto } from '../dtos/pagination.dto';
 import { AdditionalDocumentsPayloadDto } from '../dtos/additional-documents-payload.dto';
+import { Response as Res } from 'express';
 
 @Controller('documents')
 export class DocumentsController {
@@ -56,12 +58,20 @@ export class DocumentsController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  async deleteDocument(@Req() req, @Param('id') id: string) {
-    return await this.documentsService.deleteDocument(
+  async deleteDocument(
+    @Req() req,
+    @Param('id') id: string,
+    @Response() res: Res,
+  ) {
+    const document = await this.documentsService.deleteDocument(
       req.user.id,
       req.user.companyId,
       id,
     );
+
+    return res
+      .set({ 'x-audit-event-complement': document.name })
+      .json(document);
   }
 
   @Patch(':id')
@@ -70,29 +80,50 @@ export class DocumentsController {
     @Req() req,
     @Param('id') id: string,
     @Body() data: Document,
+    @Response() res: Res,
   ) {
-    return await this.documentsService.updateDocument(
+    const documentUpdated = await this.documentsService.updateDocument(
       req.user.id,
       req.user.companyId,
       id,
       data,
     );
+
+    return res
+      .set({ 'x-audit-event-complement': documentUpdated.name })
+      .json(documentUpdated);
   }
 
   @Delete('additional-documents/:id')
   @UseGuards(AuthGuard)
-  async deleteAditionalDocument(@Req() req, @Param('id') id: string) {
-    return await this.documentsService.deleteAdditionalDocument(
+  async deleteAditionalDocument(
+    @Req() req,
+    @Param('id') id: string,
+    @Response() res: Res,
+  ) {
+    const additional = await this.documentsService.deleteAdditionalDocument(
       req.user.id,
       req.user.companyId,
       id,
     );
+
+    return res
+      .set({ 'x-audit-event-complement': additional.module })
+      .json(additional);
   }
 
   @Get('document-details/:id')
   @UseGuards(AuthGuard)
-  async getAditionalDocument(@Req() req, @Param('id') id: string) {
-    return await this.documentsService.getAdditionalDocument(id);
+  async getAditionalDocument(
+    @Req() req,
+    @Param('id') id: string,
+    @Response() res: Res,
+  ) {
+    const addittional = await this.documentsService.getAdditionalDocument(id);
+
+    return res
+      .set({ 'x-audit-event-complement': addittional.document.name })
+      .json(addittional);
   }
 
   @Post('additional-documents')
@@ -100,10 +131,16 @@ export class DocumentsController {
   async createAdditionalDocument(
     @Req() req,
     @Body() data: AdditionalDocumentsPayloadDto,
+    @Response() res: Res,
   ) {
-    return await this.documentsService.createAdditionalDocument({
-      ...data,
-      userId: req.user.id,
-    });
+    const additionalDocuments =
+      await this.documentsService.createAdditionalDocument({
+        ...data,
+        userId: req.user.id,
+      });
+
+    res
+      .set({ 'x-audit-event-complement': additionalDocuments[0].module })
+      .json(additionalDocuments);
   }
 }

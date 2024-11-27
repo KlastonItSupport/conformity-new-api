@@ -38,6 +38,8 @@ import { MatrizModule } from './modules/matriz/matriz.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { WarningsModule } from './modules/warnings/warnings.module';
 import { SupportModule } from './modules/support/support.module';
+import { AuditModule } from './modules/audit/audit.module';
+import { ResponseInterceptor } from './guards/interceptors/response.interceptor';
 
 @Module({
   imports: [
@@ -86,9 +88,10 @@ import { SupportModule } from './modules/support/support.module';
     RolesModule,
     WarningsModule,
     SupportModule,
+    AuditModule,
   ],
   controllers: [AppController],
-  providers: [AppService, ErrorLoggingMiddleware],
+  providers: [AppService, ErrorLoggingMiddleware, ResponseInterceptor],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

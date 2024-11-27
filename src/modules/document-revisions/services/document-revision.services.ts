@@ -62,6 +62,7 @@ export class DocumentRevisionService {
   async updateDocumentRevision(id: number, data: UpdateRevisionPayloadDto) {
     const documentRevision = await this.documentRevisionRepository.findOne({
       where: { id },
+      relations: ['document'],
     });
 
     if (!documentRevision) {
