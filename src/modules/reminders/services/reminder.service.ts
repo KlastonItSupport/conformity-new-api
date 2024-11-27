@@ -211,7 +211,7 @@ export class ReminderService {
 
   async deleteReminder(id: number) {
     const reminder = await this.reminderRepository.findOne({ where: { id } });
-    await this.reminderRepository.remove(reminder);
+    return await this.reminderRepository.remove(reminder);
   }
 
   async updateReminder(id: number, body: CreateReminderPayload) {

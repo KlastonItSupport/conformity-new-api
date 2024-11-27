@@ -5,11 +5,13 @@ import {
   Param,
   Post,
   Req,
+  Response,
   UseGuards,
 } from '@nestjs/common';
 import { DeadlinesServices } from '../services/deadlines.services';
 import { CreateDeadlinePayload } from '../dtos/create-deadline-payload';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { Response as Res } from 'express';
 
 @Controller('tasks-details/deadlines')
 export class DeadlinesController {
@@ -17,11 +19,19 @@ export class DeadlinesController {
 
   @UseGuards(AuthGuard)
   @Post()
-  createDeadline(@Body() data: CreateDeadlinePayload, @Req() req) {
-    return this.deadlinesService.createDeadline({
+  async createDeadline(
+    @Body() data: CreateDeadlinePayload,
+    @Req() req,
+    @Response() res: Res,
+  ) {
+    const deadline = await this.deadlinesService.createDeadline({
       ...data,
       userId: req.user.id,
     });
+
+    return res
+      .set({ 'x-audit-event-complement': deadline.taskId })
+      .json(deadline);
   }
 
   @Get(':taskId')

@@ -38,6 +38,7 @@ export class EvaluatorService {
   async deleteEvaluator(id: number) {
     const evaluator = await this.evaluatorRepository.findOne({
       where: { id },
+      relations: ['user'],
     });
 
     if (!evaluator) {

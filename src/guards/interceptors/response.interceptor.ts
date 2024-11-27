@@ -43,7 +43,7 @@ export class ResponseInterceptor implements NestInterceptor {
               class: className,
               method: methodName,
               key: request.params?.id,
-              userId: request.user.id,
+              userId: request.user?.id,
               companyId: request.user.companyId,
               description: eventDescription,
               complement: response.getHeaders()['x-audit-event-complement'],

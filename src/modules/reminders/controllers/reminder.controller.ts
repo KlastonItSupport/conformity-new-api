@@ -7,19 +7,30 @@ import {
   Patch,
   Post,
   Query,
+  Response,
   UseGuards,
 } from '@nestjs/common';
 import { ReminderService } from '../services/reminder.service';
 import { CreateReminderPayload } from '../dtos/create-reminder-payload';
 import { AuthGuard } from 'src/guards/auth.guard';
-
+import { Response as Res } from 'express';
 @Controller('reminders')
 export class ReminderController {
   constructor(private readonly reminderService: ReminderService) {}
 
   @Post()
-  async createReminder(@Body() body: CreateReminderPayload) {
-    return await this.reminderService.createReminder(body);
+  @UseGuards(AuthGuard)
+  async createReminder(
+    @Body() body: CreateReminderPayload,
+    @Response() res: Res,
+  ) {
+    const reminder = await this.reminderService.createReminder(body);
+
+    return res
+      .set({
+        'x-audit-event-complement': `${Number(reminder.module) == 1 ? 'documentos' : 'tarefas'} código #${reminder.key} `,
+      })
+      .json(reminder);
   }
 
   // @Get()
@@ -44,8 +55,13 @@ export class ReminderController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  async deleteReminder(@Param('id') id: number) {
-    return await this.reminderService.deleteReminder(id);
+  async deleteReminder(@Param('id') id: number, @Response() res: Res) {
+    const deletedReminder = await this.reminderService.deleteReminder(id);
+    return res
+      .set({
+        'x-audit-event-complement': `${Number(deletedReminder.module) == 1 ? 'documentos' : 'tarefas'} código #${deletedReminder.key}`,
+      })
+      .json(deletedReminder);
   }
 
   @Patch(':id')
@@ -53,7 +69,14 @@ export class ReminderController {
   async updateReminder(
     @Param('id') id: number,
     @Body() body: CreateReminderPayload,
+    @Response() res: Res,
   ) {
-    return await this.reminderService.updateReminder(id, body);
+    const updatedReminder = await this.reminderService.updateReminder(id, body);
+
+    return res
+      .set({
+        'x-audit-event-complement': `${Number(updatedReminder.module) == 1 ? 'documentos' : 'tarefas'} código #${updatedReminder.key}`,
+      })
+      .json(updatedReminder);
   }
 }

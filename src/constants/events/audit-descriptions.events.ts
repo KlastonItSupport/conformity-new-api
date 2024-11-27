@@ -70,6 +70,61 @@ const TASKS_EVENTS = {
     'Editou um item do módulo de tasks de código #$id ($complement)',
   TASKS_DELETED:
     'Deletou um item do módulo de tasks de código #$id ($complement)',
+
+  // Detalhes da tarefa
+  TASKS_DETAILS_GET: 'Acessou os detalhes da tarefa #$id $complement',
+
+  //Alterar previsão
+  TASKS_DETAILS_CHANGE_STATUS: '$complement a tarefa #$id',
+  TASKS_DETAILS_CHANGE_PREVISION: 'Alterou o prazo da tarefa #$complement',
+
+  //Avaliadores
+  TASKS_DETAILS_ADD_EVALUATOR:
+    'Adicionou o(s) seguinte(s) avaliador(es) $complement ',
+  TASKS_DETAILS_DELETE_EVALUATOR: 'Deletou o avaliador $complement',
+
+  //Anexos
+  TASKS_DETAILS_ADD_ATTACHMENT: 'Adicionou anexos a tarefa #$complement',
+  TASKS_DETAILS_DELETE_ATTACHMENT: 'Deletou o anexo $complement',
+
+  // Feed
+  TASKS_DETAILS_FEED_CREATED: 'Criou um item no feed da task #$complement',
+  TASKS_DETAILS_FEED_DELETED: 'Deletou um item no feed da task #$complement',
+  TASKS_DETAILS_FEED_UPDATED: 'Editou um item no feed da task #$complement',
+
+  // 5 Whys
+  TASKS_DETAILS_5WHY_CREATED: 'Adicionou 5 Whys a tarefa #$complement',
+  TASKS_DETAILS_5WHY_DELETED: 'Deletou 5 Whys a tarefa #$complement',
+  TASKS_DETAILS_5WHY_UPDATED: 'Editou 5 Whys a tarefa #$complement',
+
+  // Causa Raiz
+  TASKS_DETAILS_ROOT_CAUSE_CREATED:
+    'Adicionou Causa Raiz a tarefa #$complement',
+  TASKS_DETAILS_ROOT_CAUSE_DELETED: 'Deletou Causa Raiz a tarefa #$complement',
+  TASKS_DETAILS_ROOT_CAUSE_UPDATED: 'Editou Causa Raiz a tarefa #$complement',
+
+  // Ações Imediatas
+  TASKS_DETAILS_IMMEDIATE_ACTIONS_CREATED:
+    'Adicionou Ação Imediata a tarefa #$complement',
+  TASKS_DETAILS_IMMEDIATE_ACTIONS_DELETED:
+    'Deletou Ação Imediata a tarefa #$complement',
+  TASKS_DETAILS_IMMEDIATE_ACTIONS_UPDATED:
+    'Editou Ação Imediata a tarefa #$complement',
+
+  // Açoes corretivas
+  TASKS_DETAILS_CORRECTIVE_ACTIONS_CREATED:
+    'Adicionou Ação Corretiva a tarefa #$complement',
+  TASKS_DETAILS_CORRECTIVE_ACTIONS_DELETED:
+    'Deletou Ação Corretiva a tarefa #$complement',
+  TASKS_DETAILS_CORRECTIVE_ACTIONS_UPDATED:
+    'Editou Ação Corretiva a tarefa #$complement',
+
+  // Lembretes
+  TASKS_DETAILS_REMINDER_CREATED: 'Criou um lembrete para o módulo $complement',
+  TASKS_DETAILS_REMINDER_UPDATED:
+    'Atualizou um lembrete para o módulo $complement',
+  TASKS_DETAILS_REMINDER_DELETED:
+    'Deletou um lembrete no módulo de $complement',
 };
 
 export const eventDescriptions = {

@@ -471,7 +471,7 @@ export class TasksService {
       await this.uploadRepository.remove(aditionalDocument);
     }
 
-    return resS3;
+    return aditionalDocument;
   }
 
   async getAdditionalDocuments(taskId: string, userId: string) {

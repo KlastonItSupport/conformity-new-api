@@ -77,18 +77,37 @@ export class TasksController {
   async createAdditionalDocuments(
     @Body() data: CreateAdditionalDocumentsDto,
     @Req() req,
+    @Response() res: Res,
   ) {
-    return this.tasksService.createAdditionalDocuments({
+    const additional = await this.tasksService.createAdditionalDocuments({
       ...data,
       userId: req.user.id,
       companyId: req.user.companyId,
     });
+
+    return res
+      .set({
+        'x-audit-event-complement': data.taskId,
+      })
+      .json(additional);
   }
 
   @UseGuards(AuthGuard)
   @Delete('additional-documents/:id')
-  async deleteAdditionalDocuments(@Param('id') id: string, @Req() req) {
-    return this.tasksService.deleteAdditionalDocuments(id, req.user.id);
+  async deleteAdditionalDocuments(
+    @Param('id') id: string,
+    @Req() req,
+    @Response() res: Res,
+  ) {
+    const attachment = await this.tasksService.deleteAdditionalDocuments(
+      id,
+      req.user.id,
+    );
+    return res
+      .set({
+        'x-audit-event-complement': `${id}(${attachment.name}) da tarefa #${attachment.module}`,
+      })
+      .json(attachment);
   }
 
   @UseGuards(AuthGuard)
@@ -99,12 +118,20 @@ export class TasksController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  async getTask(@Param('id') id: number, @Req() req) {
-    return this.tasksService.getSpecificTask(id, req.user.id);
+  async getTask(@Param('id') id: number, @Req() req, @Response() res: Res) {
+    const task = await this.tasksService.getSpecificTask(id, req.user.id);
+    return res.set({ 'x-audit-event-complement': task.title }).json(task);
   }
 
+  @UseGuards(AuthGuard)
   @Get('close-task/:id')
-  async closeTask(@Param('id') id: number) {
-    return this.tasksService.closeTask(id);
+  async closeTask(@Param('id') id: number, @Response() res: Res) {
+    const task = await this.tasksService.closeTask(id);
+    return res
+      .set({
+        'x-audit-event-complement':
+          task.status === 'Aberta' ? 'Abriu' : 'Fechou',
+      })
+      .json(task);
   }
 }
