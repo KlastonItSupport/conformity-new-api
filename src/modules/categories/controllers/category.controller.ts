@@ -8,17 +8,20 @@ import {
   Post,
   Query,
   Req,
+  Response,
   UseGuards,
 } from '@nestjs/common';
 import { CategoriesService } from '../services/categories.services';
 import { CreateCategoryDto } from '../dtos/create-category.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { Response as Res } from 'express';
 
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   createCategory(@Body() data: CreateCategoryDto) {
     return this.categoriesService.createCategory(data);
   }
@@ -35,17 +38,33 @@ export class CategoryController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  deleteCategory(@Req() req, @Param('id') id) {
-    return this.categoriesService.deleteCategory(req.user.companyId, id);
+  async deleteCategory(@Req() req, @Param('id') id, @Response() res: Res) {
+    const deleted = await this.categoriesService.deleteCategory(
+      req.user.companyId,
+      id,
+    );
+
+    return res.set({ 'x-audit-event-complement': id }).json(deleted);
   }
 
   @Patch(':id')
   @UseGuards(AuthGuard)
-  updateCategory(@Req() req, @Param('id') id, @Body() data) {
-    return this.categoriesService.updateCategory(
+  async updateCategory(
+    @Req() req,
+    @Param('id') id,
+    @Body() data,
+    @Response() res: Res,
+  ) {
+    const updatedCategory = await this.categoriesService.updateCategory(
       req.user.companyId,
       id,
       data.name,
     );
+
+    return res
+      .set({
+        'x-audit-event-complement': `#${updatedCategory.id}(${updatedCategory.name})`,
+      })
+      .json(updatedCategory);
   }
 }

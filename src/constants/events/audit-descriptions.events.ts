@@ -55,6 +55,12 @@ const DOCUMENTS_EVENTS = {
     'Deu permissão para o(s) departamento(s) $complement',
   DOCUMENTS_DETAILS_DELETE_DEPARTAMENT_PERMISSION:
     'Removeu o departameto $complement',
+
+  // Categorias
+  DOCUMENTS_ADD_CATEGORY: 'Adicionou uma categoria',
+  DOCUMENTS_LIST_CATEGORIES: 'Accesou a lista de categorias',
+  DOCUMENTS_DELETE_CATEGORY: 'Deletou uma categoria $complement',
+  DOCUMENTS_UPDATE_CATEGORY: 'Editou a categoria $complement',
 };
 export const eventDescriptions = {
   ...USER_EVENTS,
