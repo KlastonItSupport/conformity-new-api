@@ -145,9 +145,24 @@ const TASKS_EVENTS = {
   TASKS_CLASSIFICATIONS_UPDATED: 'Editou uma classificação de código #$id',
 };
 
+const EQUIPMENT_EVENTS = {
+  EQUIPMENTS_LIST: 'Resgatou a lista de equipamentos',
+  EQUIPMENTS_CREATED: 'Criou um equipamento',
+  EQUIPMENTS_DELETED: 'Deletou um equipamento de código #$id',
+  EQUIPMENTS_UPDATED: 'Editou um equipamento de código #$id',
+  EQUIPMENTS_GET_ACTIONS: 'Acessou a lista de de ações do equipamento #$id',
+  EQUIPMENTS_CREATE_ACTIONS:
+    'Adicionou uma nova ação ao equipamento #$complement',
+  EQUIPMENTS_DELETE_ACTIONS: 'Deletou uma ação do equipamento #$id',
+  EQUIPMENTS_UPDATE_ACTIONS: 'Atualizou uma ação do equipamento $complement',
+
+  EQUIPMENTS_DOCUMENTS_ADD: 'Adicionou um documento a ação #$complement',
+  EQUIPMENTS_DOCUMENTS_DELETED: 'Deletou um documento a ação #$complement',
+};
 export const eventDescriptions = {
   ...USER_EVENTS,
   ...TASKS_EVENTS,
   ...COMPANY_EVENTS,
+  ...EQUIPMENT_EVENTS,
   ...DOCUMENTS_EVENTS,
 } as const;
