@@ -125,6 +125,24 @@ const TASKS_EVENTS = {
     'Atualizou um lembrete para o módulo $complement',
   TASKS_DETAILS_REMINDER_DELETED:
     'Deletou um lembrete no módulo de $complement',
+
+  // Origens
+  TASKS_ORIGENS_LIST: 'Resgatou a lista de origens',
+  TASKS_ORIGENS_CREATED: 'Criou uma origem no módulo de tasks',
+  TASKS_ORIGENS_DELETED: 'Deletou uma origem de código #$id',
+  TASKS_ORIGENS_UPDATED: 'Editou uma origem de código #$id',
+
+  // Tipos
+  TASKS_TYPES_LIST: 'Resgatou a lista de tipos',
+  TASKS_TYPES_CREATED: 'Criou um tipo',
+  TASKS_TYPES_DELETED: 'Deletou um tipo de código #$id',
+  TASKS_TYPES_UPDATED: 'Editou um tipo de código #$id',
+
+  // Classificações
+  TASKS_CLASSIFICATIONS_LIST: 'Resgatou a lista de classificações',
+  TASKS_CLASSIFICATIONS_CREATED: 'Criou uma classificação',
+  TASKS_CLASSIFICATIONS_DELETED: 'Deletou uma classificação de código #$id',
+  TASKS_CLASSIFICATIONS_UPDATED: 'Editou uma classificação de código #$id',
 };
 
 export const eventDescriptions = {
