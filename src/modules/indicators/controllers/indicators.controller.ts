@@ -44,11 +44,13 @@ export class IndicatorsController {
   }
 
   @Delete('/:id')
+  @UseGuards(AuthGuard)
   async delete(@Param('id') id) {
     return await this.indicatorsService.delete(id);
   }
 
   @Patch('/:id')
+  @UseGuards(AuthGuard)
   async update(@Param('id') id, @Body() data: Partial<CreateIndicatorDto>) {
     return await this.indicatorsService.update(id, data);
   }

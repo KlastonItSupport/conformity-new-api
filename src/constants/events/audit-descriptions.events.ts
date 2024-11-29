@@ -159,10 +159,25 @@ const EQUIPMENT_EVENTS = {
   EQUIPMENTS_DOCUMENTS_ADD: 'Adicionou um documento a ação #$complement',
   EQUIPMENTS_DOCUMENTS_DELETED: 'Deletou um documento a ação #$complement',
 };
+
+const INDICATORS_EVENTS = {
+  INDICATORS_CREATED: 'Criou um novo indicador',
+  INDICATORS_DELETED: 'Deletou o indicador #$id',
+  INDICATORS_UPDATED: 'Editou o indicador #$id',
+  INDICATORS_LIST: 'Acessou o dashboard dos indicadores',
+
+  // Graficos
+  INDICATORS_GRAPHS: 'Acessou o gráfico de indicador #$complement',
+  INDICATORS_GRAPHS_CREATE: 'Adicionou um novo dado ao indicador #$complement',
+  INDICATORS_GRAPHS_DELETE: 'Deletou um dado do indicador #$complement',
+  INDICATORS_GRAPHS_UPDATE: 'Atualizou um dado do indicador #$complement',
+};
+
 export const eventDescriptions = {
   ...USER_EVENTS,
   ...TASKS_EVENTS,
   ...COMPANY_EVENTS,
   ...EQUIPMENT_EVENTS,
   ...DOCUMENTS_EVENTS,
+  ...INDICATORS_EVENTS,
 } as const;

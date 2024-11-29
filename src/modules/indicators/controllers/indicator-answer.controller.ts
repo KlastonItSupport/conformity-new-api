@@ -8,13 +8,14 @@ import {
   Post,
   Query,
   Req,
+  Response,
   UseGuards,
 } from '@nestjs/common';
 import { IndicatorAnswerService } from '../services/indicator-answer.service';
 import { CreateIndicatorAnswerDto } from '../dtos/answer-payload';
 import { PagesParams } from '../dtos/pages-params.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
-
+import { Response as Res } from 'express';
 @Controller('indicators/indicator-answer')
 export class IndicatorAnswerController {
   constructor(
@@ -22,6 +23,7 @@ export class IndicatorAnswerController {
   ) {}
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   async get(
     @Query() data: PagesParams,
     @Query()
@@ -29,10 +31,10 @@ export class IndicatorAnswerController {
       initialDate?: string;
       finalDate?: string;
     },
-    @Req() req,
     @Param('id') id,
+    @Response() res: Res,
   ) {
-    return await this.indicatorAnswerService.get(
+    const indicatorAnswers = await this.indicatorAnswerService.get(
       id,
       {
         page: Number(data.page) ?? 1,
@@ -45,24 +47,45 @@ export class IndicatorAnswerController {
       },
       // req.user.companyId,
     );
+    return res.set({ 'x-audit-event-complement': id }).json(indicatorAnswers);
   }
 
   @Post()
   @UseGuards(AuthGuard)
-  async create(@Body() data: CreateIndicatorAnswerDto, @Req() req) {
-    return this.indicatorAnswerService.create({
+  async create(
+    @Body() data: CreateIndicatorAnswerDto,
+    @Req() req,
+    @Response() res: Res,
+  ) {
+    const indicatorAnswer = await this.indicatorAnswerService.create({
       ...data,
       companyId: req.user.companyId,
     });
+
+    return res
+      .set({ 'x-audit-event-complement': indicatorAnswer.indicatorId })
+      .json(indicatorAnswer);
   }
 
   @Delete('/:id')
-  async delete(@Param('id') id) {
-    return this.indicatorAnswerService.delete(id);
+  @UseGuards(AuthGuard)
+  async delete(@Param('id') id, @Response() res: Res) {
+    const deleted = await this.indicatorAnswerService.delete(id);
+    return res
+      .set({ 'x-audit-event-complement': deleted.indicatorId })
+      .json(deleted);
   }
 
   @Patch('/:id')
-  async update(@Body() data: CreateIndicatorAnswerDto, @Param('id') id) {
-    return this.indicatorAnswerService.update(data, id);
+  @UseGuards(AuthGuard)
+  async update(
+    @Body() data: CreateIndicatorAnswerDto,
+    @Param('id') id,
+    @Response() res: Res,
+  ) {
+    const updated = await this.indicatorAnswerService.update(data, id);
+    return res
+      .set({ 'x-audit-event-complement': updated.indicatorId })
+      .json(updated);
   }
 }
