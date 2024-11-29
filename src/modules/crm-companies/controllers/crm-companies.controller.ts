@@ -8,11 +8,13 @@ import {
   Post,
   Query,
   Req,
+  Response,
   UseGuards,
 } from '@nestjs/common';
 import { CrmServices } from '../services/crm-companies.service';
 import { CreateCrmCompanyDto } from '../dtos/create-crm-company.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { Response as Res } from 'express';
 
 @Controller('crm')
 export class CrmController {
@@ -34,20 +36,30 @@ export class CrmController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   async create(@Body() data: CreateCrmCompanyDto) {
     return await this.crmServices.create(data);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard)
   async edit(
     @Param('id') id: number,
     @Body() data: Partial<CreateCrmCompanyDto>,
+    @Response() res: Res,
   ) {
-    return await this.crmServices.edit(id, data);
+    const updated = await this.crmServices.edit(id, data);
+    return res
+      .set({ 'x-audit-event-complement': `${id}(${updated.socialReason})` })
+      .json(updated);
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: number) {
-    return await this.crmServices.delete(id);
+  @UseGuards(AuthGuard)
+  async delete(@Param('id') id: number, @Response() res: Res) {
+    const deleted = await this.crmServices.delete(id);
+    return res
+      .set({ 'x-audit-event-complement': `${id}(${deleted.socialReason})` })
+      .json(deleted);
   }
 }

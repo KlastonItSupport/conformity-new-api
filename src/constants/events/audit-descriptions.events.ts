@@ -173,6 +173,46 @@ const INDICATORS_EVENTS = {
   INDICATORS_GRAPHS_UPDATE: 'Atualizou um dado do indicador #$complement',
 };
 
+const CRM_EVENTS = {
+  // Clientes Fornecedores
+  CRM_SUPPLIERS_CREATED: 'Criou um novo fornecedor',
+  CRM_SUPPLIERS_UPDATED: 'Editou um cliente/fornecedor de código #$complement',
+  CRM_SUPPLIERS_DELETED: 'Deletou um cliente/fornecedor de código #$complement',
+  CRM_SUPPLIERS_LIST: 'Acessou a lista de clientes/fornecedores',
+
+  // Leads
+  CRM_LEADS_LIST: 'Accesou a lista de Leads',
+  CRM_LEADS_CREATE: 'Criou um lead',
+  CRM_LEADS_EDIT: 'Editou um lead de código #$id',
+  CRM_LEADS_DELETE: 'Deletou um lead de código #$id',
+
+  // Tarefas do lead
+  TASKS_LEADS_LIST: 'Acessou a lista de tarefas do lead de código #$complement',
+  TASKS_LEADS_CREATE: 'Criou uma tarefa no lead de código #$complement',
+  TASKS_LEADS_EDIT:
+    'Editou uma tarefa de código #$id que possui um lead com o código #$complement',
+  TASKS_LEADS_DELETE:
+    'Deletou uma tarefa de código #$id que possui um lead com o código #$complement',
+
+  // projetos
+  CRM_PROJECTS_LIST: 'Acessou a lista de projetos',
+  CRM_PROJECTS_CREATE: 'Criou um projeto',
+  CRM_PROJECTS_EDIT: 'Editou um projeto de código #$id',
+  CRM_PROJECTS_DELETE: 'Deletou um projeto de código #$id',
+
+  // Contratos
+  CRM_CONTRACTS_LIST: 'Acessou a lista de contratos',
+  CRM_CONTRACTS_CREATE: 'Criou um contrato',
+  CRM_CONTRACTS_EDIT: 'Editou um contrato de código #$id',
+  CRM_CONTRACTS_DELETE: 'Deletou um contrato de código #$id',
+
+  // Serviços
+  CRM_SERVICES_LIST: 'Acessou a lista de serviços',
+  CRM_SERVICES_CREATE: 'Criou um serviço',
+  CRM_SERVICES_EDIT: 'Editou um serviço de código #$id',
+  CRM_SERVICES_DELETE: 'Deletou um serviço de código #$id',
+};
+
 export const eventDescriptions = {
   ...USER_EVENTS,
   ...TASKS_EVENTS,
@@ -180,4 +220,5 @@ export const eventDescriptions = {
   ...EQUIPMENT_EVENTS,
   ...DOCUMENTS_EVENTS,
   ...INDICATORS_EVENTS,
+  ...CRM_EVENTS,
 } as const;

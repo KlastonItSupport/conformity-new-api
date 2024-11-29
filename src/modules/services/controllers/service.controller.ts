@@ -32,16 +32,19 @@ export class ServiceController {
     );
   }
   @Post()
+  @UseGuards(AuthGuard)
   async create(@Body() data: CreateServicePayload) {
     return await this.serviceService.create(data);
   }
 
   @Delete('/:id')
+  @UseGuards(AuthGuard)
   async delete(@Param('id') id: number) {
     return await this.serviceService.delete(id);
   }
 
   @Patch('/:id')
+  @UseGuards(AuthGuard)
   async update(
     @Param('id') id: number,
     @Body() data: Partial<CreateServicePayload>,

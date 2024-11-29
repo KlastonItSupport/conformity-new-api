@@ -19,6 +19,7 @@ export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
   @Get()
+  @UseGuards(AuthGuard)
   async getProjects(@Req() req, @Query() query) {
     return await this.projectService.getAll(
       {
@@ -34,16 +35,19 @@ export class ProjectController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   async createProject(@Body() data: CreateProjectPayloadDto) {
     return await this.projectService.create(data);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async deleteProject(@Param('id') id: string) {
     return await this.projectService.delete(id);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard)
   async editProject(
     @Param('id') id: string,
     @Body() data: Partial<CreateProjectPayloadDto>,

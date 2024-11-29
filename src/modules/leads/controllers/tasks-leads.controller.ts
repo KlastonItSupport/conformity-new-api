@@ -8,11 +8,13 @@ import {
   Post,
   Query,
   Req,
+  Response,
   UseGuards,
 } from '@nestjs/common';
 import { CreateLeadTaskDto } from '../dtos/create-task-lead.dto';
 import { TasksLeadsService } from '../services/tasks-leads.service';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { Response as Res } from 'express';
 
 @Controller('leads/tasks')
 export class TasksLeadsController {
@@ -40,20 +42,40 @@ export class TasksLeadsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async createTask(@Body() data: CreateLeadTaskDto, @Req() req) {
-    return await this.tasksLeadsService.createTask({
+  async createTask(
+    @Body() data: CreateLeadTaskDto,
+    @Req() req,
+    @Response() res: Res,
+  ) {
+    const taskLead = await this.tasksLeadsService.createTask({
       ...data,
       userId: req.user.id,
     });
+
+    return res
+      .set({ 'x-audit-event-complement': taskLead.leadId })
+      .json(taskLead);
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: number) {
-    return await this.tasksLeadsService.delete(id);
+  @UseGuards(AuthGuard)
+  async delete(@Param('id') id: number, @Response() res: Res) {
+    const deleted = await this.tasksLeadsService.delete(id);
+    return res
+      .set({ 'x-audit-event-complement': deleted.leadId })
+      .json(deleted);
   }
 
   @Patch(':id')
-  async edit(@Param('id') id: number, @Body() data: CreateLeadTaskDto) {
-    return await this.tasksLeadsService.edit(id, data);
+  @UseGuards(AuthGuard)
+  async edit(
+    @Param('id') id: number,
+    @Body() data: CreateLeadTaskDto,
+    @Response() res: Res,
+  ) {
+    const updated = await this.tasksLeadsService.edit(id, data);
+    return res
+      .set({ 'x-audit-event-complement': updated.leadId })
+      .json(updated);
   }
 }

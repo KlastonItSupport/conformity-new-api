@@ -52,11 +52,13 @@ export class LeadsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async delete(@Param('id') id: number) {
     return await this.leadsService.delete(id);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard)
   async edit(@Param('id') id: number, @Body() data: Partial<CreateLeadDto>) {
     return await this.leadsService.edit(id, data);
   }

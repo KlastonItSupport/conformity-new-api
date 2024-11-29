@@ -33,16 +33,19 @@ export class ContractsController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   async createContract(@Body() createContractDto: CreateContractDto) {
     return await this.contractsService.createContract(createContractDto);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async deleteContract(@Param('id') id: number) {
     return await this.contractsService.deleteContract(id);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard)
   async editContract(@Param('id') id: number, @Body() data: CreateContractDto) {
     return await this.contractsService.editContract(id, data);
   }
