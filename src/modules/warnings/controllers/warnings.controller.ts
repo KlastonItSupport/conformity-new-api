@@ -17,6 +17,7 @@ export class WarningsController {
   constructor(private readonly warningsService: WarningsService) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   async createWarning(@Body() data: CreateWarningDto) {
     return await this.warningsService.createWarning(data);
   }

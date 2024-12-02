@@ -8,8 +8,8 @@ import {
   Post,
   Query,
   Req,
+  Response,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { UsersServices } from '../services/users.services';
 import {
@@ -20,10 +20,8 @@ import {
   SignInResponse,
 } from '../dtos/dtos';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { AuditInterceptor } from 'src/guards/interceptors/audit.interceptor';
-
+import { Response as Res } from 'express';
 @Controller('users')
-@UseInterceptors(AuditInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersServices) {}
 
@@ -44,9 +42,12 @@ export class UsersController {
     return this.usersService.editUser(userData, userId);
   }
   @Post('/change-password')
-  // @UseGuards(AuthGuard)
-  async changePassword(@Body() data: ChangePasswordDto) {
-    return this.usersService.changePassword(data);
+  @UseGuards(AuthGuard)
+  async changePassword(@Body() data: ChangePasswordDto, @Response() res: Res) {
+    const user = await this.usersService.changePassword(data);
+    return res
+      .set({ 'x-audit-event-complement': `${user.id} (${user.name})` })
+      .json(user);
   }
 
   @Get()

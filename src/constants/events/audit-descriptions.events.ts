@@ -5,12 +5,6 @@ const USER_EVENTS = {
   USER_SIGNED_IN: 'Usuário Logado',
 };
 
-const COMPANY_EVENTS = {
-  COMPANY_CREATED: 'Empresa Criada',
-  COMPANY_UPDATED: 'Empresa Atualizada',
-  COMPANY_DELETED: 'Empresa Excluída',
-};
-
 const DOCUMENTS_EVENTS = {
   DOCUMENTS_GET: 'Resgatou a lista de documentos',
   DOCUMENT_DELETED:
@@ -244,6 +238,30 @@ const TRAININGS_EVENTS = {
 
   // Matriz
   TRAININGS_MATRIX_LIST: 'Acessou a lista de matrizes',
+};
+
+const COMPANY_EVENTS = {
+  //Users
+  COMPANY_USERS_LIST: 'Acessou a listagem de usuários',
+  COMPANY_USERS_CREATED: 'Criou um novo usuário',
+  COMPANY_USERS_DELETED: 'Deletou um usuário de código #$id',
+  COMPANY_USERS_UPDATED: 'Editou um usuário de código #$id',
+  COMPANY_USERS_CHANGE_PASSWORD: 'Alterou a senha do usuário #$complement',
+
+  // Cargos
+  COMPANY_ROLES_LIST: 'Acessou a listagem de Cargos',
+  COMPANY_ROLES_CREATED: 'Criou um novo cargo',
+  COMPANY_ROLES_DELETED: 'Deletou um cargo de código #$id',
+  COMPANY_ROLES_UPDATED: 'Editou um cargo de código #$id',
+
+  // Avisos
+  COMPANY_WARNINGS_LIST: 'Acessou a listagem de Avisos',
+  COMPANY_WARNINGS_CREATED: 'Criou um novo aviso',
+
+  // Empresas
+  COMPANY_LIST: 'Acessou a listagem de empresas',
+  COMPANY_CREATED: 'Criou uma nova empresa',
+  COMPANY_UPDATED: 'Editou uma empresa de código #$id',
 };
 
 export const eventDescriptions = {

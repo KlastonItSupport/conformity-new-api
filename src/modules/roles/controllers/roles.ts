@@ -19,6 +19,7 @@ export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   createRole(@Body() data: CreateRoleDto) {
     return this.rolesService.createCategory(data);
   }
@@ -34,11 +35,13 @@ export class RolesController {
   }
 
   @Delete('/:id')
+  @UseGuards(AuthGuard)
   async delete(@Param('id') id: number) {
     return await this.rolesService.delete(id);
   }
 
   @Patch('/:id')
+  @UseGuards(AuthGuard)
   update(@Param('id') id: number, @Body() data) {
     return this.rolesService.update(id, data.name);
   }

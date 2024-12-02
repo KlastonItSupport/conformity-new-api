@@ -257,7 +257,12 @@ export class UsersServices {
       user.passwordHash = hashedPassword;
       await this.usersRepository.save(user);
 
-      return { status: 200, message: 'Password changed successfully' };
+      return {
+        status: 200,
+        message: 'Password changed successfully',
+        id: user.id,
+        name: user.name,
+      };
     } catch (_) {
       throw new AppError('Token invalid or expired', 404);
     }
