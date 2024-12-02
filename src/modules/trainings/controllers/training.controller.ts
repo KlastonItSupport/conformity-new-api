@@ -34,11 +34,13 @@ export class TrainingController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   async create(@Body() data: CreateTrainingPayload) {
     return await this.trainingService.create(data);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async delete(@Param('id') id: number) {
     return await this.trainingService.delete(id);
   }

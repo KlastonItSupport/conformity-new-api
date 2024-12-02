@@ -213,6 +213,39 @@ const CRM_EVENTS = {
   CRM_SERVICES_DELETE: 'Deletou um serviço de código #$id',
 };
 
+const TRAININGS_EVENTS = {
+  TRAININGS_LIST: 'Acessou a lista de treinamentos',
+  TRAININGS_CREATED: 'Criou um treinamento',
+  TRAININGS_DELETED: 'Deletou um treinamento de código #$id',
+  TRAININGS_UPDATED: 'Editou um treinamento de código #$id',
+
+  // Treinamentos do usuário
+  TRAININGS_USER_LIST: 'Acessou a lista de treinamentos do usuário',
+  TRAININGS_USER_CREATED:
+    'Atrelou um treinamento ao usuário. Código do treinamento #$complement',
+  TRAININGS_USER_DELETED:
+    'Deletou um treinamento do usuário. Código do treinamento #$complement',
+  TRAININGS_USER_UPDATED:
+    'Editou um treinamento do usuário. Código do treinamento #$complement',
+
+  // Certificados do treinamento do usuário
+  TRAININGS_USER_CERTIFICATES_LIST:
+    'Acessou os certificados do treinamento do usuário',
+  TRAININGS_USER_CERTIFICATES_CREATED:
+    'Criou um certificado no treinamento do $complement',
+  TRAININGS_USER_CERTIFICATES_DELETED:
+    'Deletou um certificado no treinamento do usuário #$complement',
+
+  // Escolas
+  TRAININGS_SCHOOL_LIST: 'Acessou a lista de escolas',
+  TRAININGS_SCHOOL_CREATED: 'Criou uma escola',
+  TRAININGS_SCHOOL_DELETED: 'Deletou uma escola de código #$id',
+  TRAININGS_SCHOOL_UPDATED: 'Editou uma escola de código #$id',
+
+  // Matriz
+  TRAININGS_MATRIX_LIST: 'Acessou a lista de matrizes',
+};
+
 export const eventDescriptions = {
   ...USER_EVENTS,
   ...TASKS_EVENTS,
@@ -221,4 +254,5 @@ export const eventDescriptions = {
   ...DOCUMENTS_EVENTS,
   ...INDICATORS_EVENTS,
   ...CRM_EVENTS,
+  ...TRAININGS_EVENTS,
 } as const;

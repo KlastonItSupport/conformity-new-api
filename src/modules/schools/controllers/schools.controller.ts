@@ -33,11 +33,13 @@ export class SchoolsController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   async create(@Body() data: CreateSchoolDto) {
     return await this.schoolsService.createSchools(data);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async delete(@Param('id') id) {
     return await this.schoolsService.delete(id);
   }

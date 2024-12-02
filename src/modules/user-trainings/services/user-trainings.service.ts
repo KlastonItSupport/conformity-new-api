@@ -105,15 +105,19 @@ export class UserTrainingsService {
   }
 
   async delete(id: number) {
-    const trainingUser = await this.trainingUserRepository.findOne({
-      where: { id },
-    });
+    const trainingUser = this.format(
+      await this.trainingUserRepository.findOne({
+        where: { id },
+        relations: ['training'],
+      }),
+    );
 
     if (!trainingUser) {
       throw new AppError('Training not found', 404);
     }
 
-    return await this.trainingUserRepository.remove(trainingUser);
+    await this.trainingUserRepository.remove(trainingUser);
+    return trainingUser;
   }
 
   async uploadCertificates(
