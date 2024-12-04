@@ -39,7 +39,7 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Patch(':id')
   async editUser(@Body() userData, @Param('id') userId: string): Promise<any> {
-    return this.usersService.editUser(userData, userId);
+    return await this.usersService.editUser(userData, userId);
   }
   @Post('/change-password')
   @UseGuards(AuthGuard)

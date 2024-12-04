@@ -5,6 +5,9 @@ export class AuditDto {
   @IsOptional()
   id?: number;
 
+  @IsString()
+  module?: string;
+
   @IsUUID()
   @IsOptional()
   companyId?: string;

@@ -55,6 +55,9 @@ const DOCUMENTS_EVENTS = {
   DOCUMENTS_LIST_CATEGORIES: 'Accesou a lista de categorias',
   DOCUMENTS_DELETE_CATEGORY: 'Deletou uma categoria $complement',
   DOCUMENTS_UPDATE_CATEGORY: 'Editou a categoria $complement',
+
+  // Analise
+  DOCUMENTS_ANALYSIS_LIST: 'Acessou a lista de analises',
 };
 
 const TASKS_EVENTS = {
@@ -262,6 +265,9 @@ const COMPANY_EVENTS = {
   COMPANY_LIST: 'Acessou a listagem de empresas',
   COMPANY_CREATED: 'Criou uma nova empresa',
   COMPANY_UPDATED: 'Editou uma empresa de código #$id',
+
+  // Monitoramento
+  COMPANY_MONITORING_LIST: 'Acessou a listagem de monitoramento',
 };
 
 export const eventDescriptions = {

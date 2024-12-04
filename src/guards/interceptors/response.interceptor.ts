@@ -40,11 +40,12 @@ export class ResponseInterceptor implements NestInterceptor {
 
           if (statusCode === 200 || 201) {
             await this.auditService.store({
+              module: gettingModule(event), // Adicionando a propriedade obrigatória
               class: className,
               method: methodName,
               key: request.params?.id,
               userId: request.user?.id,
-              companyId: request.user.companyId,
+              companyId: request.user?.companyId,
               description: eventDescription,
               complement: response.getHeaders()['x-audit-event-complement'],
             });
@@ -54,3 +55,31 @@ export class ResponseInterceptor implements NestInterceptor {
     );
   }
 }
+
+const gettingModule = (event: string): string => {
+  if (event.startsWith('DOCUMENT')) {
+    return 'Documentos';
+  }
+  if (event.startsWith('USER')) {
+    return 'Usuários';
+  }
+  if (event.startsWith('COMPANY')) {
+    return 'Empresas';
+  }
+  if (event.startsWith('TASKS')) {
+    return 'Tarefas';
+  }
+  if (event.startsWith('EQUIPMENTS')) {
+    return 'Equipamentos';
+  }
+  if (event.startsWith('INDICATORS')) {
+    return 'Indicadores';
+  }
+  if (event.startsWith('CRM')) {
+    return 'Crm';
+  }
+  if (event.startsWith('TRAININGS')) {
+    return 'Treinamentos';
+  }
+  return '';
+};

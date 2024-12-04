@@ -61,4 +61,7 @@ export class Audit {
 
   @Column({ type: 'varchar', nullable: true })
   description: string;
+
+  @Column({ type: 'varchar', nullable: false })
+  module: string;
 }

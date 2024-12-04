@@ -36,6 +36,13 @@ export class ServiceService {
         companyId,
       });
     }
+    if (searchParams.page && searchParams.pageSize) {
+      searchParams.pageSize = Number(searchParams.pageSize);
+      searchParams.page = Number(searchParams.page);
+      queryBuilder
+        .offset((searchParams.page - 1) * searchParams.pageSize)
+        .limit(searchParams.pageSize);
+    }
 
     const [services, totalItems] = await queryBuilder.getManyAndCount();
 
