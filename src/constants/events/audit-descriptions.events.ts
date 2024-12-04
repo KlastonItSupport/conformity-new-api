@@ -1,8 +1,6 @@
 const USER_EVENTS = {
-  USER_CREATED: 'Usuário Criado',
-  USER_UPDATED: 'Usuário Atualizado',
-  USER_DELETED: 'Usuário Excluído',
-  USER_SIGNED_IN: 'Usuário Logado',
+  USER_SIGNED_IN: 'Usuário acessou o sistema',
+  USER_SIGNED_OUT: 'Desconectou-se do sistema',
 };
 
 const DOCUMENTS_EVENTS = {

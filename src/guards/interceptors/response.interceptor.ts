@@ -37,10 +37,31 @@ export class ResponseInterceptor implements NestInterceptor {
       tap(() => {
         response.on('finish', async () => {
           const statusCode = response.statusCode;
+          const isUserEvents =
+            event === 'USER_CREATED' ||
+            event === 'USER_UPDATED' ||
+            event === 'USER_DELETED' ||
+            event === 'USER_SIGNED_IN';
+          const responseJson =
+            event === 'USER_SIGNED_IN'
+              ? JSON.parse(responseBody)
+              : responseBody;
 
-          if (statusCode === 200 || 201) {
+          if (isUserEvents) {
             await this.auditService.store({
-              module: gettingModule(event), // Adicionando a propriedade obrigatória
+              module: gettingModule(event),
+              class: className,
+              method: methodName,
+              key: request.params?.id,
+              userId: responseJson.id,
+              companyId: responseJson.companyId,
+              description: eventDescription,
+              complement: response.getHeaders()['x-audit-event-complement'],
+            });
+          }
+          if ((statusCode === 200 || 201) && !isUserEvents) {
+            await this.auditService.store({
+              module: gettingModule(event),
               class: className,
               method: methodName,
               key: request.params?.id,
