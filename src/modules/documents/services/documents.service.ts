@@ -68,13 +68,22 @@ export class DocumentsService {
 
     const pagination = new PaginationDocumentsDto();
 
-    const queryBuilder =
-      this.documentsRepository.createQueryBuilder('documents');
+    const queryBuilder = this.documentsRepository
+      .createQueryBuilder('documents')
+      .leftJoinAndSelect('documents.evaluators', 'evaluators');
 
     if (!userAccessRule.isAdmin) {
-      queryBuilder.where('documents.document_company_fk = :companyId', {
+      queryBuilder.andWhere('documents.document_company_fk = :companyId', {
         companyId,
       });
+    }
+
+    if (!userAccessRule.isAdmin && !userAccessRule.isSuperUser) {
+      queryBuilder
+        .andWhere('evaluators.document_approvals_document_id_fk = documents.id')
+        .andWhere('evaluators.document_approvals_user_id_fk = :userId', {
+          userId,
+        });
     }
 
     if (search || Object.keys(searchSelects).length > 0) {
