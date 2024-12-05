@@ -70,12 +70,22 @@ export class TasksService {
 
     const pagination = new PaginationTasksDto();
 
-    const queryBuilder = this.tasksRepository.createQueryBuilder('tasks');
+    const queryBuilder = this.tasksRepository
+      .createQueryBuilder('tasks')
+      .leftJoinAndSelect('tasks.taskEvaluators', 'evaluators');
 
     if (!userAccessRule.isAdmin) {
       queryBuilder.where('tasks.tasks_company_fk = :companyId', {
         companyId,
       });
+    }
+
+    if (!userAccessRule.isAdmin && !userAccessRule.isSuperUser) {
+      queryBuilder
+        .andWhere('evaluators.task_evaluator_task_fk = tasks.id')
+        .andWhere('evaluators.task_evaluator_user_fk = :userId', {
+          userId,
+        });
     }
 
     if (pages.search || Object.keys(searchParams).length > 0) {
