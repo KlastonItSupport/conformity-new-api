@@ -40,6 +40,7 @@ import { WarningsModule } from './modules/warnings/warnings.module';
 import { SupportModule } from './modules/support/support.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { ResponseInterceptor } from './guards/interceptors/response.interceptor';
+import { BlogModule } from './modules/blog/blog.module';
 
 @Module({
   imports: [
@@ -89,6 +90,7 @@ import { ResponseInterceptor } from './guards/interceptors/response.interceptor'
     WarningsModule,
     SupportModule,
     AuditModule,
+    BlogModule,
   ],
   controllers: [AppController],
   providers: [AppService, ErrorLoggingMiddleware, ResponseInterceptor],
