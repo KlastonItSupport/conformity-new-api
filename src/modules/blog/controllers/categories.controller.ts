@@ -19,16 +19,19 @@ export class BlogCategoryController {
   constructor(private readonly blogCategoryService: BlogCategoryService) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   async create(@Body() data: CreateBlogCategoryDto) {
     return await this.blogCategoryService.create(data);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async delete(@Param('id') id: number) {
     return await this.blogCategoryService.delete(id);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard)
   async update(@Param('id') id: number, @Body() data) {
     return await this.blogCategoryService.update(id, data.name);
   }

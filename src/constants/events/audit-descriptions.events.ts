@@ -264,6 +264,19 @@ const COMPANY_EVENTS = {
   COMPANY_CREATED: 'Criou uma nova empresa',
   COMPANY_UPDATED: 'Editou uma empresa de código #$id',
 
+  // Blog
+  COMPANY_BLOG_CATEGORIES_LIST: 'Acessou a listagem de categorias do Blog',
+  COMPANY_BLOG_CATEGORIES_CREATED: 'Criou uma nova categoria do Blog',
+  COMPANY_BLOG_CATEGORIES_DELETED:
+    'Deletou uma categoria do Blog de código #$id',
+  COMPANY_BLOG_CATEGORIES_UPDATED:
+    'Atualizou uma categoria do Blog de código #$id',
+
+  COMPANY_BLOG_LIST: 'Acessou a lista de Conteúdo(Blog)',
+  COMPANY_BLOG_CREATED: 'Criou um conteúdo(Blog)',
+  COMPANY_BLOG_DELETED: 'Deletou um conteúdo(Blog) de código #$id',
+  COMPANY_BLOG_UPDATED: 'Atualizou um conteúdo(Blog) de código #$id',
+
   // Monitoramento
   COMPANY_MONITORING_LIST: 'Acessou a listagem de monitoramento',
 };

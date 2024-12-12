@@ -284,6 +284,7 @@ export class TasksService {
       for (const image of images) {
         const base64Data = image.src.split(';base64,').pop();
         if (!base64Data) continue;
+        if (image.src.includes('amazonaws')) continue;
 
         const fileType = getFileTypeFromBase64(image.src);
         const buffer = Buffer.from(base64Data, 'base64');

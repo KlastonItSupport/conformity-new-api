@@ -6,7 +6,9 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
+import { Blog } from './blog.entity';
 
 @Entity('blog_categories')
 export class BlogCategory {
@@ -27,4 +29,7 @@ export class BlogCategory {
 
   @Column()
   name: string;
+
+  @OneToMany(() => Blog, (blog) => blog.category)
+  blogs: Blog[];
 }
