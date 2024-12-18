@@ -28,6 +28,9 @@ import { CheckListController } from './controllers/check-list.controller';
 import { CheckListServices } from './services/check-list.services';
 import { TaskChecklist } from './entities/checklist.entity';
 import { TaskSubtask } from './entities/relateds.entity';
+import { PermissionsServices } from './services/permissions.service';
+import { PermissionsController } from './controllers/permissions.controller';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -43,6 +46,7 @@ import { TaskSubtask } from './entities/relateds.entity';
       TaskSubtask,
       TaskChecklist,
     ]),
+    UsersModule,
   ],
   controllers: [
     EvaluatorsController,
@@ -54,6 +58,7 @@ import { TaskSubtask } from './entities/relateds.entity';
     IshikawaController,
     RelatedsController,
     CheckListController,
+    PermissionsController,
   ],
   providers: [
     EvaluatorService,
@@ -65,6 +70,7 @@ import { TaskSubtask } from './entities/relateds.entity';
     IshikawaServices,
     RelatedsServices,
     CheckListServices,
+    PermissionsServices,
   ],
   exports: [
     EvaluatorService,

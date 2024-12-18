@@ -17,7 +17,7 @@ export class TaskEvaluator {
   taskId: number;
 
   @Column({ name: 'task_evaluator_user_fk', type: 'int' })
-  userId: number;
+  userId: string;
 
   @Column({ type: 'int' })
   analyzed: number;
