@@ -17,6 +17,7 @@ import { Groups } from 'src/modules/permissions/entities/groups.entity';
 import { PermissionsServices } from 'src/modules/permissions/services/permissions.service';
 import { AllPermissionsDto } from 'src/modules/permissions/dtos/create-permission-by-group';
 import { S3Service } from 'src/modules/shared/services/s3.service';
+import { TemplateService } from 'src/modules/mailer/services/template.service';
 
 @Injectable()
 export class UsersServices {
@@ -32,6 +33,7 @@ export class UsersServices {
 
     private readonly permissionsService: PermissionsServices,
     private readonly s3Service: S3Service,
+    private readonly mailTemplateService: TemplateService,
   ) {}
 
   async isSuperUser(userId: string) {
@@ -89,6 +91,16 @@ export class UsersServices {
         group.id,
       );
     }
+
+    await this.mailTemplateService.setUpTemplate(
+      'boas-vindas',
+      {
+        usuario: { nome: user.name },
+        empresa: { nome: company.name },
+      },
+      user.email,
+    );
+
     return { ...user, companyName: company.name };
   }
 

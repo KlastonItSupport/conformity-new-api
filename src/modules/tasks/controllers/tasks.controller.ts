@@ -125,8 +125,8 @@ export class TasksController {
 
   @UseGuards(AuthGuard)
   @Get('close-task/:id')
-  async closeTask(@Param('id') id: number, @Response() res: Res) {
-    const task = await this.tasksService.closeTask(id);
+  async closeTask(@Param('id') id: number, @Response() res: Res, @Req() req) {
+    const task = await this.tasksService.closeTask(id, req.user.id);
     return res
       .set({
         'x-audit-event-complement':

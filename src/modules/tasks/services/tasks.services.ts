@@ -19,6 +19,9 @@ import { PaginationTasksDto } from '../dtos/pagination-tasks.dto';
 import { CreateAdditionalDocumentsDto } from '../dtos/create-additional-document.dto';
 import { Upload } from 'src/modules/shared/entities/upload.entity';
 import { IndicatorTasks } from 'src/modules/indicators/entities/indicator-tasks.entity';
+import { TemplateService } from 'src/modules/mailer/services/template.service';
+import { User } from 'src/modules/users/entities/users.entity';
+import * as moment from 'moment';
 
 @Injectable()
 export class TasksService {
@@ -35,12 +38,16 @@ export class TasksService {
     @InjectRepository(Upload)
     private readonly uploadRepository: Repository<Upload>,
 
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+
     @InjectRepository(IndicatorTasks)
     private readonly indicatorTasksRepository: Repository<IndicatorTasks>,
 
     private readonly s3Service: S3Service,
     private readonly usersService: UsersServices,
     private readonly permissionsService: PermissionsServices,
+    private readonly mailTemplateService: TemplateService,
   ) {}
 
   async getTasks(
@@ -220,7 +227,7 @@ export class TasksService {
     const savedTask = await this.tasksRepository.save(task);
     const taskOnDb = await this.tasksRepository.findOne({
       where: { id: savedTask.id },
-      relations: ['origin', 'classification', 'type'],
+      relations: ['origin', 'classification', 'type', 'user'],
     });
 
     if (data.indicator) {
@@ -233,6 +240,8 @@ export class TasksService {
     }
 
     if (taskOnDb) {
+      await this.handlingTemplateEmail(taskOnDb, userId);
+
       return {
         ...taskOnDb,
         origin: taskOnDb.origin?.name,
@@ -243,8 +252,50 @@ export class TasksService {
     }
   }
 
-  async closeTask(id: number) {
-    const task = await this.tasksRepository.findOne({ where: { id } });
+  async closeTask(id: number, userId: string) {
+    const task = await this.tasksRepository.findOne({
+      where: { id },
+      relations: ['user', 'classification', 'type', 'origin'],
+    });
+
+    const author = await this.userRepository.findOne({
+      where: { id: task.userId },
+      relations: ['company'],
+    });
+
+    const userResponsibleForStatusChange = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    // Faltando mandar o email para cada um dos avaliadores
+    await this.mailTemplateService.setUpTemplate(
+      task.status === 'Fechada' ? 'task-reaberta' : 'task-encerrar',
+      {
+        task: {
+          id: task.id,
+          titulo: task.title,
+          usuario: author.name,
+          classificacao: task?.classification.name,
+          tipo: task?.type.name,
+          data_previsao: moment(task.datePrevision as unknown as Date).format(
+            'DD/MM/YYYY',
+          ),
+          origem: task?.origin.name,
+          descricao: task.description,
+        },
+        url: {
+          task: process.env.FRONT_BASE_URL + 'tasks/?details?id=' + task.id,
+        },
+        empresa: {
+          nome: author?.company.name,
+        },
+        usuario: {
+          nome: author.name,
+        },
+      },
+      author.email,
+    );
+
     if (task.status === 'Fechada') {
       task.status = 'Aberta';
       return await this.tasksRepository.save(task);
@@ -507,5 +558,38 @@ export class TasksService {
     });
 
     return additionalDocuments;
+  }
+
+  private async handlingTemplateEmail(task: Task, userId: string) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['company'],
+    });
+    await this.mailTemplateService.setUpTemplate(
+      'task-nova',
+      {
+        task: {
+          id: task.id,
+          titulo: task.title,
+          usuario: user.name,
+          classificacao: task.classification.name,
+          tipo: task.type.name,
+          data_previsao: moment(task.datePrevision as unknown as Date).format(
+            'DD/MM/YYYY',
+          ),
+          origem: task.origin.name,
+        },
+        url: {
+          task: process.env.FRONT_BASE_URL + 'tasks/?details?id=' + task.id,
+        },
+        empresa: {
+          nome: user.company.name,
+        },
+        usuario: {
+          nome: user.name,
+        },
+      },
+      user.email,
+    );
   }
 }

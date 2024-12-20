@@ -1,11 +1,11 @@
 import { MailerService as NestMailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 
-interface SendEmailOptions {
+export interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
-  attachments?: any; // Substitua `any` pelo tipo específico se souber
+  attachments?: any;
 }
 
 @Injectable()

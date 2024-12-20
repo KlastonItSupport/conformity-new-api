@@ -49,6 +49,7 @@ import { TrainingModule } from '../trainings/training.module';
 import { UserTrainingsModule } from '../user-trainings/user-trainings.module';
 import { RolesModule } from '../roles/roles.module';
 import { WarningsModule } from '../warnings/warnings.module';
+import { MailerModule } from '../mailer/mailer.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { WarningsModule } from '../warnings/warnings.module';
       Task,
       IndicatorTasks,
     ]),
+    MailerModule,
     UsersModule,
     CompaniesModule,
     PermissionsModule,

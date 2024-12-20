@@ -4,9 +4,13 @@ import { Module } from '@nestjs/common/decorators';
 import { MailerModule as NestMailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule } from '@nestjs/config';
 import { MailerService } from './services/mailer.service';
+import { TemplateService } from './services/template.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { EmailModel } from './entities/emails.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([EmailModel]),
     ConfigModule.forRoot(),
     NestMailerModule.forRoot({
       transport: {
@@ -25,7 +29,7 @@ import { MailerService } from './services/mailer.service';
     }),
   ],
 
-  providers: [MailerService],
-  exports: [MailerService],
+  providers: [MailerService, TemplateService],
+  exports: [MailerService, TemplateService],
 })
 export class MailerModule {}

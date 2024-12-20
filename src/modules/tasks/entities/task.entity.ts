@@ -100,8 +100,8 @@ export class Task {
   //   @Column({ name: 'tasks_project_fk' })
   //   projectId?: string;
 
-  //   @Column({ name: 'tasks_users_fk' })
-  //   userId?: string;
+  @Column({ name: 'tasks_users_fk' })
+  userId?: string;
 
   //   @Column({ name: 'tasks_departament_fk' })
   //   departamentId?: string;

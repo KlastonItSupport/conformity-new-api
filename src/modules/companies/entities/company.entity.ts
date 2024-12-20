@@ -3,6 +3,7 @@ import { Blog } from 'src/modules/blog/entities/blog.entity';
 import { BlogCategory } from 'src/modules/blog/entities/category.entity';
 import { School } from 'src/modules/schools/entities/schools.entity';
 import { Training } from 'src/modules/trainings/entities/training.entity';
+import { User } from 'src/modules/users/entities/users.entity';
 import { Warning } from 'src/modules/warnings/entities/warning.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
@@ -74,4 +75,7 @@ export class Company {
 
   @OneToMany(() => Blog, (blog) => blog.company)
   blog: Blog[];
+
+  @OneToMany(() => User, (user) => user.company)
+  users: User[];
 }

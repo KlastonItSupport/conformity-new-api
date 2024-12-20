@@ -18,6 +18,8 @@ import { TypesController } from './controllers/types.controller';
 import { TypesServices } from './services/types.services';
 import { Upload } from '../shared/entities/upload.entity';
 import { IndicatorTasks } from '../indicators/entities/indicator-tasks.entity';
+import { MailerModule } from '../mailer/mailer.module';
+import { User } from '../users/entities/users.entity';
 
 @Module({
   imports: [
@@ -29,10 +31,12 @@ import { IndicatorTasks } from '../indicators/entities/indicator-tasks.entity';
       Company,
       Upload,
       IndicatorTasks,
+      User,
     ]),
     SharedModule,
     PermissionsModule,
     UsersModule,
+    MailerModule,
   ],
   controllers: [
     TasksController,

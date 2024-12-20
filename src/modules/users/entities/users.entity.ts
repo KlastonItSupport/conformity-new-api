@@ -1,4 +1,5 @@
 import { Audit } from 'src/modules/audit/entities/audit.entity';
+import { Company } from 'src/modules/companies/entities/company.entity';
 import { Evaluators } from 'src/modules/evaluators/entities/evaluators.entity';
 import { Feed } from 'src/modules/feed/entities/feed.entity';
 import { TasksDeadlinesHistory } from 'src/modules/tasks-details/entities/deadlines.entity';
@@ -8,7 +9,14 @@ import { TaskIshikawa } from 'src/modules/tasks-details/entities/ishikawa.entity
 import { TaskRootCauseAnalysis } from 'src/modules/tasks-details/entities/root-cause-analysis.entity';
 import { TrainingUser } from 'src/modules/user-trainings/entities/user-training.entity';
 import { WarningReader } from 'src/modules/warnings/entities/warning-readers.entity';
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity('users')
 export class User {
@@ -65,6 +73,10 @@ export class User {
   status: string;
 
   companyName?: string;
+
+  @ManyToOne(() => Company, (company) => company.users, { eager: false })
+  @JoinColumn({ name: 'company_id_fk' })
+  company: Company;
 
   @OneToMany(() => Feed, (feed) => feed.user)
   feeds: Feed[];
