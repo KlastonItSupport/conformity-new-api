@@ -134,4 +134,46 @@ export class TasksController {
       })
       .json(task);
   }
+
+  @Get('permission/:id')
+  @UseGuards(AuthGuard)
+  async getTaskPermission(@Req() req, @Param('id') id: string) {
+    console.log('=== Task Permission Check Started ===');
+    console.log('Request received for task:', id);
+    console.log('User:', req.user);
+    
+    try {
+      console.log('Permission check initiated:', {
+        taskId: id,
+        userId: req.user.id,
+        companyId: req.user.companyId
+      });
+
+      const task = await this.tasksService.getSpecificTask(Number(id), req.user.id);
+      console.log('Task found:', !!task);
+
+      if (!task) {
+        console.log('Task not found');
+        return {
+          isAllowed: false,
+          message: 'Task not found'
+        };
+      }
+
+      console.log('Access granted for task:', id);
+      return {
+        isAllowed: true,
+        message: 'Access granted'
+      };
+
+    } catch (error) {
+      console.error('Task Permission Check Error:', error);
+      return {
+        isAllowed: false,
+        message: 'Error checking permissions'
+      };
+    } finally {
+      console.log('=== Task Permission Check Ended ===');
+    }
+  }
 }
