@@ -110,6 +110,17 @@ export class UsersServices {
     if (!user) {
       throw new AppError('User not found', 404);
     }
+
+    if (userData.companyId) {
+      const hasCompanyWithThisId = await this.companyRepository.findOne({
+        where: { id: userData.companyId },
+      });
+  
+      if (!hasCompanyWithThisId) {
+        throw new AppError('Company not found', 404);
+      }
+    }
+    
     if (userData.fileName && userData.profilePic) {
       const profilePicUrl = await this.s3Service.uploadFile({
         file: Buffer.from(userData.profilePic, 'base64'),
@@ -125,7 +136,6 @@ export class UsersServices {
 
     delete userData.passwordHash;
     delete userData.groupId;
-    delete userData.companyId;
     if (userData.accessRule == 'super-admin') {
       delete userData.accessRule;
     }
