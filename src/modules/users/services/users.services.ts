@@ -45,51 +45,55 @@ export class UsersServices {
   }
 
   async createUser(userData: CreateUserDto, userId: string): Promise<any> {
+    console.log('Received create user data:', userData); // Debug log
+    
     await this.isSuperUser(userId);
-
+  
     const hasUserWithThisEmail = await this.usersRepository.findOne({
       where: { email: userData.email },
     });
-
+  
     if (hasUserWithThisEmail) {
       throw new AppError('An account with this email already exists', 409);
     }
-
+  
     const hasCompanyWithThisId = await this.companyRepository.findOne({
       where: { id: userData.companyId },
     });
-
+  
     if (!hasCompanyWithThisId) {
       throw new AppError('An company with this id was not found', 404);
     }
-
+  
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const companyId = userData.companyId;
-    delete userData.password;
+    // NO eliminar companyId aquí
     const user = await this.usersRepository.create({
       ...userData,
       departament: userData.departament,
       passwordHash: hashedPassword,
-      companyId: companyId,
+      companyId: userData.companyId, // Asegurar que se use el companyId correcto
     });
-
-    const company = await this.companyRepository.findOne({
-      where: { id: user.companyId },
-    });
-
+  
+    console.log('User before save:', user); // Debug log
+  
     const savedUser = await this.usersRepository.save(user);
-
+    console.log('Saved user:', savedUser); // Debug log
+  
+    const company = await this.companyRepository.findOne({
+      where: { id: savedUser.companyId },
+    });
+  
     if (userData.groupId) {
       const group = await this.grouRepository.findOne({
         where: { id: userData.groupId },
       });
-
-      this.permissionsService.createAllPermissionsToUser(
+  
+      await this.permissionsService.createAllPermissionsToUser(
         { userId: savedUser.id, ...group.permissions } as AllPermissionsDto,
         group.id,
       );
     }
-
+  
     await this.mailTemplateService.setUpTemplate(
       'boas-vindas',
       {
@@ -98,8 +102,11 @@ export class UsersServices {
       },
       user.email,
     );
-
-    return { ...user, companyName: company.name };
+  
+    const result = { ...savedUser, companyName: company.name };
+    console.log('Final result:', result); // Debug log
+  
+    return result;
   }
 
   async editUser(userData, userId: string): Promise<any> {
@@ -195,7 +202,7 @@ export class UsersServices {
     return result;
   }
 
-  
+
   async signIn(signInData: SignInDto): Promise<SignInResponse> {
     const user = await this.usersRepository.findOne({
       where: { email: signInData.email },
