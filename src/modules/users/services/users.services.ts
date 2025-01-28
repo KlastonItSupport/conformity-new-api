@@ -66,8 +66,6 @@ export class UsersServices {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     const companyId = userData.companyId;
     delete userData.password;
-    delete userData.companyId;
-
     const user = await this.usersRepository.create({
       ...userData,
       departament: userData.departament,
@@ -109,6 +107,16 @@ export class UsersServices {
 
     if (!user) {
       throw new AppError('User not found', 404);
+    }
+
+        if (userData.companyId) {
+      const hasCompanyWithThisId = await this.companyRepository.findOne({
+        where: { id: userData.companyId },
+      });
+  
+      if (!hasCompanyWithThisId) {
+        throw new AppError('Company not found', 404);
+      }
     }
 
     if (userData.companyId) {
