@@ -102,99 +102,100 @@ export class UsersServices {
     return { ...user, companyName: company.name };
   }
 
-async editUser(userData, userId: string): Promise<any> {
-  console.log('Backend received:', { userData, userId });
-
-  const userToEdit = await this.usersRepository.findOne({ 
-    where: { id: userId },
-    relations: ['company'] // Aseguramos cargar la relación
-  });
-  console.log('Found user:', userToEdit);
-
-  if (!userToEdit) {
-    throw new AppError('User not found', 404);
-  }
-
-  // Verificación para cambio de compañía
-  if (userData.companyId && userData.companyId !== userToEdit.companyId) {
-    console.log('Company change requested:', {
-      current: userToEdit.companyId,
-      new: userData.companyId
+  async editUser(userData, userId: string): Promise<any> {
+    console.log('Backend received:', { userData, userId });
+  
+    const userToEdit = await this.usersRepository.findOne({ 
+      where: { id: userId },
+      relations: ['company'] // Aseguramos cargar la relación
     });
-
-    const accessRule = await this.getUserAccessRule(userId);
-    if (!accessRule.isAdmin) {
-      throw new AppError('Only super-admin can change company', 403);
+    console.log('Found user:', userToEdit);
+  
+    if (!userToEdit) {
+      throw new AppError('User not found', 404);
     }
+  
+    // Verificación para cambio de compañía
+    if (userData.companyId && userData.companyId !== userToEdit.companyId) {
+      console.log('Company change requested:', {
+        current: userToEdit.companyId,
+        new: userData.companyId
+      });
+  
+      const accessRule = await this.getUserAccessRule(userId);
+      if (!accessRule.isAdmin) {
+        throw new AppError('Only super-admin can change company', 403);
+      }
+      
+      const company = await this.companyRepository.findOne({
+        where: { id: userData.companyId }
+      });
+      
+      if (!company) {
+        throw new AppError('Company not found', 404);
+      }
+  
+      await this.permissionsService.getUserPermissions(userId);
+    }
+  
+    // Manejo de la foto de perfil
+    if (userData.fileName && userData.profilePic) {
+      const profilePicUrl = await this.s3Service.uploadFile({
+        file: Buffer.from(userData.profilePic, 'base64'),
+        path: `${userToEdit.companyId}/users`,
+        fileType: userData.fileType,
+        fileName: userData.fileName,
+        companyId: userToEdit.companyId,
+        moduleId: process.env.MODULE_DOCUMENTS_ID,
+        id: userToEdit.id,
+      });
+      userData.profilePic = profilePicUrl.link;
+    }
+  
+    // Limpieza de datos sensibles o restringidos
+    delete userData.passwordHash;
+    delete userData.groupId;
     
+    // Protección especial para el rol super-admin
+    if (userData.accessRule === 'super-admin') {
+      delete userData.accessRule;
+    }
+  
+    console.log('User before update:', userToEdit);
+    Object.assign(userToEdit, userData);
+    console.log('User after update:', userToEdit);
+  
+    const updatedUser = await this.usersRepository.save(userToEdit);
+    console.log('Saved user:', updatedUser);
+  
+    // Obtener información actualizada de la compañía
     const company = await this.companyRepository.findOne({
-      where: { id: userData.companyId }
+      where: { id: updatedUser.companyId },
     });
+  
+    // Notificación por correo si hubo cambio de compañía
+    if (userData.companyId && userData.companyId !== userToEdit.companyId) {
+      try {
+        await this.mailTemplateService.setUpTemplate(
+          'company-change',
+          {
+            usuario: { nome: updatedUser.name },
+            empresa: { nome: company.name },
+          },
+          updatedUser.email
+        );
+      } catch (error) {
+        console.error('Failed to send company change notification:', error);
+      }
+    }
+  
+    const result = { ...updatedUser, companyName: company.name };
+    console.log('Final response:', result);
     
-    if (!company) {
-      throw new AppError('Company not found', 404);
-    }
-
-    await this.permissionsService.getUserPermissions(userId);
+    return result;
   }
 
-  // Manejo de la foto de perfil
-  if (userData.fileName && userData.profilePic) {
-    const profilePicUrl = await this.s3Service.uploadFile({
-      file: Buffer.from(userData.profilePic, 'base64'),
-      path: `${userToEdit.companyId}/users`,
-      fileType: userData.fileType,
-      fileName: userData.fileName,
-      companyId: userToEdit.companyId,
-      moduleId: process.env.MODULE_DOCUMENTS_ID,
-      id: userToEdit.id,
-    });
-    userData.profilePic = profilePicUrl.link;
-  }
-
-  // Limpieza de datos sensibles o restringidos
-  delete userData.passwordHash;
-  delete userData.groupId;
   
-  // Protección especial para el rol super-admin
-  if (userData.accessRule === 'super-admin') {
-    delete userData.accessRule;
-  }
-
-  console.log('User before update:', userToEdit);
-  Object.assign(userToEdit, userData);
-  console.log('User after update:', userToEdit);
-
-  const updatedUser = await this.usersRepository.save(userToEdit);
-  console.log('Saved user:', updatedUser);
-
-  // Obtener información actualizada de la compañía
-  const company = await this.companyRepository.findOne({
-    where: { id: updatedUser.companyId },
-  });
-
-  // Notificación por correo si hubo cambio de compañía
-  if (userData.companyId && userData.companyId !== userToEdit.companyId) {
-    try {
-      await this.mailTemplateService.setUpTemplate(
-        'company-change',
-        {
-          usuario: { nome: updatedUser.name },
-          empresa: { nome: company.name },
-        },
-        updatedUser.email
-      );
-    } catch (error) {
-      console.error('Failed to send company change notification:', error);
-    }
-  }
-
-  const result = { ...updatedUser, companyName: company.name };
-  console.log('Final response:', result);
-  
-  return result;
-}
-
   async signIn(signInData: SignInDto): Promise<SignInResponse> {
     const user = await this.usersRepository.findOne({
       where: { email: signInData.email },
