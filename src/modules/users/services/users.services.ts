@@ -102,32 +102,40 @@ export class UsersServices {
     return { ...user, companyName: company.name };
   }
 
-  async editUser(userData, userId: string): Promise<any> {
+   async editUser(userData, userId: string): Promise<any> {
+    console.log('Backend received userData:', userData);
+    console.log('Backend received userId:', userId);
+  
     const user = await this.usersRepository.findOne({ where: { id: userId } });
-
+    console.log('Found user:', user);
+  
     if (!user) {
       throw new AppError('User not found', 404);
     }
-
-        if (userData.companyId) {
-      const hasCompanyWithThisId = await this.companyRepository.findOne({
-        where: { id: userData.companyId },
-      });
   
-      if (!hasCompanyWithThisId) {
-        throw new AppError('Company not found', 404);
-      }
-    }
-
     if (userData.companyId) {
+      console.log('Checking company:', userData.companyId);
       const hasCompanyWithThisId = await this.companyRepository.findOne({
         where: { id: userData.companyId },
       });
+      console.log('Found company:', hasCompanyWithThisId);
   
       if (!hasCompanyWithThisId) {
         throw new AppError('Company not found', 404);
       }
     }
+  
+    console.log('User before update:', user);
+    
+    Object.assign(user, userData);
+    
+    console.log('User after update:', user);
+  
+    const updatedUser = await this.usersRepository.save(user);
+    console.log('Saved user:', updatedUser);
+  
+    return updatedUser;
+  }
     
     if (userData.fileName && userData.profilePic) {
       const profilePicUrl = await this.s3Service.uploadFile({
