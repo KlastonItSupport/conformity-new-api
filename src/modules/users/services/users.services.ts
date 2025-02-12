@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, Repository } from 'typeorm';
+import { Brackets, MoreThan, Repository } from 'typeorm';
 import { User } from '../entities/users.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -106,23 +106,23 @@ export class UsersServices {
 
   async editUser(userData, userId: string): Promise<any> {
     console.log('Datos recibidos para actualización:', userData);
-    
+
     const user = await this.usersRepository.findOne({ where: { id: userId } });
-  
+
     if (!user) {
       throw new AppError('User not found', 404);
     }
-  
+
     if (userData.companyId) {
       const company = await this.companyRepository.findOne({
-        where: { id: userData.companyId }
+        where: { id: userData.companyId },
       });
-  
+
       if (!company) {
         throw new AppError('Invalid company', 400);
       }
     }
-  
+
     if (userData.fileName && userData.profilePic) {
       const profilePicUrl = await this.s3Service.uploadFile({
         file: Buffer.from(userData.profilePic, 'base64'),
@@ -195,6 +195,20 @@ export class UsersServices {
       companyName: company.name,
     };
   }
+
+  async findByEmail(email: string): Promise<User> {
+    return this.usersRepository.findOne({ where: { email } });
+  }
+
+  async findByResetToken(token: string): Promise<User> {
+    return this.usersRepository.findOne({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: MoreThan(new Date()),
+      },
+    });
+  }
+
   async getUsers(
     companyId: string,
     page: number = 1,
@@ -313,5 +327,9 @@ export class UsersServices {
     };
 
     return accessLevels;
+  }
+
+  async update(userId: string, updateData: Partial<User>): Promise<void> {
+    await this.usersRepository.update(userId, updateData);
   }
 }

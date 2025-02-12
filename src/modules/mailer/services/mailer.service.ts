@@ -27,4 +27,23 @@ export class MailerService {
       attachments,
     });
   }
+
+  async sendPasswordResetEmail(
+    email: string,
+    token: string,
+    name: string,
+  ): Promise<void> {
+    const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password?token=${token}`;
+
+    await this.nestMailerService.sendMail({
+      to: email,
+      subject: 'Password Reset Request',
+      template: 'password-reset',
+      context: {
+        name,
+        resetUrl,
+        expirationHours: 1, // Token expiration time in hours
+      },
+    });
+  }
 }
