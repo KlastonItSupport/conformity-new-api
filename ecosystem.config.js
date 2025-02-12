@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 module.exports = {
   apps: [
@@ -11,7 +12,8 @@ module.exports = {
         SELF_SIGNED_KEY_PATH: process.env.SELF_SIGNED_KEY_PATH,
         SELF_SIGNED_CRT_PATH: process.env.SELF_SIGNED_CRT_PATH,
       },
-      pre_start: 'echo "Executando comandos antes de iniciar a API..." && yarn build',
+      pre_start:
+        'echo "Executando comandos antes de iniciar a API..." && yarn build',
     },
   ],
 };
