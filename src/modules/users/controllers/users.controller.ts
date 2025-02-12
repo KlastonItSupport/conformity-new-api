@@ -38,16 +38,16 @@ export class UsersController {
     return this.usersService.createUser(data, req.user.id);
   }
 
-  @UseGuards(AuthGuard)
-  @Patch(':id')
-  async editUser(
-    @Body() userData,
-    @Param('id') userId: string,
-    @Req() req
-  ): Promise<any> {
-    return await this.usersService.editUser(userData, userId, req.user.id);
+  @Post('/signIn')
+  async signIn(@Body() data: SignInDto): Promise<SignInResponse> {
+    return await this.usersService.signIn(data);
   }
 
+  @UseGuards(AuthGuard)
+  @Patch(':id')
+  async editUser(@Body() userData, @Param('id') userId: string): Promise<any> {
+    return await this.usersService.editUser(userData, userId);
+  }
   @Post('/change-password')
   @UseGuards(AuthGuard)
   async changePassword(@Body() data: ChangePasswordDto, @Response() res: Res) {
@@ -55,16 +55,6 @@ export class UsersController {
     return res
       .set({ 'x-audit-event-complement': `${user.id} (${user.name})` })
       .json(user);
-  }
-
-  @Post('/forgot-password')
-  async forgotPassword(@Body() body: { email: string }) {
-    return this.usersService.forgotPassword(body.email);
-  }
-
-  @Post('/reset-password')
-  async resetPassword(@Body() data: { token: string; newPassword: string }) {
-    return this.usersService.resetPassword(data.token, data.newPassword);
   }
 
   @Get()
