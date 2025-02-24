@@ -10,6 +10,8 @@ import {
   Req,
   Response,
   UseGuards,
+  HttpException, 
+  HttpStatus
 } from '@nestjs/common';
 import { UsersServices } from '../services/users.services';
 import {
@@ -21,16 +23,9 @@ import {
 } from '../dtos/dtos';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { Response as Res } from 'express';
-import { MailerService } from 'src/modules/mailer/services/mailer.service';
-import { CryptoService } from '../../../helpers/crypto';
-import { AppError } from '../../../helpers/error';
-
-@Controller('userss')
+@Controller('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersServices,
-    private readonly mailerService: MailerService,
-  ) {}
+  constructor(private readonly usersService: UsersServices) {}
 
   @Post()
   @UseGuards(AuthGuard)
@@ -38,9 +33,32 @@ export class UsersController {
     return this.usersService.createUser(data, req.user.id);
   }
 
-  @Post('/signIn')
+  @Post('/signin')
   async signIn(@Body() data: SignInDto): Promise<SignInResponse> {
-    return await this.usersService.signIn(data);
+    console.log("Endpoint /signin reached");
+    console.log("Request data:", data);
+    
+    try {
+      const result = await this.usersService.signIn(data);
+      console.log("SignIn successful for user:", data.email);
+      return result;
+    } catch (error) {
+      console.error('Error in signIn:', {
+        error: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      });
+  
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'Authentication failed',
+          message: error.response?.message || 'Internal server error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        { cause: error }
+      );
+    }
   }
 
   @UseGuards(AuthGuard)
@@ -79,52 +97,5 @@ export class UsersController {
   // @UseGuards(AuthGuard)
   async getUserAccessRule(@Param() param) {
     return await this.usersService.getUserAccessRule(param.id);
-  }
-
-  @Post('forgot-password')
-  async forgotPassword(@Body() { email }: { email: string }) {
-    const user = await this.usersService.findByEmail(email);
-
-    if (!user) {
-      throw new AppError('User not found', 404);
-    }
-
-    // Generate reset token
-    const resetToken = CryptoService.generateRandomToken(32);
-    const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour
-
-    await this.usersService.update(user.id, {
-      resetPasswordToken: resetToken,
-      resetPasswordExpires: resetTokenExpiry,
-    });
-
-    // Send email
-    await this.mailerService.sendPasswordResetEmail(
-      user.email,
-      resetToken,
-      user.name,
-    );
-
-    return { message: 'Password reset email sent' };
-  }
-
-  @Patch('reset-password')
-  async resetPassword(
-    @Body() { token, newPassword }: { token: string; newPassword: string },
-  ) {
-    const user = await this.usersService.findByResetToken(token);
-
-    if (!user || user.resetPasswordExpires < new Date()) {
-      throw new AppError('Invalid or expired token', 400);
-    }
-
-    const hashedPassword = await CryptoService.hashPassword(newPassword);
-    await this.usersService.update(user.id, {
-      passwordHash: hashedPassword,
-      resetPasswordToken: null,
-      resetPasswordExpires: null,
-    });
-
-    return { message: 'Password has been reset successfully' };
   }
 }

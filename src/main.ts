@@ -15,7 +15,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(responseInterceptor);
 
   await dataSource.initialize();
-  await dataSource.runMigrations();
+  //await dataSource.runMigrations();
 
   app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));

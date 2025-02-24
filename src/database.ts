@@ -33,7 +33,7 @@ export default class Database {
       entities: ['dist/src/modules/**/entities/*{.ts,.js}'],
       synchronize: false,
       timezone: '-03:00',
-      migrationsRun: true,
+      migrationsRun: false,
       migrations: [`${__dirname}/migrations/{.ts,*.js}`],
     };
   }

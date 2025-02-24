@@ -57,21 +57,11 @@ export class User {
   @Column({ nullable: true, name: 'access_rule' })
   accessRule: string;
 
-  @Column({ name: 'celphone' })
+  @Column({ nullable: true, name: 'celphone' })
   celphone: string;
 
   @Column({ nullable: true, name: 'departament' })
   departament: string;
-
-  @Column({ nullable: true, name: 'reset_password_token' })
-  resetPasswordToken?: string;
-
-  @Column({
-    type: 'timestamp',
-    nullable: true,
-    name: 'reset_password_expires',
-  })
-  resetPasswordExpires?: Date;
 
   @Column({ type: 'date', nullable: true })
   birthday?: Date;

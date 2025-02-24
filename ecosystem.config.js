@@ -8,12 +8,10 @@ module.exports = {
       watch: false,
       env: {
         NODE_ENV: 'production',
-        PORT: 3000,
+        PORT: 4000,
         SELF_SIGNED_KEY_PATH: process.env.SELF_SIGNED_KEY_PATH,
         SELF_SIGNED_CRT_PATH: process.env.SELF_SIGNED_CRT_PATH,
       },
-      pre_start:
-        'echo "Executando comandos antes de iniciar a API..." && yarn build',
     },
   ],
 };
