@@ -1,0 +1,15 @@
+services:
+  mysql:
+    image: "bitnami/mysql:latest"
+    restart: "always"
+    ports:
+      - "3306:3306"
+    volumes:
+      - "mysql_data:/bitnami/mysql/data"
+    environment:
+      - "MYSQL_USER=${DB_USERNAME}"
+      - "MYSQL_PASSWORD=${DB_PASSWORD}"
+      - "MYSQL_DATABASE=${DB_NAME}"
+      - "MYSQL_ROOT_PASSWORD=MyPasswordRoot123_"
+volumes:
+  mysql_data:
