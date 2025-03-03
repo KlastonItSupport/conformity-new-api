@@ -252,7 +252,7 @@ export class TasksService {
     }
   }
 
-  async closeTask(id: number, userId: string) {
+  async closeTask(id: number) {
     const task = await this.tasksRepository.findOne({
       where: { id },
       relations: ['user', 'classification', 'type', 'origin'],
@@ -261,10 +261,6 @@ export class TasksService {
     const author = await this.userRepository.findOne({
       where: { id: task.userId },
       relations: ['company'],
-    });
-
-    const userResponsibleForStatusChange = await this.userRepository.findOne({
-      where: { id: userId },
     });
 
     // Faltando mandar o email para cada um dos avaliadores

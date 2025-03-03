@@ -1,5 +1,3 @@
-import { CreateUserDto } from 'src/modules/users/dtos/create-user.dto';
-
 const formatAccessRule = (access: string): string => {
   if (access == 'super-usuario') {
     return 'super-user';

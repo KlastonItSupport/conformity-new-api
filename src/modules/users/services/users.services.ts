@@ -140,7 +140,7 @@ export class UsersServices {
   }
 
   async signIn(signInData: SignInDto): Promise<SignInResponse> {
-    console.log("BBBBB");
+    console.log('BBBBB');
     const user = await this.usersRepository.findOne({
       where: { email: signInData.email },
     });

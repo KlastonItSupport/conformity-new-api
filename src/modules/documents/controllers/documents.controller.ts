@@ -150,12 +150,12 @@ export class DocumentsController {
     console.log('=== Permission Check Started ===');
     console.log('Request received for document:', id);
     console.log('User:', req.user);
-    
+
     try {
       console.log('Permission check initiated:', {
         documentId: id,
         userId: req.user.id,
-        companyId: req.user.companyId
+        companyId: req.user.companyId,
       });
 
       const document = await this.documentsService.getAdditionalDocument(id);
@@ -165,21 +165,20 @@ export class DocumentsController {
         console.log('Document not found');
         return {
           isAllowed: false,
-          message: 'Document not found'
+          message: 'Document not found',
         };
       }
 
       console.log('Access granted for document:', id);
       return {
         isAllowed: true,
-        message: 'Access granted'
+        message: 'Access granted',
       };
-
     } catch (error) {
       console.error('Permission Check Error:', error);
       return {
         isAllowed: false,
-        message: 'Error checking permissions'
+        message: 'Error checking permissions',
       };
     } finally {
       console.log('=== Permission Check Ended ===');

@@ -10,8 +10,8 @@ import {
   Req,
   Response,
   UseGuards,
-  HttpException, 
-  HttpStatus
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { UsersServices } from '../services/users.services';
 import {
@@ -35,20 +35,20 @@ export class UsersController {
 
   @Post('/signin')
   async signIn(@Body() data: SignInDto): Promise<SignInResponse> {
-    console.log("Endpoint /signin reached");
-    console.log("Request data:", data);
-    
+    console.log('Endpoint /signin reached');
+    console.log('Request data:', data);
+
     try {
       const result = await this.usersService.signIn(data);
-      console.log("SignIn successful for user:", data.email);
+      console.log('SignIn successful for user:', data.email);
       return result;
     } catch (error) {
       console.error('Error in signIn:', {
         error: error.message,
         stack: error.stack,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
-  
+
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -56,7 +56,7 @@ export class UsersController {
           message: error.response?.message || 'Internal server error',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
-        { cause: error }
+        { cause: error },
       );
     }
   }

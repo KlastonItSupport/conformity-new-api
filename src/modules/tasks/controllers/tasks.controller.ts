@@ -125,8 +125,8 @@ export class TasksController {
 
   @UseGuards(AuthGuard)
   @Get('close-task/:id')
-  async closeTask(@Param('id') id: number, @Response() res: Res, @Req() req) {
-    const task = await this.tasksService.closeTask(id, req.user.id);
+  async closeTask(@Param('id') id: number, @Response() res: Res) {
+    const task = await this.tasksService.closeTask(id);
     return res
       .set({
         'x-audit-event-complement':
@@ -141,36 +141,38 @@ export class TasksController {
     console.log('=== Task Permission Check Started ===');
     console.log('Request received for task:', id);
     console.log('User:', req.user);
-    
+
     try {
       console.log('Permission check initiated:', {
         taskId: id,
         userId: req.user.id,
-        companyId: req.user.companyId
+        companyId: req.user.companyId,
       });
 
-      const task = await this.tasksService.getSpecificTask(Number(id), req.user.id);
+      const task = await this.tasksService.getSpecificTask(
+        Number(id),
+        req.user.id,
+      );
       console.log('Task found:', !!task);
 
       if (!task) {
         console.log('Task not found');
         return {
           isAllowed: false,
-          message: 'Task not found'
+          message: 'Task not found',
         };
       }
 
       console.log('Access granted for task:', id);
       return {
         isAllowed: true,
-        message: 'Access granted'
+        message: 'Access granted',
       };
-
     } catch (error) {
       console.error('Task Permission Check Error:', error);
       return {
         isAllowed: false,
-        message: 'Error checking permissions'
+        message: 'Error checking permissions',
       };
     } finally {
       console.log('=== Task Permission Check Ended ===');
