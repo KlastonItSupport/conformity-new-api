@@ -8,9 +8,8 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
-  @IsNotEmpty()
   @IsString()
-  companyId: string;
+  companyId?: string;
 
   @IsNotEmpty()
   @IsString()

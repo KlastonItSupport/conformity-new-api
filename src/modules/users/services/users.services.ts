@@ -61,16 +61,24 @@ export class UsersServices {
       throw new AppError('An account with this email already exists', 409);
     }
 
-    const hasCompanyWithThisId = await this.companyRepository.findOne({
-      where: { id: userData.companyId },
+    const creatorUser = await this.usersRepository.findOne({
+      where: { id: userId },
     });
 
-    if (!hasCompanyWithThisId) {
-      throw new AppError('An company with this id was not found', 404);
+    const companyId =
+      creatorUser.accessRule === 'super-admin'
+        ? userData.companyId
+        : creatorUser.companyId;
+
+    const company = await this.companyRepository.findOne({
+      where: { id: companyId },
+    });
+
+    if (!company) {
+      throw new AppError('A company with this id was not found', 404);
     }
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const companyId = userData.companyId;
     delete userData.password;
     delete userData.companyId;
 
@@ -78,11 +86,7 @@ export class UsersServices {
       ...userData,
       departament: userData.departament,
       passwordHash: hashedPassword,
-      companyId: companyId,
-    });
-
-    const company = await this.companyRepository.findOne({
-      where: { id: user.companyId },
+      companyId,
     });
 
     const savedUser = await this.usersRepository.save(user);
