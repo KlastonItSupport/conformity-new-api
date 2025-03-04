@@ -18,6 +18,9 @@ import { PermissionsServices } from 'src/modules/permissions/services/permission
 import { AllPermissionsDto } from 'src/modules/permissions/dtos/create-permission-by-group';
 import { S3Service } from 'src/modules/shared/services/s3.service';
 import { TemplateService } from 'src/modules/mailer/services/template.service';
+import { UserToken } from '../entities/user-token.entity';
+import { MailerService } from 'src/modules/mailer/services/mailer.service';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UsersServices {
@@ -27,6 +30,9 @@ export class UsersServices {
     @InjectRepository(Company)
     private readonly companyRepository: Repository<Company>,
 
+    @InjectRepository(UserToken)
+    private readonly userTokenRepository: Repository<UserToken>,
+
     @InjectRepository(Groups)
     private readonly grouRepository: Repository<Groups>,
     private readonly jwtService: JwtService,
@@ -34,6 +40,7 @@ export class UsersServices {
     private readonly permissionsService: PermissionsServices,
     private readonly s3Service: S3Service,
     private readonly mailTemplateService: TemplateService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async isSuperUser(userId: string) {
@@ -302,5 +309,22 @@ export class UsersServices {
     };
 
     return accessLevels;
+  }
+
+  async forgotPassword(email: string) {
+    const SALT = 10;
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) throw new AppError('User not found', 404);
+    const token = randomUUID();
+    const tokenHash = await bcrypt.hash(token, SALT);
+    const userToken = new UserToken();
+    userToken.userId = user.id;
+    userToken.tokenHash = tokenHash;
+    await this.mailerService.sendPasswordResetEmail(
+      user.email,
+      token,
+      user.name,
+    );
+    await this.userTokenRepository.save(userToken);
   }
 }

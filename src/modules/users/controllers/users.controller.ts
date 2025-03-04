@@ -23,6 +23,7 @@ import {
 } from '../dtos/dtos';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { Response as Res } from 'express';
+import { ForgotPasswordDTO } from '../dtos/forgot-password-dto';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersServices) {}
@@ -66,6 +67,7 @@ export class UsersController {
   async editUser(@Body() userData, @Param('id') userId: string): Promise<any> {
     return await this.usersService.editUser(userData, userId);
   }
+
   @Post('/change-password')
   @UseGuards(AuthGuard)
   async changePassword(@Body() data: ChangePasswordDto, @Response() res: Res) {
@@ -73,6 +75,11 @@ export class UsersController {
     return res
       .set({ 'x-audit-event-complement': `${user.id} (${user.name})` })
       .json(user);
+  }
+
+  @Post('/forgot-password')
+  async forgotPassword(@Body() data: ForgotPasswordDTO) {
+    return await this.usersService.forgotPassword(data.email);
   }
 
   @Get()
