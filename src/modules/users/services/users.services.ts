@@ -318,11 +318,19 @@ export class UsersServices {
     const userToken = new UserToken();
     userToken.userId = user.id;
     userToken.tokenHash = tokenHash;
-    await this.mailerService.sendPasswordResetEmail(
-      user.email,
-      token,
-      user.name,
-    );
-    //await this.userTokenRepository.save(userToken);
+    await this.mailerService.sendEmail({
+      to: user.email,
+      subject: 'Recuperação de senha',
+      html: `
+        <p>Olá ${user.name},</p>
+        <p>Recebemos uma solicitação para redefinir sua senha.</p>
+        <p>Clique no link abaixo para redefinir sua senha:</p>
+        <p><a href="${process.env.FRONTEND_URL}/auth/reset-password?token=${token}">Redefinir senha</a></p>
+        <p>Se você não solicitou uma redefinição de senha, ignore este e-mail.</p>
+        <p>Atenciosamente,</p>
+        <p>Equipe Conformity</p>
+      `,
+    });
+    await this.userTokenRepository.save(userToken);
   }
 }

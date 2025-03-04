@@ -2,8 +2,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('user_tokens')
 export class UserToken {
-  @Column({ name: 'user_id' })
-  @PrimaryColumn()
+  @PrimaryColumn({ name: 'user_id' })
   userId: string;
 
   @Column({ name: 'token_hash' })
