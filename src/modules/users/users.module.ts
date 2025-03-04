@@ -37,6 +37,6 @@ import { UserToken } from './entities/user-token.entity';
   ],
   providers: [UsersServices, PermissionsServices],
   controllers: [UsersController],
-  exports: [UsersServices, TypeOrmModule],
+  exports: [UsersServices],
 })
 export class UsersModule {}

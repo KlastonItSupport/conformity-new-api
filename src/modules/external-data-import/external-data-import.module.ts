@@ -50,12 +50,14 @@ import { UserTrainingsModule } from '../user-trainings/user-trainings.module';
 import { RolesModule } from '../roles/roles.module';
 import { WarningsModule } from '../warnings/warnings.module';
 import { MailerModule } from '../mailer/mailer.module';
+import { UserToken } from '../users/entities/user-token.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Company,
       User,
+      UserToken,
       Groups,
       Permissions,
       GroupModulePermission,
