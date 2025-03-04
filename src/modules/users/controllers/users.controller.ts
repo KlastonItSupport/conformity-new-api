@@ -25,6 +25,7 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { Response as Res } from 'express';
 import { ForgotPasswordDTO } from '../dtos/forgot-password-dto';
 import { AppError } from 'src/errors/app-error';
+import { ResetPasswordDTO } from '../dtos/reset-password-dto';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersServices) {}
@@ -82,6 +83,14 @@ export class UsersController {
   async forgotPassword(@Body() data: ForgotPasswordDTO) {
     if (!data.email) throw new AppError('Email is required', 400);
     return await this.usersService.forgotPassword(data.email);
+  }
+
+  @Post('/reset-password')
+  async resetPassword(@Body() data: ResetPasswordDTO) {
+    if (!data.email) throw new AppError('Email is required', 400);
+    if (!data.newPassword) throw new AppError('New password is required', 400);
+    if (!data.token) throw new AppError('Token is required', 400);
+    return await this.usersService.resetPassword(data);
   }
 
   @Get()

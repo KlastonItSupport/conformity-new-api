@@ -21,6 +21,7 @@ import { TemplateService } from 'src/modules/mailer/services/template.service';
 import { UserToken } from '../entities/user-token.entity';
 import { MailerService } from 'src/modules/mailer/services/mailer.service';
 import { randomUUID } from 'crypto';
+import { ResetPasswordDTO } from '../dtos/reset-password-dto';
 
 @Injectable()
 export class UsersServices {
@@ -325,12 +326,27 @@ export class UsersServices {
         <p>Olá ${user.name},</p>
         <p>Recebemos uma solicitação para redefinir sua senha.</p>
         <p>Clique no link abaixo para redefinir sua senha:</p>
-        <p><a href="${process.env.FRONTEND_URL}/auth/reset-password?token=${token}">Redefinir senha</a></p>
+        <p><a href="${process.env.FRONTEND_URL}/auth/reset-password?token=${token}&email=${email}">Redefinir senha</a></p>
         <p>Se você não solicitou uma redefinição de senha, ignore este e-mail.</p>
         <p>Atenciosamente,</p>
         <p>Equipe Conformity</p>
       `,
     });
     await this.userTokenRepository.save(userToken);
+  }
+
+  async resetPassword({ email, newPassword, token }: ResetPasswordDTO) {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) throw new AppError('User not found', 404);
+    const userToken = await this.userTokenRepository.findOne({
+      where: { userId: user.id },
+      order: { createdAt: 'DESC' },
+    });
+    if (!userToken) throw new AppError('Forbidden Access', 403);
+    const tokenMatches = await bcrypt.compare(token, userToken.tokenHash);
+    if (!tokenMatches) throw new AppError('Invalid token', 401);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.passwordHash = hashedPassword;
+    await this.usersRepository.save(user);
   }
 }
