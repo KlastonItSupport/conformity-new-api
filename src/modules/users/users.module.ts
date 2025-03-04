@@ -13,11 +13,13 @@ import { GroupModulePermission } from '../permissions/entities/group_module_perm
 import { SharedModule } from '../shared/shared.module';
 import { AuditModule } from '../audit/audit.module';
 import { MailerModule } from '../mailer/mailer.module';
+import { UserToken } from './entities/user-token.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Company,
+      UserToken,
       User,
       Groups,
       Permissions,
@@ -35,6 +37,6 @@ import { MailerModule } from '../mailer/mailer.module';
   ],
   providers: [UsersServices, PermissionsServices],
   controllers: [UsersController],
-  exports: [UsersServices],
+  exports: [UsersServices, TypeOrmModule],
 })
 export class UsersModule {}

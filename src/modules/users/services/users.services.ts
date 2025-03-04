@@ -27,12 +27,10 @@ export class UsersServices {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    @InjectRepository(Company)
-    private readonly companyRepository: Repository<Company>,
-
     @InjectRepository(UserToken)
     private readonly userTokenRepository: Repository<UserToken>,
-
+    @InjectRepository(Company)
+    private readonly companyRepository: Repository<Company>,
     @InjectRepository(Groups)
     private readonly grouRepository: Repository<Groups>,
     private readonly jwtService: JwtService,
@@ -325,6 +323,6 @@ export class UsersServices {
       token,
       user.name,
     );
-    await this.userTokenRepository.save(userToken);
+    //await this.userTokenRepository.save(userToken);
   }
 }

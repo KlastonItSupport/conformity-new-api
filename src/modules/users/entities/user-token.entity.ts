@@ -1,8 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('user_tokens')
 export class UserToken {
   @Column({ name: 'user_id' })
+  @PrimaryColumn()
   userId: string;
 
   @Column({ name: 'token_hash' })
