@@ -67,7 +67,7 @@ export class UsersServices {
 
     const companyId =
       creatorUser.accessRule === 'super-admin'
-        ? userData.companyId
+        ? (userData.companyId ?? creatorUser.companyId)
         : creatorUser.companyId;
 
     const company = await this.companyRepository.findOne({
