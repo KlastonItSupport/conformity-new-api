@@ -5,6 +5,7 @@ import * as bodyParser from 'body-parser';
 import 'reflect-metadata';
 import * as dotenv from 'dotenv';
 import { ResponseInterceptor } from './guards/interceptors/response.interceptor';
+import { ValidationPipe } from '@nestjs/common';
 
 dotenv.config();
 console.log('Starting...');
@@ -19,6 +20,7 @@ async function bootstrap() {
 
   app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(process.env.PORT);
 }
 bootstrap();
