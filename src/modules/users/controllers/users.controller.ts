@@ -26,6 +26,7 @@ import { Response as Res } from 'express';
 import { ForgotPasswordDTO } from '../dtos/forgot-password-dto';
 import { AppError } from 'src/errors/app-error';
 import { ResetPasswordDTO } from '../dtos/reset-password-dto';
+import { EditUserDTO } from '../dtos/edit-user-dto';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersServices) {}
@@ -66,8 +67,12 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  async editUser(@Body() userData, @Param('id') userId: string): Promise<any> {
-    return await this.usersService.editUser(userData, userId);
+  async editUser(
+    @Body() userData: EditUserDTO,
+    @Req() req,
+    @Param('id') userId: string,
+  ): Promise<any> {
+    return this.usersService.editUser(userData, userId, req.user.id);
   }
 
   @Post('/change-password')

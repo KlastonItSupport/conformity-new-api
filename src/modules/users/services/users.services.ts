@@ -22,6 +22,7 @@ import { UserToken } from '../entities/user-token.entity';
 import { MailerService } from 'src/modules/mailer/services/mailer.service';
 import { randomUUID } from 'crypto';
 import { ResetPasswordDTO } from '../dtos/reset-password-dto';
+import { EditUserDTO } from '../dtos/edit-user-dto';
 
 @Injectable()
 export class UsersServices {
@@ -114,39 +115,61 @@ export class UsersServices {
     return { ...user, companyName: company.name };
   }
 
-  async editUser(userData, userId: string): Promise<any> {
+  async editUser(
+    {
+      name,
+      email,
+      celphone,
+      companyId,
+      departament,
+      fileName,
+      fileType,
+      profilePic,
+      birthday,
+      status,
+    }: EditUserDTO,
+    userId: string,
+    editorUserId: string,
+  ): Promise<any> {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
-
     if (!user) {
       throw new AppError('User not found', 404);
     }
-    if (userData.fileName && userData.profilePic) {
+    const editorUser = await this.usersRepository.findOne({
+      where: { id: editorUserId },
+    });
+    if (!this.isSuperUser(editorUserId))
+      throw new AppError('Forbidden Access', 403);
+    if (
+      editorUser.accessRule === 'super-user' &&
+      editorUser.companyId !== user.companyId
+    )
+      throw new AppError('Forbidden Access', 403);
+    if (fileName && profilePic) {
       const profilePicUrl = await this.s3Service.uploadFile({
-        file: Buffer.from(userData.profilePic, 'base64'),
+        file: Buffer.from(profilePic, 'base64'),
         path: `${user.companyId}/users`,
-        fileType: userData.fileType,
-        fileName: userData.fileName,
+        fileType,
+        fileName,
         companyId: user.companyId,
         moduleId: process.env.MODULE_DOCUMENTS_ID,
         id: user.id,
       });
-      userData.profilePic = profilePicUrl.link;
+      user.profilePic = profilePicUrl.link;
     }
-
-    delete userData.passwordHash;
-    delete userData.groupId;
-    delete userData.companyId;
-    if (userData.accessRule == 'super-admin') {
-      delete userData.accessRule;
-    }
-
-    Object.assign(user, userData);
-    const updatedUser = await this.usersRepository.save(user);
-
-    const company = await this.companyRepository.findOne({
+    user.name = name ?? user.name;
+    user.email = email ?? user.email;
+    user.celphone = celphone ?? user.celphone;
+    user.departament = departament ?? user.departament;
+    user.birthday = birthday ?? user.birthday;
+    user.status = status ?? user.status;
+    if (editorUser.accessRule === 'super-admin' && companyId)
+      user.companyId = companyId;
+    await this.usersRepository.save(user);
+    await this.companyRepository.findOne({
       where: { id: user.companyId },
     });
-    return { ...updatedUser, companyName: company.name };
+    return null;
   }
 
   async signIn(signInData: SignInDto): Promise<SignInResponse> {
